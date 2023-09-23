@@ -1,0 +1,116 @@
+syntax = "proto3";
+package wikimedia.dduvall.phyton;
+
+option go_package = "gitlab.wikimedia.org/dduvall/phyton/api/build/v1";
+
+import "protoyaml/options.proto";
+
+message Op {
+  option (protoyaml.delegate) = "op";
+
+  oneof op {
+    option (protoyaml.delegate_match) = DELEGATE_MATCH_FIRST_KEY;
+
+    Run run = 1;
+    Git git = 2;
+    Copy copy = 3;
+  }
+}
+
+message Run {
+  message Option {
+    option (protoyaml.delegate) = "opt";
+
+    oneof opt {
+      option (protoyaml.delegate_match) = DELEGATE_MATCH_FIRST_KEY;
+
+      Host host = 1;
+      Mount mount = 2;
+      Env env = 3;
+      Cache cache = 4;
+      Tmpfs tmpfs = 5;
+      bool readonly = 6;
+    }
+  }
+
+  string command = 1;
+  repeated string arguments = 2;
+  repeated Option options = 3;
+}
+
+message Copy {
+  message Option {
+    option (protoyaml.delegate) = "opt";
+
+    oneof opt {
+      option (protoyaml.delegate_match) = DELEGATE_MATCH_FIRST_KEY;
+
+      Timestamp ctime = 1;
+      string user = 2;
+      int32 uid = 3;
+      string group = 4;
+      int32 gid = 5;
+      uint32 mode = 6;
+      bool follow_symlinks = 7;
+      bool dir_content = 8;
+      string include = 9;
+      string exclude = 10;
+    }
+  }
+
+  string source = 1;
+  Filesystem from = 2;
+  string destination = 3;
+  repeated Option options = 4;
+}
+
+message Git {
+  string remote = 1;
+  string ref = 2;
+}
+
+message Host {
+  string name = 1;
+  string ip = 2;
+}
+
+message Mount {
+  string target = 1;
+  Filesystem from = 2;
+  string source = 3;
+}
+
+message Tmpfs {
+  string target = 1;
+  string size = 2;
+}
+
+message Filesystem {
+  option (protoyaml.delegate) = "ref";
+  string ref = 1;
+}
+
+message Timestamp {
+  int64 seconds = 1;
+}
+
+message Env {
+  repeated NameValue variables = 1;
+}
+
+message NameValue {
+  string name = 1;
+  string value = 2;
+}
+
+enum CacheAccess {
+  UNSPECIFIED = 0;
+  SHARED = 1;
+  PRIVATE = 2;
+  LOCKED = 3;
+}
+
+message Cache {
+  string target = 1;
+  CacheAccess access = 2;
+}
