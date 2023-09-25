@@ -3,8 +3,32 @@ package v1
 import (
 	"time"
 
+	"github.com/containerd/containerd/platforms"
 	protoyaml "gitlab.wikimedia.org/dduvall/protoyaml/protoyaml"
 )
+
+func (platform *Platform) UnmarshalProtoYAML(node *protoyaml.Node) error {
+	return node.WithEntry("name", func(node *protoyaml.Node) error {
+		var name string
+		err := node.Decode(&name)
+		if err != nil {
+			return err
+		}
+
+		p, err := platforms.Parse(name)
+		if err != nil {
+			return err
+		}
+
+		p = platforms.Normalize(p)
+
+		platform.Os = p.OS
+		platform.Architecture = p.Architecture
+		platform.Variant = p.Variant
+
+		return nil
+	})
+}
 
 func (env *Env) UnmarshalProtoYAML(node *protoyaml.Node) error {
 	return node.WithEntry("variables", func(node *protoyaml.Node) error {

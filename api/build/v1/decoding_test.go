@@ -9,6 +9,61 @@ import (
 )
 
 func TestUnmarshalYAML(t *testing.T) {
+	t.Run("Image", func(t *testing.T) {
+		t.Run("fields", func(t *testing.T) {
+			req := require.New(t)
+
+			op := requireOp(t,
+				"image: registry.example/foo/bar",
+			)
+
+			image := op.GetImage()
+			req.NotNil(image)
+
+			req.Equal("registry.example/foo/bar", image.Ref)
+		})
+
+		t.Run("options", func(t *testing.T) {
+			t.Run("platform", func(t *testing.T) {
+				req := require.New(t)
+
+				op := requireOp(t,
+					"image: registry.example/foo/bar",
+					"options:",
+					"- platform: linux/arm64/v7",
+				)
+
+				image := op.GetImage()
+				req.NotNil(image)
+
+				options := image.GetOptions()
+				req.Len(options, 1)
+
+				platform := options[0].GetPlatform()
+				req.NotNil(platform)
+
+				req.Equal("linux", platform.Os)
+				req.Equal("arm64", platform.Architecture)
+				req.Equal("v7", platform.Variant)
+			})
+		})
+	})
+
+	t.Run("Git", func(t *testing.T) {
+		req := require.New(t)
+
+		op := requireOp(t,
+			"git: https://some.test/git/repo",
+			"ref: refs/change/123",
+		)
+
+		git := op.GetGit()
+		req.NotNil(git)
+
+		req.Equal("https://some.test/git/repo", git.Remote)
+		req.Equal("refs/change/123", git.Ref)
+	})
+
 	t.Run("Run", func(t *testing.T) {
 		t.Run("fields", func(t *testing.T) {
 			req := require.New(t)
@@ -117,7 +172,7 @@ func TestUnmarshalYAML(t *testing.T) {
 				cache := options[0].GetCache()
 				req.NotNil(cache)
 				req.Equal("/var/cache/apt", cache.Target)
-				req.Equal(CacheAccess_LOCKED, cache.Access)
+				req.Equal(CacheAccess_CACHE_ACCESS_LOCKED, cache.Access)
 			})
 
 			t.Run("tmpfs", func(t *testing.T) {
@@ -143,21 +198,6 @@ func TestUnmarshalYAML(t *testing.T) {
 				req.Equal("100Mb", tmpfs.Size)
 			})
 		})
-	})
-
-	t.Run("Git", func(t *testing.T) {
-		req := require.New(t)
-
-		op := requireOp(t,
-			"git: https://some.test/git/repo",
-			"ref: refs/change/123",
-		)
-
-		git := op.GetGit()
-		req.NotNil(git)
-
-		req.Equal("https://some.test/git/repo", git.Remote)
-		req.Equal("refs/change/123", git.Ref)
 	})
 
 	t.Run("Copy", func(t *testing.T) {
@@ -216,6 +256,158 @@ func TestUnmarshalYAML(t *testing.T) {
 
 				user := options[0].GetUser()
 				req.Equal("bar", user)
+			})
+
+			t.Run("uid", func(t *testing.T) {
+				req := require.New(t)
+
+				op := requireOp(t,
+					"copy: foo",
+					"options:",
+					"- uid: 123",
+				)
+
+				copy := op.GetCopy()
+				req.NotNil(copy)
+
+				options := copy.GetOptions()
+				req.Len(options, 1)
+
+				uid := options[0].GetUid()
+				req.Equal(int32(123), uid)
+			})
+
+			t.Run("group", func(t *testing.T) {
+				req := require.New(t)
+
+				op := requireOp(t,
+					"copy: foo",
+					"options:",
+					"- group: bar",
+				)
+
+				copy := op.GetCopy()
+				req.NotNil(copy)
+
+				options := copy.GetOptions()
+				req.Len(options, 1)
+
+				group := options[0].GetGroup()
+				req.Equal("bar", group)
+			})
+
+			t.Run("gid", func(t *testing.T) {
+				req := require.New(t)
+
+				op := requireOp(t,
+					"copy: foo",
+					"options:",
+					"- gid: 123",
+				)
+
+				copy := op.GetCopy()
+				req.NotNil(copy)
+
+				options := copy.GetOptions()
+				req.Len(options, 1)
+
+				gid := options[0].GetGid()
+				req.Equal(int32(123), gid)
+			})
+
+			t.Run("mode", func(t *testing.T) {
+				req := require.New(t)
+
+				op := requireOp(t,
+					"copy: foo",
+					"options:",
+					"- mode: 0o644",
+				)
+
+				copy := op.GetCopy()
+				req.NotNil(copy)
+
+				options := copy.GetOptions()
+				req.Len(options, 1)
+
+				mode := options[0].GetMode()
+				req.Equal(uint32(0o644), mode)
+			})
+
+			t.Run("follow-symlinks", func(t *testing.T) {
+				req := require.New(t)
+
+				op := requireOp(t,
+					"copy: foo",
+					"options:",
+					"- follow-symlinks: true",
+				)
+
+				copy := op.GetCopy()
+				req.NotNil(copy)
+
+				options := copy.GetOptions()
+				req.Len(options, 1)
+
+				follow := options[0].GetFollowSymlinks()
+				req.Equal(true, follow)
+			})
+
+			t.Run("copy-dir-content", func(t *testing.T) {
+				req := require.New(t)
+
+				op := requireOp(t,
+					"copy: foo",
+					"options:",
+					"- copy-dir-content: true",
+				)
+
+				copy := op.GetCopy()
+				req.NotNil(copy)
+
+				options := copy.GetOptions()
+				req.Len(options, 1)
+
+				dirContent := options[0].GetCopyDirContent()
+				req.Equal(true, dirContent)
+			})
+
+			t.Run("include", func(t *testing.T) {
+				req := require.New(t)
+
+				op := requireOp(t,
+					"copy: src/",
+					"options:",
+					"- include: '*.c'",
+				)
+
+				copy := op.GetCopy()
+				req.NotNil(copy)
+
+				options := copy.GetOptions()
+				req.Len(options, 1)
+
+				include := options[0].GetInclude()
+				req.Equal("*.c", include)
+			})
+
+			t.Run("exclude", func(t *testing.T) {
+				req := require.New(t)
+
+				op := requireOp(t,
+					"copy: src/",
+					"options:",
+					"- exclude: '*.js'",
+				)
+
+				copy := op.GetCopy()
+				req.NotNil(copy)
+
+				options := copy.GetOptions()
+				req.Len(options, 1)
+
+				exclude := options[0].GetExclude()
+				req.Equal("*.js", exclude)
 			})
 		})
 	})

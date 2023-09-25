@@ -12,6 +12,8 @@ YAML. It aims to:
  4. Formally separate container filesystem creation from image configuration.
  5. Give users a simple API for composing images from built filesystems and
     configuration.
+ 6. Bake supply chain security into the specification itself. Can the layout
+    itself subsume an [in-toto layout](https://github.com/in-toto/docs/blob/master/in-toto-spec.md)?
 
 ## License
 

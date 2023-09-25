@@ -1,12 +1,13 @@
 PROTO := $(shell find . -type f -name '*.proto' -not -path "./vendor/*")
 PBGO := $(patsubst %.proto,%.pb.go,$(PROTO))
-PROTOC_INC := $(shell go list -m -f "{{.Dir}}" gitlab.wikimedia.org/dduvall/protoyaml)
+PROTO_DEPS := $(shell go list -m -f "{{.Dir}}" gitlab.wikimedia.org/dduvall/protoyaml)
+PROTOC_INC := $(addprefix -I,$(PROTO_DEPS))
 
 .PHONY: proto
 
 proto: $(PBGO)
 %.pb.go: %.proto
-	protoc -I$(PROTOC_INC) -I. --proto_path=. --go_out=. --go_opt=paths=source_relative $<
+	protoc $(PROTOC_INC) -I. --proto_path=. --go_out=. --go_opt=paths=source_relative $<
 
 clean:
 	rm $(PBGO)

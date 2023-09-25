@@ -11,10 +11,47 @@ message Op {
   oneof op {
     option (protoyaml.delegate_match) = DELEGATE_MATCH_FIRST_KEY;
 
-    Run run = 1;
-    Git git = 2;
-    Copy copy = 3;
+    Local local = 1;
+    Image image = 2;
+    Git git = 3;
+    Run run = 4;
+    Copy copy = 5;
   }
+}
+
+message Local {
+  message Option {
+    option (protoyaml.delegate) = "opt";
+
+    oneof opt {
+      option (protoyaml.delegate_match) = DELEGATE_MATCH_FIRST_KEY;
+
+      Glob include = 1;
+      Glob exclude = 2;
+      Path follow_path = 3;
+      string cache_key_hint = 4;
+      Differ differ = 5;
+    }
+  }
+
+  string name = 1;
+  repeated Option options = 2;
+}
+
+message Image {
+  message Option {
+    option (protoyaml.delegate) = "opt";
+
+    oneof opt {
+      option (protoyaml.delegate_match) = DELEGATE_MATCH_FIRST_KEY;
+
+      Platform platform = 1;
+      uint32 layer_limit = 2;
+    }
+  }
+
+  string ref = 1;
+  repeated Option options = 2;
 }
 
 message Run {
@@ -52,9 +89,9 @@ message Copy {
       int32 gid = 5;
       uint32 mode = 6;
       bool follow_symlinks = 7;
-      bool dir_content = 8;
-      string include = 9;
-      string exclude = 10;
+      bool copy_dir_content = 8;
+      Glob include = 9;
+      Glob exclude = 10;
     }
   }
 
@@ -94,6 +131,33 @@ message Timestamp {
   int64 seconds = 1;
 }
 
+message Glob {
+  option (protoyaml.delegate) = "pattern";
+  string pattern = 1;
+}
+
+message Path {
+  string value = 1;
+}
+
+message Differ {
+  DiffType type = 1;
+  bool require = 2;
+}
+
+enum DiffType {
+  DIFF_TYPE_UNSPECIFIED = 0;
+  DIFF_TYPE_NONE = 1;
+  DIFF_TYPE_METADATA = 2;
+}
+
+message Platform {
+  string name = 1;
+  string os = 2;
+  string architecture = 3;
+  string variant = 4;
+}
+
 message Env {
   repeated NameValue variables = 1;
 }
@@ -104,10 +168,10 @@ message NameValue {
 }
 
 enum CacheAccess {
-  UNSPECIFIED = 0;
-  SHARED = 1;
-  PRIVATE = 2;
-  LOCKED = 3;
+  CACHE_ACCESS_UNSPECIFIED = 0;
+  CACHE_ACCESS_SHARED = 1;
+  CACHE_ACCESS_PRIVATE = 2;
+  CACHE_ACCESS_LOCKED = 3;
 }
 
 message Cache {
