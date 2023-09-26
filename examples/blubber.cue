@@ -11,8 +11,8 @@
 
 #Run: {
   run!: string
-  arguments: [...string]
-  options: [...#RunOption]
+  arguments: [...string] | *[]
+  options: [...#RunOption] | *[]
 }
 
 #RunOption: {
@@ -49,13 +49,19 @@
 }
 
 #State: {
-  #Git | #ImageSource | #Run | #Link | #Diff | #Merge
-  with?: [...#StateOption]
+  #Git | #ImageSource | #Run | #Link | #Diff | #Merge | #StateOptions
+}
+
+#StateOptions: {
+  with: [...#StateOption]
 }
 
 #StateOption: {
+  #WorkingDirectory | #EnvOption
+}
+
+#WorkingDirectory: {
   working_directory: string
-  env: #Env
 }
 
 #Chain: [...#State]
