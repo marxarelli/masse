@@ -62,17 +62,6 @@ targets:
       options:
         - cache: /root/.cache/go-build
           access: locked
-        - mount: /mnt/foo
-        - env: { FOO: bar }
-
-    - run: make clean blubber-buildkit
-      caches:
-        - path: /root/.cache/go-build
-          access: locked
-      mounts:
-        - target: /mnt/foo
-      env:
-        FOO: monkey
 
   frontend:
     - copy: [/src/blubber-buildkit]
