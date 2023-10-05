@@ -1,16 +1,16 @@
 package layout
 
 import (
-	"wikimedia.org/dduvall/phyton/common"
+	"wikimedia.org/dduvall/phyton/schema/common"
 )
 
 #ImageConfig: {
-	user: common.#User
-	exposed_ports: {}
+	from:        string
+	user:        *(common.#User & {uid: 0}) | common.#User
 	environment: common.#Env
-	entrypoint: [...string]
-	default_arguments: [...string]
-	working_directory: string
-	labels: [...common.#Label]
-	stop_signal: string
+	entrypoint?: [string, ...string]
+	defaultArguments?: [string, ...string]
+	workingDirectory: *"/" | string
+	labels:           common.#Labels
+	stopSignal:       string
 }

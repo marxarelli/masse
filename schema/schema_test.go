@@ -14,7 +14,7 @@ func TestLoaderConfig(t *testing.T) {
 	cfg, err := LoaderConfig(ctx, "/root/dir")
 
 	req.NoError(err)
-	req.Equal("/", cfg.Dir)
+	req.Equal("/root/dir", cfg.Dir)
 
 	overlayEntries := make([]string, len(cfg.Overlay))
 	i := 0
@@ -23,8 +23,21 @@ func TestLoaderConfig(t *testing.T) {
 		i++
 	}
 
-	req.Contains(overlayEntries, "/root/dir/cue.mod/pkg/wikimedia.org/dduvall/phyton/common/creation.cue")
-	req.Contains(overlayEntries, "/root/dir/cue.mod/pkg/wikimedia.org/dduvall/phyton/source/source.cue")
-	req.Contains(overlayEntries, "/root/dir/cue.mod/pkg/wikimedia.org/dduvall/phyton/op/op.cue")
-	req.Contains(overlayEntries, "/root/dir/cue.mod/pkg/wikimedia.org/dduvall/phyton/state/state.cue")
+	req.Contains(overlayEntries, "/root/dir/cue.mod/pkg/wikimedia.org/dduvall/phyton/schema/common/creation.cue")
+	req.Contains(overlayEntries, "/root/dir/cue.mod/pkg/wikimedia.org/dduvall/phyton/schema/state/state.cue")
+}
+
+func TestInstances(t *testing.T) {
+	req := require.New(t)
+	ctx := cuecontext.New()
+
+	instances, err := Instances(ctx)
+	req.NoError(err)
+	req.Len(instances, 4)
+
+	for _, ins := range instances {
+		val := ins.Value()
+		req.NotNil(val)
+		req.NoError(val.Err())
+	}
 }

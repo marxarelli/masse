@@ -1,13 +1,13 @@
 package state
 
 import (
-	"wikimedia.org/dduvall/phyton/common"
+	"wikimedia.org/dduvall/phyton/schema/common"
 )
 
 #RunOption: {
 	#Env | #Host |
 	#CacheMount | #SourceMount |
-	#TmpFsMount | #ReadonlyRoot
+	#TmpFSMount | #ReadOnly
 }
 
 #Host: {
@@ -21,15 +21,15 @@ import (
 
 #SourceMount: {
 	mount!: string
-	from:   #Chain | *null
+	from:   #ChainRef
 	source: string | *"/"
 }
 
-#TmpFsMount: {
+#TmpFSMount: {
 	tmpfs!: string
 	size:   uint64
 }
 
-#ReadonlyRoot: {
-	readonly!: *true | false
+#ReadOnly: {
+	readOnly!: *true | false
 }

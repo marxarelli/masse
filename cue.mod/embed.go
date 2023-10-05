@@ -10,6 +10,7 @@ import (
 //go:embed *.cue
 var FS embed.FS
 
+// Module returns the module name defined by cue.mod/module.cue
 func Module() string {
 	ctx := cuecontext.New()
 

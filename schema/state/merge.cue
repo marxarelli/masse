@@ -1,7 +1,5 @@
 package state
 
 #Merge: {
-	merge!: [#MergeChain, #MergeChain, ...#MergeChain]
+	merge!: [#ChainRef, ...#ChainRef]
 }
-
-#MergeChain: #Chain | *null

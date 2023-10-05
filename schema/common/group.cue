@@ -1,5 +1,13 @@
 package common
 
 #Group: {
-	#User
+	#GroupID | #GroupName
+}
+
+#GroupID: {
+	gid!: uint32
+}
+
+#GroupName: {
+	group!: string
 }

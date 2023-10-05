@@ -21,7 +21,7 @@ func TestLoad(t *testing.T) {
 	err = os.WriteFile(cueFile, []byte(lines(
 		`package main`,
 		``,
-		`import "wikimedia.org/dduvall/phyton/state"`,
+		`import "wikimedia.org/dduvall/phyton/schema/state"`,
 		``,
 		`foo: state.#Run & { run: "foo" }`,
 	)), 0644)

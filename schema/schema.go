@@ -49,11 +49,43 @@ func LoaderConfig(ctx *cue.Context, root string) (*load.Config, error) {
 	}, nil
 }
 
+// Instances returns all CUE instances for our schema.
+func Instances(ctx *cue.Context) ([]*cue.Instance, error) {
+	cfg, err := LoaderConfig(ctx, "/")
+
+	if err != nil {
+		return nil, err
+	}
+
+	entries, err := fs.ReadDir(FS, ".")
+
+	if err != nil {
+		return nil, err
+	}
+
+	importPaths := []string{}
+	for _, entry := range entries {
+		if entry.IsDir() {
+			importPaths = append(importPaths, filepath.Join(cuemod.Module(), "schema", entry.Name()))
+		}
+	}
+
+	instances := cue.Build(load.Instances(importPaths, cfg))
+	for _, instance := range instances {
+		if instance.Err != nil {
+			return nil, instance.Err
+		}
+	}
+
+	return instances, nil
+}
+
 func pkgPath(root, path string) string {
 	return filepath.Join(
 		root,
 		"/cue.mod/pkg",
 		cuemod.Module(),
+		"schema",
 		path,
 	)
 }

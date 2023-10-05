@@ -1,7 +1,7 @@
 package state
 
 import (
-	"wikimedia.org/dduvall/phyton/common"
+	"wikimedia.org/dduvall/phyton/schema/common"
 )
 
 #Local: {
@@ -14,14 +14,14 @@ import (
 }
 
 #FollowPaths: {
-	follow_paths: [...string]
+	followPaths!: [...string]
 }
 
 #SharedKeyHint: {
-	shared_key_hint: string
+	sharedKeyHint!: string
 }
 
 #Differ: {
-	type:    *"metadata" | "none"
+	differ!: *"metadata" | "none"
 	require: *true | false
 }

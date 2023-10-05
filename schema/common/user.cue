@@ -5,7 +5,7 @@ package common
 }
 
 #UserID: {
-	id!: uint32
+	uid!: uint32
 }
 
 #UserName: {

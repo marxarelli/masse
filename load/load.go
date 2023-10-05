@@ -7,25 +7,31 @@ import (
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/load"
+
 	"gitlab.wikimedia.org/dduvall/phyton/schema"
 )
 
-// LoadPath loads a CUE definition from file.
+// LoadPath loads a CUE file.
 func LoadPath(path string) (cue.Value, error) {
 	path, err := filepath.Abs(path)
 	if err != nil {
 		return cue.Value{}, err
 	}
 
-	ctx := cuecontext.New()
-	cfg, err := schema.LoaderConfig(ctx, filepath.Dir(path))
-
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return cue.Value{}, err
 	}
 
-	data, err := os.ReadFile(path)
+	return LoadBytes(data, path)
+}
 
+// LoadBytes loads CUE configuration. It requires a file path to initialize
+// the [load.Config] overlay FS. However the file need not actually exist.
+func LoadBytes(data []byte, path string) (cue.Value, error) {
+	ctx := cuecontext.New()
+
+	cfg, err := schema.LoaderConfig(ctx, filepath.Dir(path))
 	if err != nil {
 		return cue.Value{}, err
 	}

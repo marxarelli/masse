@@ -1,9 +1,7 @@
-package state
+package layout
 
 import (
 	"wikimedia.org/dduvall/phyton/schema/common"
 )
 
-#Env: {
-	env!: common.#Env
-}
+#Parameters: common.#Env

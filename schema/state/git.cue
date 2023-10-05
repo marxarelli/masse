@@ -11,5 +11,5 @@ package state
 }
 
 #KeepGitDir: {
-	keep_git_dir: *true | false
+	keepGitDir!: *true | false
 }

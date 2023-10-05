@@ -1,7 +1,7 @@
 package state
 
 import (
-	"wikimedia.org/dduvall/phyton/common"
+	"wikimedia.org/dduvall/phyton/schema/common"
 )
 
 #CopyOption: {
@@ -12,9 +12,9 @@ import (
 }
 
 #FollowSymlinks: {
-	follow_symlinks!: *true | false
+	followSymlinks!: *true | false
 }
 
 #CopyDirectoryContent: {
-	copy_directory_content!: true | *false
+	copyDirectoryContent!: true | *false
 }
