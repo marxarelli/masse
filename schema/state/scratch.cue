@@ -1,3 +1,5 @@
 package state
 
-#Scratch: {}
+#Scratch: {
+	scratch: true
+}

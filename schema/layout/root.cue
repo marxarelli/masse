@@ -1,7 +1,11 @@
 package layout
 
+import (
+	"wikimedia.org/dduvall/phyton/schema/state"
+)
+
 #Root: {
 	parameters?: #Parameters
-	chains!:     #Chains
+	chains!:     state.#Chains
 	layouts!:    #Layouts
 }

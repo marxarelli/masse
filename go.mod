@@ -5,6 +5,7 @@ go 1.19
 require (
 	cuelang.org/go v0.6.0
 	github.com/containerd/containerd v1.7.2
+	github.com/dominikbraun/graph v0.23.0
 	github.com/moby/buildkit v0.12.2
 	github.com/stretchr/testify v1.8.4
 	gitlab.wikimedia.org/dduvall/protoyaml v0.0.1

@@ -27,3 +27,7 @@ type FollowSymlinks struct {
 type CopyDirectoryContent struct {
 	CopyDirectoryContent bool `json:"copyDirectoryContent"`
 }
+
+func (cp *Copy) ChainRefs() []ChainRef {
+	return []ChainRef{cp.From}
+}

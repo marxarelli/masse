@@ -1,3 +1,5 @@
 package state
 
-type Scratch struct{}
+type Scratch struct {
+	Scratch bool `json:"scratch"`
+}

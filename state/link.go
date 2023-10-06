@@ -18,3 +18,7 @@ type LinkOption struct {
 	*common.Exclude       `json:",inline"`
 	*CopyDirectoryContent `json:",inline"`
 }
+
+func (ln *Link) ChainRefs() []ChainRef {
+	return []ChainRef{ln.From}
+}

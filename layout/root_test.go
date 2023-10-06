@@ -55,7 +55,7 @@ func TestDecodeLayout(t *testing.T) {
 				]
 
 				frontend: [
-					{ link: "/src/blubber-buildkit",
+					{ copy: "/src/blubber-buildkit",
 					  from: "binaries",
 						destination: "/blubber-buildkit" }
 				]
@@ -77,7 +77,7 @@ func TestDecodeLayout(t *testing.T) {
 				"REPO_REMOTE": "https://some.example/repo.git",
 				"REPO_REF":    "refs/heads/main",
 			},
-			Chains: Chains{
+			Chains: state.Chains{
 				"repo": state.Chain{
 					{Git: &state.Git{
 						Repo: "https://some.example/repo.git",
@@ -93,7 +93,7 @@ func TestDecodeLayout(t *testing.T) {
 						Command:   "apt-get install -y",
 						Arguments: []string{"gcc", "git", "make"},
 						Options: []*state.RunOption{
-							{Env: &state.Env{Env: common.Env{"DEBIAN_FRONTEND": "noninteractive"}}},
+							{Option: &state.Option{Env: &state.Env{Env: common.Env{"DEBIAN_FRONTEND": "noninteractive"}}}},
 							{CacheMount: &state.CacheMount{Target: "/var/lib/apt", Access: state.CacheLocked}},
 							{CacheMount: &state.CacheMount{Target: "/var/cache/apt", Access: state.CacheLocked}},
 						},
@@ -120,7 +120,7 @@ func TestDecodeLayout(t *testing.T) {
 					}},
 				},
 				"frontend": state.Chain{
-					{Link: &state.Link{
+					{Copy: &state.Copy{
 						Source:      []common.Glob{"/src/blubber-buildkit"},
 						From:        "binaries",
 						Destination: "/blubber-buildkit",

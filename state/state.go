@@ -2,20 +2,17 @@ package state
 
 import "encoding/json"
 
-type Chain []*State
-
-type ChainRef string
-
 type State struct {
-	*Git   `json:",inline"`
-	*Image `json:",inline"`
-	*Local `json:",inline"`
-	*Copy  `json:",inline"`
-	*Diff  `json:",inline"`
-	*Link  `json:",inline"`
-	*Merge `json:",inline"`
-	*Run   `json:",inline"`
-	*With  `json:",inline"`
+	*Scratch `json:",inline"`
+	*Git     `json:",inline"`
+	*Image   `json:",inline"`
+	*Local   `json:",inline"`
+	*Copy    `json:",inline"`
+	*Diff    `json:",inline"`
+	*Link    `json:",inline"`
+	*Merge   `json:",inline"`
+	*Run     `json:",inline"`
+	*With    `json:",inline"`
 }
 
 func (state *State) UnmarshalJSON(data []byte) error {
@@ -23,6 +20,11 @@ func (state *State) UnmarshalJSON(data []byte) error {
 	err := json.Unmarshal(data, &st)
 	if err != nil {
 		return err
+	}
+
+	if _, ok := st["scratch"]; ok {
+		state.Scratch = &Scratch{Scratch: true}
+		return nil
 	}
 
 	if _, ok := st["git"]; ok {
@@ -71,4 +73,40 @@ func (state *State) UnmarshalJSON(data []byte) error {
 	}
 
 	return nil
+}
+
+func (state *State) ChainRefs() []ChainRef {
+	cr, ok := stateFirst[ChainReferencer](state.Copy, state.Link, state.Merge, state.Run)
+
+	if !ok {
+		return []ChainRef{}
+	}
+
+	return cr.ChainRefs()
+}
+
+func stateFirst[T any](xs ...any) (T, bool) {
+	var zero T
+
+	for _, x := range xs {
+		isNil := true
+
+		switch v := x.(type) {
+		case *Copy:
+			isNil = v == nil
+		case *Link:
+			isNil = v == nil
+		case *Merge:
+			isNil = v == nil
+		case *Run:
+			isNil = v == nil
+		}
+
+		if !isNil {
+			v, ok := x.(T)
+			return v, ok
+		}
+	}
+
+	return zero, false
 }
