@@ -1,9 +1,13 @@
 package state
 
 import (
+	"context"
 	"testing"
 
+	"github.com/moby/buildkit/client/llb"
+	"github.com/stretchr/testify/require"
 	"gitlab.wikimedia.org/dduvall/phyton/common"
+	"gitlab.wikimedia.org/dduvall/phyton/util/llbtest"
 	"gitlab.wikimedia.org/dduvall/phyton/util/testdecode"
 )
 
@@ -73,4 +77,45 @@ func TestDecodeLocal(t *testing.T) {
 			},
 		},
 	)
+}
+
+func TestCompileLocal(t *testing.T) {
+	req := require.New(t)
+
+	local := Local{
+		Name: "context",
+		Options: LocalOptions{
+			{Include: &Include{Include: []common.Glob{"foo/*", "*.bar"}}},
+			{Exclude: &Exclude{Exclude: []common.Glob{"baz*"}}},
+			{FollowPaths: &FollowPaths{FollowPaths: []string{"foo/path"}}},
+			{SharedKeyHint: &SharedKeyHint{SharedKeyHint: "foo-hint"}},
+			{Differ: &Differ{Differ: DiffNone, Require: true}},
+		},
+	}
+
+	state, err := local.Compile(llb.Scratch(), ChainStates{})
+	req.NoError(err)
+
+	def, err := state.Marshal(context.TODO())
+	req.NoError(err)
+
+	llbreq := llbtest.New(t, def)
+
+	_, sops := llbreq.ContainsNSourceOps(1)
+	req.Equal("local://context", sops[0].Source.Identifier)
+
+	req.Contains(sops[0].Source.Attrs, "local.includepattern")
+	req.Equal(`["foo/*","*.bar"]`, sops[0].Source.Attrs["local.includepattern"])
+
+	req.Contains(sops[0].Source.Attrs, "local.excludepatterns")
+	req.Equal(`["baz*"]`, sops[0].Source.Attrs["local.excludepatterns"])
+
+	req.Contains(sops[0].Source.Attrs, "local.followpaths")
+	req.Equal(`["foo/path"]`, sops[0].Source.Attrs["local.followpaths"])
+
+	req.Contains(sops[0].Source.Attrs, "local.sharedkeyhint")
+	req.Equal("foo-hint", sops[0].Source.Attrs["local.sharedkeyhint"])
+
+	req.Contains(sops[0].Source.Attrs, "local.differ")
+	req.Equal("none", sops[0].Source.Attrs["local.differ"])
 }

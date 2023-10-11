@@ -3,7 +3,6 @@ package state
 import (
 	"github.com/moby/buildkit/client/llb"
 	"github.com/moby/buildkit/solver/pb"
-	"gitlab.wikimedia.org/dduvall/phyton/common"
 )
 
 type DiffType llb.DiffType
@@ -15,11 +14,20 @@ const (
 
 type Local struct {
 	Name    string `json:"local"`
-	Options []*LocalOption
+	Options LocalOptions
 }
 
-type Include common.Include
-type Exclude common.Exclude
+func (l *Local) Compile(_ llb.State, _ ChainStates) (llb.State, error) {
+	return llb.Local(l.Name, l.Options), nil
+}
+
+type LocalOptions []*LocalOption
+
+func (opts LocalOptions) SetLocalOption(info *llb.LocalInfo) {
+	for _, opt := range opts {
+		opt.SetLocalOption(info)
+	}
+}
 
 type LocalOption struct {
 	*Include
@@ -29,15 +37,34 @@ type LocalOption struct {
 	*Differ
 }
 
+func (opt *LocalOption) SetLocalOption(info *llb.LocalInfo) {
+	llbOpt, ok := oneof[llb.LocalOption](opt)
+	if ok {
+		llbOpt.SetLocalOption(info)
+	}
+}
+
 type FollowPaths struct {
 	FollowPaths []string
+}
+
+func (fp *FollowPaths) SetLocalOption(info *llb.LocalInfo) {
+	llb.FollowPaths(fp.FollowPaths).SetLocalOption(info)
 }
 
 type SharedKeyHint struct {
 	SharedKeyHint string
 }
 
+func (skh *SharedKeyHint) SetLocalOption(info *llb.LocalInfo) {
+	llb.SharedKeyHint(skh.SharedKeyHint).SetLocalOption(info)
+}
+
 type Differ struct {
 	Differ  DiffType
 	Require bool
+}
+
+func (diff *Differ) SetLocalOption(info *llb.LocalInfo) {
+	llb.Differ(llb.DiffType(diff.Differ), diff.Require).SetLocalOption(info)
 }

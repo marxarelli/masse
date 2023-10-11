@@ -43,7 +43,7 @@ func TestDecodeCopy(t *testing.T) {
 			Destination: "./",
 			From:        "foo",
 			Options: []*CopyOption{
-				{Creation: &common.Creation{Ctime: &ctime}},
+				{Creation: &Creation{Ctime: &ctime}},
 			},
 		},
 	)
@@ -56,7 +56,7 @@ func TestDecodeCopy(t *testing.T) {
 			Destination: "./",
 			From:        "foo",
 			Options: []*CopyOption{
-				{User: &common.User{User: "foo"}},
+				{User: &User{User: "foo"}},
 			},
 		},
 	)
@@ -69,7 +69,7 @@ func TestDecodeCopy(t *testing.T) {
 			Destination: "./",
 			From:        "foo",
 			Options: []*CopyOption{
-				{Group: &common.Group{Group: "foo"}},
+				{Group: &Group{Group: "foo"}},
 			},
 		},
 	)
@@ -82,7 +82,7 @@ func TestDecodeCopy(t *testing.T) {
 			Destination: "./",
 			From:        "foo",
 			Options: []*CopyOption{
-				{Mode: &common.Mode{Mode: 0o0755}},
+				{Mode: &Mode{Mode: 0o0755}},
 			},
 		},
 	)
@@ -95,7 +95,7 @@ func TestDecodeCopy(t *testing.T) {
 			Destination: "./",
 			From:        "foo",
 			Options: []*CopyOption{
-				{Include: &common.Include{Include: []common.Glob{"*.sh"}}},
+				{Include: &Include{Include: []common.Glob{"*.sh"}}},
 			},
 		},
 	)
@@ -108,7 +108,7 @@ func TestDecodeCopy(t *testing.T) {
 			Destination: "./",
 			From:        "foo",
 			Options: []*CopyOption{
-				{Exclude: &common.Exclude{Exclude: []common.Glob{"*.sh"}}},
+				{Exclude: &Exclude{Exclude: []common.Glob{"*.sh"}}},
 			},
 		},
 	)

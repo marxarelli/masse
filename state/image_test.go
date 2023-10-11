@@ -1,9 +1,13 @@
 package state
 
 import (
+	"context"
 	"testing"
 
+	"github.com/moby/buildkit/client/llb"
+	"github.com/stretchr/testify/require"
 	"gitlab.wikimedia.org/dduvall/phyton/common"
+	"gitlab.wikimedia.org/dduvall/phyton/util/llbtest"
 	"gitlab.wikimedia.org/dduvall/phyton/util/testdecode"
 )
 
@@ -53,4 +57,36 @@ func TestDecodeImage(t *testing.T) {
 			},
 		},
 	)
+}
+
+func TestCompileImage(t *testing.T) {
+	req := require.New(t)
+
+	image := Image{
+		Ref: "some.example/image:ref",
+		Options: ImageOptions{
+			{LayerLimit: &LayerLimit{LayerLimit: 999}},
+			{Platform: &Platform{Platform: common.Platform{OS: "linux", Architecture: "arm64", Variant: "v8"}}},
+		},
+	}
+
+	state, err := image.Compile(llb.Scratch(), ChainStates{})
+	req.NoError(err)
+
+	def, err := state.Marshal(context.TODO())
+	req.NoError(err)
+
+	llbreq := llbtest.New(t, def)
+
+	ops, sops := llbreq.ContainsNSourceOps(1)
+	req.Equal("docker-image://some.example/image:ref", sops[0].Source.Identifier)
+
+	req.Contains(sops[0].Source.Attrs, "image.layerlimit")
+	req.Equal("999", sops[0].Source.Attrs["image.layerlimit"])
+
+	platform := ops[0].GetPlatform()
+	req.NotNil(platform)
+	req.Equal("linux", platform.OS)
+	req.Equal("arm64", platform.Architecture)
+	req.Equal("v8", platform.Variant)
 }

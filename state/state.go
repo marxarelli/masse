@@ -1,6 +1,15 @@
 package state
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/moby/buildkit/client/llb"
+	"github.com/pkg/errors"
+)
+
+type Compilable interface {
+	Compile(primary llb.State, secondary ChainStates) (llb.State, error)
+}
 
 type State struct {
 	*Scratch `json:",inline"`
@@ -75,8 +84,18 @@ func (state *State) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (state *State) AnonymousChains() []Chain {
+	cd, ok := oneof[ChainDefiner](state)
+
+	if !ok {
+		return []Chain{}
+	}
+
+	return cd.AnonymousChains()
+}
+
 func (state *State) ChainRefs() []ChainRef {
-	cr, ok := stateFirst[ChainReferencer](state.Copy, state.Link, state.Merge, state.Run)
+	cr, ok := oneof[ChainReferencer](state)
 
 	if !ok {
 		return []ChainRef{}
@@ -85,28 +104,11 @@ func (state *State) ChainRefs() []ChainRef {
 	return cr.ChainRefs()
 }
 
-func stateFirst[T any](xs ...any) (T, bool) {
-	var zero T
-
-	for _, x := range xs {
-		isNil := true
-
-		switch v := x.(type) {
-		case *Copy:
-			isNil = v == nil
-		case *Link:
-			isNil = v == nil
-		case *Merge:
-			isNil = v == nil
-		case *Run:
-			isNil = v == nil
-		}
-
-		if !isNil {
-			v, ok := x.(T)
-			return v, ok
-		}
+func (state *State) Compile(primary llb.State, secondary ChainStates) (llb.State, error) {
+	c, ok := oneof[Compilable](state)
+	if !ok {
+		return llb.State{}, errors.Errorf("no compilable state")
 	}
 
-	return zero, false
+	return c.Compile(primary, secondary)
 }

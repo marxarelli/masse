@@ -1,8 +1,12 @@
 package state
 
 import (
+	"context"
 	"testing"
 
+	"github.com/moby/buildkit/client/llb"
+	"github.com/stretchr/testify/require"
+	"gitlab.wikimedia.org/dduvall/phyton/util/llbtest"
 	"gitlab.wikimedia.org/dduvall/phyton/util/testdecode"
 )
 
@@ -32,4 +36,29 @@ func TestDecodeGit(t *testing.T) {
 			},
 		},
 	)
+}
+
+func TestCompileGit(t *testing.T) {
+	req := require.New(t)
+
+	git := Git{
+		Repo: "some.example/repo.git",
+		Ref:  "refs/foo",
+		Options: []*GitOption{
+			{KeepGitDir: &KeepGitDir{KeepGitDir: true}},
+		},
+	}
+
+	state, err := git.Compile(llb.Scratch(), ChainStates{})
+	req.NoError(err)
+
+	def, err := state.Marshal(context.TODO())
+	req.NoError(err)
+
+	llbreq := llbtest.New(t, def)
+
+	_, sops := llbreq.ContainsNSourceOps(1)
+	req.Equal("git://some.example/repo.git#refs/foo", sops[0].Source.Identifier)
+	req.Contains(sops[0].Source.Attrs, "git.keepgitdir")
+	req.Equal("true", sops[0].Source.Attrs["git.keepgitdir"])
 }

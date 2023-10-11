@@ -1,8 +1,6 @@
 package state
 
 import (
-	"sort"
-
 	"github.com/dominikbraun/graph"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/pkg/errors"
@@ -17,34 +15,22 @@ type Solver func(*Graph) (llb.State, error)
 func Solve(g *Graph) (llb.State, error) {
 	var (
 		result   llb.State
-		inputs   map[string][]string
 		compiled map[string]llb.State
 	)
 
-	// Note the PredecessorMap() is not deterministic as it uses nested maps.
-	// Convert each second level map to a slice and sort it.
-	pmap, err := g.PredecessorMap()
+	primaryInputs, secondaryInputs, err := g.InputMaps()
 	if err != nil {
 		return result, err
 	}
 
-	inputs = make(map[string][]string, len(pmap))
-
-	for tail, headMap := range pmap {
-		heads := make([]string, len(headMap))
-		i := 0
-		for head := range headMap {
-			heads[i] = head
-			i++
-		}
-		sort.Strings(heads)
-		inputs[tail] = heads
+	size, err := g.Order()
+	if err != nil {
+		return result, err
 	}
 
-	size, _ := g.Order()
 	compiled = make(map[string]llb.State, size)
 
-	hashes, err := graph.StableTopologicalSort(g.Graph, func(x, y string) bool { return x < y })
+	hashes, err := graph.TopologicalSort(g.Graph)
 	if err != nil {
 		return result, err
 	}
@@ -56,22 +42,43 @@ func Solve(g *Graph) (llb.State, error) {
 		}
 
 		// Get compiled inputs
-		compiledInputs := make([]llb.State, len(inputs[hash]))
-		for i, input := range inputs[hash] {
-			compiledInputs[i] = compiled[input]
+		var compiledPrimary llb.State
+		var compiledSecondary ChainStates
+
+		primary, ok := primaryInputs[hash]
+		if ok {
+			compiledPrimary, ok = compiled[primary.Hash()]
+			if !ok {
+				return result, errors.Errorf("primary input node %q not found in compile cache", primary.Hash())
+			}
+		} else {
+			compiledPrimary = llb.Scratch()
+		}
+
+		secondary, ok := secondaryInputs[hash]
+		if ok {
+			compiledSecondary = make(ChainStates, len(secondary))
+			for _, sec := range secondary {
+				compiledSecondary[sec.ChainRef], ok = compiled[sec.Hash()]
+				if !ok {
+					return result, errors.Errorf("secondary input node %q not found in compile cache", sec.Hash())
+				}
+			}
+		} else {
+			compiledSecondary = ChainStates{}
 		}
 
 		// Compile node
-		state, err := node.Compile(compiledInputs)
+		state, err := node.State.Compile(compiledPrimary, compiledSecondary)
 		if err != nil {
 			return result, err
 		}
 
 		compiled[hash] = state
 
-		// Since the state graph has a universal (single) sink, we can simply
-		// assume the last node to be compiled (in topo sort order) will be the
-		// end result
+		// Since the state graph has a universal sink, we can simply assume the
+		// last node to be compiled (in topo sort order) will be the singular end
+		// result
 		result = state
 	}
 

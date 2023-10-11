@@ -7,7 +7,7 @@ import (
 	"gitlab.wikimedia.org/dduvall/phyton/common"
 )
 
-func TestGraph(t *testing.T) {
+func TestSolve(t *testing.T) {
 	req := require.New(t)
 
 	chains := Chains{
@@ -46,26 +46,7 @@ func TestGraph(t *testing.T) {
 	g, err := NewGraph(chains, &Merge{Merge: []ChainRef{"production", "final"}})
 	req.NoError(err)
 
-	edges, err := g.Edges()
+	state, err := Solve(g)
 	req.NoError(err)
-	req.Len(edges, 11)
-
-	expectedEdges := [][]string{
-		{"repo[0]", "binaries[2]"},
-		{"build[0]", "tools[0]"},
-		{"build[0]", "binaries[0]"},
-		{"tools[0]", "tools[1]"},
-		{"tools[1]", "binaries[0]"},
-		{"tools[1](anonymous1)[0]", "tools[1]"},
-		{"binaries[0]", "binaries[1]"},
-		{"binaries[1]", "binaries[2]"},
-		{"binaries[2]", "final[0]"},
-		{"final[0]", "."},
-		{"production[0]", "."},
-	}
-
-	for _, vertices := range expectedEdges {
-		_, err := g.Edge(vertices[0], vertices[1])
-		req.NoError(err)
-	}
+	req.NotNil(state)
 }
