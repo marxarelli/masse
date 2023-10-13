@@ -7,6 +7,23 @@ import (
 	"github.com/pkg/errors"
 )
 
+type StateKind string
+
+const (
+	NilKind     StateKind = "nil"
+	ScratchKind           = "scratch"
+	GitKind               = "git"
+	ImageKind             = "image"
+	LocalKind             = "local"
+	CopyKind              = "copy"
+	DiffKind              = "diff"
+	LinkKind              = "link"
+	MergeKind             = "merge"
+	ExtendKind            = "extend"
+	RunKind               = "run"
+	WithKind              = "with"
+)
+
 type Compilable interface {
 	Compile(primary llb.State, secondary ChainStates) (llb.State, error)
 }
@@ -90,11 +107,44 @@ func (state *State) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (state *State) AnonymousChains() []Chain {
+func (state *State) Kind() StateKind {
+	field, ok := oneof[any](state)
+
+	if ok {
+		switch field.(type) {
+		case *Scratch:
+			return ScratchKind
+		case *Git:
+			return GitKind
+		case *Image:
+			return ImageKind
+		case *Local:
+			return LocalKind
+		case *Copy:
+			return CopyKind
+		case *Diff:
+			return DiffKind
+		case *Link:
+			return LinkKind
+		case *Merge:
+			return MergeKind
+		case *Extend:
+			return ExtendKind
+		case *Run:
+			return RunKind
+		case *With:
+			return WithKind
+		}
+	}
+
+	return NilKind
+}
+
+func (state *State) AnonymousChains() ([]Chain, bool) {
 	cd, ok := oneof[ChainDefiner](state)
 
 	if !ok {
-		return []Chain{}
+		return []Chain{}, false
 	}
 
 	return cd.AnonymousChains()

@@ -1,7 +1,11 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
+	"io"
 	"os"
+	"strings"
 
 	"github.com/dominikbraun/graph/draw"
 	"github.com/pkg/errors"
@@ -19,6 +23,11 @@ var drawCommand = &cli.Command{
 			Name:     "target",
 			Aliases:  []string{"t"},
 			Required: true,
+		},
+		&cli.StringFlag{
+			Name:    "colorscheme",
+			Aliases: []string{"c"},
+			Value:   "paired9",
 		},
 	},
 }
@@ -42,5 +51,20 @@ func drawAction(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to construct graph from layout")
 	}
 
-	return draw.DOT(graph.Graph, os.Stdout)
+	var buffer bytes.Buffer
+	err = draw.DOT(graph.Graph, &buffer)
+	if err != nil {
+		return err
+	}
+
+	digraph := strings.SplitN(buffer.String(), "{", 2)
+
+	io.WriteString(os.Stdout, digraph[0]+"{")
+	io.WriteString(
+		os.Stdout,
+		fmt.Sprintf("\n\tnode [colorscheme=%s];\n", clicontext.String("colorscheme")),
+	)
+	io.WriteString(os.Stdout, digraph[1])
+
+	return nil
 }

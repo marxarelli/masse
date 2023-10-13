@@ -2,7 +2,12 @@ package state
 
 import (
 	"fmt"
+	"hash/fnv"
+
+	"github.com/dominikbraun/graph"
 )
+
+type NodeProperty = func(*graph.VertexProperties)
 
 type Node struct {
 	State     *State
@@ -17,4 +22,59 @@ func (n Node) Hash() string {
 	}
 
 	return string(n.ChainRef)
+}
+
+func (n Node) Properties() []NodeProperty {
+	return []NodeProperty{
+		n.Label(),
+		n.Shape(),
+		n.Style(),
+		n.Color(),
+	}
+}
+
+func (n Node) Label() NodeProperty {
+	return graph.VertexAttribute(
+		"label",
+		fmt.Sprintf("%s: %s", n.Hash(), n.State.Kind()),
+	)
+}
+
+func (n Node) Color() NodeProperty {
+	h := fnv.New32a()
+	h.Write([]byte(n.ChainRef))
+
+	return graph.VertexAttribute(
+		"color",
+		fmt.Sprintf("%d", (int(h.Sum32())%11)+1),
+	)
+}
+
+func (n Node) Style() NodeProperty {
+	style := "rounded"
+
+	if n.Anonymous {
+		style += ",dashed"
+	} else {
+		style += ",bold"
+	}
+
+	return graph.VertexAttribute("style", style)
+}
+
+func (n Node) Shape() NodeProperty {
+	shape := "box"
+
+	switch n.State.Kind() {
+	case DiffKind:
+		shape = "triangle"
+	case MergeKind:
+		shape = "invtriangle"
+	}
+
+	if n.ChainRef == ChainRef(".") {
+		shape = "point"
+	}
+
+	return graph.VertexAttribute("shape", shape)
 }

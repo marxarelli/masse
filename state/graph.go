@@ -34,7 +34,7 @@ func NewGraph(chains Chains, merge *Merge) (*Graph, error) {
 		Anonymous: false,
 	}
 
-	err := g.AddVertex(sink)
+	err := g.AddNode(sink)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,8 @@ func (g *Graph) AddChainEdgeByRef(ref ChainRef, node Node) error {
 		return errors.Errorf("unknown chain %q", ref)
 	}
 
-	return g.AddChainEdge(ref, chain, node, false)
+	_, err := g.AddChainEdge(ref, chain, node, false)
+	return err
 }
 
 // AddChainEdge adds a new edge (`Xn` -> `n`) where `Xn` is a node for the
@@ -66,28 +67,43 @@ func (g *Graph) AddChainEdgeByRef(ref ChainRef, node Node) error {
 // other chains, [AddChainEdge] is called for each reference recursively. Note
 // that this function assumes the given node has already been added to the
 // graph.
-func (g *Graph) AddChainEdge(ref ChainRef, chain Chain, node Node, anonymous bool) error {
+func (g *Graph) AddChainEdge(ref ChainRef, chain Chain, node Node, anonymous bool) ([]Node, error) {
+	added := []Node{}
+
 	// Add entire chain first if it hasn't been added already
-	_, exists := g.addedChains.LoadOrStore(ref, 1)
+	once, exists := g.addedChains.LoadOrStore(ref, new(sync.Once))
 	if !exists {
-		err := g.AddChain(ref, chain, anonymous)
+		var err error
+		var newNodes []Node
+
+		once.(*sync.Once).Do(func() {
+			newNodes, err = g.AddChain(ref, chain, anonymous)
+		})
+
 		if err != nil {
-			return errors.Wrapf(err, "error adding chain %q to graph", ref)
+			return nil, errors.Wrapf(err, "error adding chain %q to graph", ref)
 		}
+
+		added = append(added, newNodes...)
 	}
 
 	// Then define an edge from the chain's sink to the given node
 	i, sink := chain.Tail()
 	if sink == nil {
-		return errors.Errorf("%q chain sink is nil (chain is empty)", ref)
+		return nil, errors.Errorf("%q chain sink is nil (chain is empty)", ref)
 	}
 
-	return g.AddEdge(Node{State: sink, ChainRef: ref, Index: i, Anonymous: anonymous}, node)
+	err := g.AddEdge(Node{State: sink, ChainRef: ref, Index: i, Anonymous: anonymous}, node)
+	if err != nil {
+		return nil, err
+	}
+
+	return added, nil
 }
 
 // AddAnonymousChainEdge resolves a new anonymous name for the given chain
 // before calling [AddChainEdge] with it and the given node.
-func (g *Graph) AddAnonymousChainEdge(chain Chain, node Node) error {
+func (g *Graph) AddAnonymousChainEdge(chain Chain, node Node) ([]Node, error) {
 	return g.AddChainEdge(g.newAnonymous(node.Hash()), chain, node, true)
 }
 
@@ -96,22 +112,35 @@ func (g *Graph) AddAnonymousChainEdge(chain Chain, node Node) error {
 // to uniquely identify each node. If any state in the chain references or
 // defines anonymous chains, they are added via [AddChainEdgeByRef] or
 // [AddAnonymousChainEdge] respectively.
-func (g *Graph) AddChain(ref ChainRef, chain Chain, anonymous bool) error {
+func (g *Graph) AddChain(ref ChainRef, chain Chain, anonymous bool) ([]Node, error) {
+	added := make([]Node, len(chain))
+
 	var prev *Node
 	for i, state := range chain {
 		node := Node{State: state, ChainRef: ref, Index: i, Anonymous: anonymous}
 
-		err := g.AddVertex(node)
+		err := g.AddNode(node)
 		if err != nil {
-			return err
+			return nil, err
 		}
+
+		added[i] = node
 
 		// Does this state define anonymous chains? If so, add each other chain
 		// first along with an edge from each chain sink to this state.
-		for _, anonChain := range state.AnonymousChains() {
-			err := g.AddAnonymousChainEdge(anonChain, node)
+		anonChains, closed := state.AnonymousChains()
+		for _, anonChain := range anonChains {
+			anonNodes, err := g.AddAnonymousChainEdge(anonChain, node)
 			if err != nil {
-				return err
+				return nil, err
+			}
+
+			// Add an edge from the previous node to the head of the anonymous chain
+			if closed && prev != nil && len(anonNodes) > 0 {
+				err := g.AddEdge(*prev, anonNodes[len(anonNodes)-1])
+				if err != nil {
+					return nil, err
+				}
 			}
 		}
 
@@ -120,26 +149,31 @@ func (g *Graph) AddChain(ref ChainRef, chain Chain, anonymous bool) error {
 		for _, ref := range state.ChainRefs() {
 			err := g.AddChainEdgeByRef(ref, node)
 			if err != nil {
-				return err
+				return nil, err
 			}
 		}
 
 		if prev != nil {
 			err := g.AddEdge(*prev, node)
 			if err != nil {
-				return err
+				return nil, err
 			}
 		}
 
 		prev = &node
 	}
 
-	return nil
+	return added, nil
 }
 
 // AddEdge defines an edge between vertices `x` and `y`.
 func (g *Graph) AddEdge(x, y Node) error {
 	return g.Graph.AddEdge(nodeHash(x), nodeHash(y))
+}
+
+// AddNode adds the node as a vertex to the graph.
+func (g *Graph) AddNode(node Node) error {
+	return g.AddVertex(node, node.Properties()...)
 }
 
 // InputMaps returns two maps derived from the [graph.Graph.PredecessorMap]

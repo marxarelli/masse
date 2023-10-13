@@ -48,7 +48,7 @@ func TestGraph(t *testing.T) {
 
 	edges, err := g.Edges()
 	req.NoError(err)
-	req.Len(edges, 11)
+	req.Len(edges, 12)
 
 	expectedEdges := [][]string{
 		{"repo[0]", "binaries[2]"},
@@ -56,6 +56,7 @@ func TestGraph(t *testing.T) {
 		{"build[0]", "binaries[0]"},
 		{"tools[0]", "tools[1]"},
 		{"tools[1]", "binaries[0]"},
+		{"tools[0]", "tools[1](anonymous1)[0]"},
 		{"tools[1](anonymous1)[0]", "tools[1]"},
 		{"binaries[0]", "binaries[1]"},
 		{"binaries[1]", "binaries[2]"},

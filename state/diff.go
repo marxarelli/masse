@@ -8,8 +8,8 @@ type Diff struct {
 	Upper Chain `json:"diff"`
 }
 
-func (diff *Diff) AnonymousChains() []Chain {
-	return []Chain{diff.Upper}
+func (diff *Diff) AnonymousChains() (chains []Chain, closed bool) {
+	return []Chain{diff.Upper}, true
 }
 
 func (diff *Diff) Compile(lower llb.State, secondary ChainStates) (llb.State, error) {

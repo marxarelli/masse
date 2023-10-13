@@ -24,7 +24,7 @@ type ChainReferencer interface {
 }
 
 type ChainDefiner interface {
-	AnonymousChains() []Chain
+	AnonymousChains() (chains []Chain, closed bool)
 }
 
 type ChainStates map[ChainRef]llb.State
