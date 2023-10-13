@@ -42,12 +42,6 @@ chains: {
 			options: [ { cache: "/root/.cache/go-build", access: "locked" } ] },
 	]
 
-	debug: [
-		{ extend: "go" },
-		{ merge: ["tools", "modules"] },
-		{	link: ".", from: "repo" },
-	]
-
 	frontend: [
 		{ copy: "blubber-buildkit", from: "binaries" }
 	]
@@ -61,13 +55,5 @@ layouts: {
 				keys: ["ssh-ed25519 ..."] }
 		]
 		comprises: ["frontend"]
-	}
-	debug: {
-		authors: [
-			{ name: "Dan Duvall"
-				email: "dduvall@wikimedia.org"
-				keys: ["ssh-ed25519 ..."] }
-		]
-		comprises: ["debug"]
 	}
 }
