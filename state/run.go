@@ -1,6 +1,9 @@
 package state
 
 import (
+	"strconv"
+	"strings"
+
 	"github.com/moby/buildkit/client/llb"
 )
 
@@ -48,7 +51,21 @@ func (run *Run) ChainRefs() []ChainRef {
 }
 
 func (run *Run) ShellArgs() []string {
-	return append([]string{"/bin/sh", "-c", run.Command}, run.Arguments...)
+	return []string{
+		"/bin/sh",
+		"-c",
+		run.Command + " " + strings.Join(run.QuotedArguments(), " "),
+	}
+}
+
+func (run *Run) QuotedArguments() []string {
+	quoted := make([]string, len(run.Arguments))
+
+	for i, arg := range run.Arguments {
+		quoted[i] = strconv.Quote(arg)
+	}
+
+	return quoted
 }
 
 type RunOptions []*RunOption

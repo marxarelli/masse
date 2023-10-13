@@ -48,4 +48,14 @@ func TestDecodeState(t *testing.T) {
 			}},
 		},
 	)
+
+	testdecode.Run(tester,
+		"state.#Chain/scratch",
+		`state.#Chain & [
+			{ scratch: true },
+		]`,
+		Chain{
+			{Scratch: &Scratch{Scratch: true}},
+		},
+	)
 }

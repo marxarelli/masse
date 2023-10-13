@@ -24,6 +24,9 @@ func TestDecodeChains(t *testing.T) {
 				{ merge: ["foo"] },
 				{ run: "foo" },
 			]
+			baz: [
+				{ scratch: true },
+			]
 		}`,
 		Chains{
 			"foo": Chain{
@@ -32,6 +35,9 @@ func TestDecodeChains(t *testing.T) {
 			"bar": Chain{
 				{Merge: &Merge{Merge: []ChainRef{"foo"}}},
 				{Run: &Run{Command: "foo"}},
+			},
+			"baz": Chain{
+				{Scratch: &Scratch{Scratch: true}},
 			},
 		},
 	)

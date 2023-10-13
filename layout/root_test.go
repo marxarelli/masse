@@ -37,7 +37,7 @@ func TestDecodeLayout(t *testing.T) {
 
 				tools: [
 					{ merge: [ "go" ] },
-					( apt.#Install & { packages: [ "gcc", "git", "make" ] } ).out,
+					apt.install & { #packages: [ "gcc", "git", "make" ] },
 				]
 
 				modules: [

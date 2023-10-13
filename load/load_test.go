@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"cuelang.org/go/cue"
+	"cuelang.org/go/cue/cuecontext"
 	"github.com/stretchr/testify/require"
 )
 
@@ -33,6 +34,40 @@ func TestLoad(t *testing.T) {
 
 	foo := val.LookupPath(cue.ParsePath("foo"))
 	req.NoError(foo.Err())
+}
+
+func TestMainInstanceWith(t *testing.T) {
+	req := require.New(t)
+
+	main, err := MainInstanceWith(
+		map[string][]byte{
+			"/foo.cue": []byte(lines(
+				`chains: {`,
+				`  foo: [`,
+				`    { image: "foo.example/image/ref" },`,
+				`  ]`,
+				`}`,
+				`layouts: foo: comprises: ["foo"]`,
+			)),
+		},
+	)
+	req.NotNil(main)
+	req.NoError(err)
+
+	ctx := cuecontext.New()
+	value := ctx.BuildInstance(main)
+	req.NoError(value.Err())
+
+	chains := value.LookupPath(cue.ParsePath("chains"))
+	req.NoError(chains.Err())
+
+	ref := value.LookupPath(cue.ParsePath("chains.foo[0].image"))
+	req.NoError(ref.Err())
+
+	req.Equal(cue.StringKind, ref.Kind())
+	refValue, err := ref.String()
+	req.NoError(err)
+	req.Equal("foo.example/image/ref", refValue)
 }
 
 func lines(lns ...string) string {

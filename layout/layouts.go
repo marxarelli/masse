@@ -14,3 +14,8 @@ type Layout struct {
 	Parameters    *Parameters
 	Configuration *ImageConfig
 }
+
+// Merge returns a new [state.Merge] for the layout's comprised chains.
+func (layout *Layout) Merge() *state.Merge {
+	return &state.Merge{Merge: layout.Comprises}
+}

@@ -5,9 +5,10 @@ import (
 )
 
 type Node struct {
-	State    *State
-	ChainRef ChainRef
-	Index    int
+	State     *State
+	ChainRef  ChainRef
+	Index     int
+	Anonymous bool
 }
 
 func (n Node) Hash() string {

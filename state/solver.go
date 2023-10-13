@@ -41,6 +41,10 @@ func Solve(g *Graph) (llb.State, error) {
 			return result, errors.Wrap(err, "failed to solve graph")
 		}
 
+		if node.Anonymous {
+			continue
+		}
+
 		// Get compiled inputs
 		var compiledPrimary llb.State
 		var compiledSecondary ChainStates
@@ -49,7 +53,7 @@ func Solve(g *Graph) (llb.State, error) {
 		if ok {
 			compiledPrimary, ok = compiled[primary.Hash()]
 			if !ok {
-				return result, errors.Errorf("primary input node %q not found in compile cache", primary.Hash())
+				compiledPrimary = llb.Scratch()
 			}
 		} else {
 			compiledPrimary = llb.Scratch()
@@ -59,9 +63,8 @@ func Solve(g *Graph) (llb.State, error) {
 		if ok {
 			compiledSecondary = make(ChainStates, len(secondary))
 			for _, sec := range secondary {
-				compiledSecondary[sec.ChainRef], ok = compiled[sec.Hash()]
-				if !ok {
-					return result, errors.Errorf("secondary input node %q not found in compile cache", sec.Hash())
+				if compiledSec, ok := compiled[sec.Hash()]; ok {
+					compiledSecondary[sec.ChainRef] = compiledSec
 				}
 			}
 		} else {

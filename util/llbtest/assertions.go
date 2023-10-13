@@ -112,6 +112,12 @@ func HasValidInputs(t *testing.T, opMap map[digest.Digest]pb.Op, op pb.Op) []pb.
 	return inputOps
 }
 
+// ContainsNOps is a convenience method for ContainsNOps[any](...)
+func (llbt *Assertions) ContainsNOps(n int) []pb.Op {
+	ops, _ := ContainsNOps[any](llbt.t, llbt.ops, n, "should contain %d ops: %s")
+	return ops
+}
+
 // ContainsNSourceOps is a convenience method for ContainsNOps[pb.Op_Source](...)
 func (llbt *Assertions) ContainsNSourceOps(n int) ([]pb.Op, []*pb.Op_Source) {
 	return ContainsNOps[*pb.Op_Source](llbt.t, llbt.ops, n, "should contain %d source ops: %s")

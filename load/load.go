@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"cuelang.org/go/cue"
+	"cuelang.org/go/cue/build"
 	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/load"
 
@@ -31,7 +32,8 @@ func LoadPath(path string) (cue.Value, error) {
 func LoadBytes(data []byte, path string) (cue.Value, error) {
 	ctx := cuecontext.New()
 
-	cfg, err := schema.LoaderConfig(ctx, filepath.Dir(path))
+	dir := filepath.Dir(path)
+	cfg, err := schema.LoaderConfig(dir)
 	if err != nil {
 		return cue.Value{}, err
 	}
@@ -41,4 +43,29 @@ func LoadBytes(data []byte, path string) (cue.Value, error) {
 	instances := load.Instances([]string{"."}, cfg)
 	value := ctx.BuildInstance(instances[len(instances)-1])
 	return value, value.Err()
+}
+
+// MainInstanceWith returns a CUE instance with no package that unifies with a
+// layout.#Root
+func MainInstanceWith(files map[string][]byte) (*build.Instance, error) {
+	cfg, err := schema.LoaderConfig("/")
+	if err != nil {
+		return nil, err
+	}
+
+	cfg.Package = "_"
+
+	cueData, err := embedFS.ReadFile("root.cue")
+	if err != nil {
+		return nil, err
+	}
+
+	cfg.Overlay["/root.cue"] = load.FromBytes(cueData)
+
+	for path, data := range files {
+		cfg.Overlay[path] = load.FromBytes(data)
+	}
+
+	instances := load.Instances([]string{"."}, cfg)
+	return instances[0], nil
 }

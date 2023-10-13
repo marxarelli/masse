@@ -2,11 +2,11 @@ package apt
 
 #Packages: [string, ...string]
 
-#Install: {
-	packages: #Packages
-	out: {
+install: {
+	#packages: #Packages
+	{
 		run: "apt-get install -y"
-		arguments: packages
+		arguments: #packages
 		options: [
 			{ env: { "DEBIAN_FRONTEND": "noninteractive" } },
 			{ cache: "/var/lib/apt", access: "locked" },

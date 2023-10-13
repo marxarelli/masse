@@ -21,6 +21,10 @@ func (d *Decoder[T]) UnmarshalJSON(data []byte) error {
 // value into a Go struct. The type T can either use `json` tags on its
 // fields, or implement [json.Unmarshaler].
 func DecodeNew[T any](val cue.Value) (*T, error) {
+	if val.Err() != nil {
+		return nil, val.Err()
+	}
+
 	dec := Decoder[T]{new(T)}
 	return dec.Target, val.Decode(&dec)
 }
@@ -28,6 +32,10 @@ func DecodeNew[T any](val cue.Value) (*T, error) {
 // Decode decodes the given [cue.Value] using the CUE/JSON unmarshaler into
 // the given T pointer.
 func Decode[T any](val cue.Value, iface *T) error {
+	if val.Err() != nil {
+		return val.Err()
+	}
+
 	dec := Decoder[T]{iface}
 	return val.Decode(&dec)
 }

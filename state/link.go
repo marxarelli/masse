@@ -1,6 +1,8 @@
 package state
 
 import (
+	"context"
+
 	"github.com/moby/buildkit/client/llb"
 	"gitlab.wikimedia.org/dduvall/phyton/common"
 )
@@ -26,7 +28,9 @@ func (ln *Link) Copy() *Copy {
 }
 
 func (ln *Link) Compile(primary llb.State, secondary ChainStates) (llb.State, error) {
-	state, err := ln.Copy().Compile(llb.Scratch(), secondary)
+	cwd, _ := primary.GetDir(context.TODO())
+
+	state, err := ln.Copy().Compile(llb.Scratch().Dir(cwd), secondary)
 	if err != nil {
 		return primary, err
 	}

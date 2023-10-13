@@ -1,10 +1,14 @@
 package state
 
 import (
+	"context"
 	"testing"
 	"time"
 
+	"github.com/moby/buildkit/client/llb"
+	"github.com/stretchr/testify/require"
 	"gitlab.wikimedia.org/dduvall/phyton/common"
+	"gitlab.wikimedia.org/dduvall/phyton/util/llbtest"
 	"gitlab.wikimedia.org/dduvall/phyton/util/testdecode"
 )
 
@@ -138,4 +142,33 @@ func TestDecodeCopy(t *testing.T) {
 			},
 		},
 	)
+}
+
+func TestCompileCopy(t *testing.T) {
+	req := require.New(t)
+
+	cp := Copy{
+		Source:      []common.Glob{"./foo"},
+		From:        "foo",
+		Destination: "./bar/",
+	}
+
+	state, err := cp.Compile(
+		llb.Scratch().Dir("/dest"),
+		ChainStates{
+			"foo": llb.Scratch().Dir("/src"),
+		},
+	)
+	req.NoError(err)
+
+	def, err := state.Marshal(context.TODO())
+	req.NoError(err)
+
+	llbreq := llbtest.New(t, def)
+
+	_, fops := llbreq.ContainsNFileOps(1)
+	_, copies := llbreq.ContainsNCopyActions(fops[0], 1)
+
+	req.Equal("/src/foo", copies[0].Copy.Src)
+	req.Equal("/dest/bar/", copies[0].Copy.Dest)
 }

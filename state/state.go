@@ -20,6 +20,7 @@ type State struct {
 	*Diff    `json:",inline"`
 	*Link    `json:",inline"`
 	*Merge   `json:",inline"`
+	*Extend  `json:",inline"`
 	*Run     `json:",inline"`
 	*With    `json:",inline"`
 }
@@ -69,6 +70,11 @@ func (state *State) UnmarshalJSON(data []byte) error {
 	if _, ok := st["merge"]; ok {
 		state.Merge = &Merge{}
 		return json.Unmarshal(data, state.Merge)
+	}
+
+	if _, ok := st["extend"]; ok {
+		state.Extend = &Extend{}
+		return json.Unmarshal(data, state.Extend)
 	}
 
 	if _, ok := st["run"]; ok {

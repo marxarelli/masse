@@ -27,7 +27,12 @@ func NewGraph(chains Chains, merge *Merge) (*Graph, error) {
 		anonCounter: atomic.Uint32{},
 	}
 
-	sink := Node{&State{Merge: merge}, ChainRef("."), -1}
+	sink := Node{
+		State:     &State{Merge: merge},
+		ChainRef:  ChainRef("."),
+		Index:     -1,
+		Anonymous: false,
+	}
 
 	err := g.AddVertex(sink)
 	if err != nil {
@@ -52,7 +57,7 @@ func (g *Graph) AddChainEdgeByRef(ref ChainRef, node Node) error {
 		return errors.Errorf("unknown chain %q", ref)
 	}
 
-	return g.AddChainEdge(ref, chain, node)
+	return g.AddChainEdge(ref, chain, node, false)
 }
 
 // AddChainEdge adds a new edge (`Xn` -> `n`) where `Xn` is a node for the
@@ -61,11 +66,11 @@ func (g *Graph) AddChainEdgeByRef(ref ChainRef, node Node) error {
 // other chains, [AddChainEdge] is called for each reference recursively. Note
 // that this function assumes the given node has already been added to the
 // graph.
-func (g *Graph) AddChainEdge(ref ChainRef, chain Chain, node Node) error {
+func (g *Graph) AddChainEdge(ref ChainRef, chain Chain, node Node, anonymous bool) error {
 	// Add entire chain first if it hasn't been added already
 	_, exists := g.addedChains.LoadOrStore(ref, 1)
 	if !exists {
-		err := g.AddChain(ref, chain)
+		err := g.AddChain(ref, chain, anonymous)
 		if err != nil {
 			return errors.Wrapf(err, "error adding chain %q to graph", ref)
 		}
@@ -77,13 +82,13 @@ func (g *Graph) AddChainEdge(ref ChainRef, chain Chain, node Node) error {
 		return errors.Errorf("%q chain sink is nil (chain is empty)", ref)
 	}
 
-	return g.AddEdge(Node{sink, ref, i}, node)
+	return g.AddEdge(Node{State: sink, ChainRef: ref, Index: i, Anonymous: anonymous}, node)
 }
 
 // AddAnonymousChainEdge resolves a new anonymous name for the given chain
 // before calling [AddChainEdge] with it and the given node.
 func (g *Graph) AddAnonymousChainEdge(chain Chain, node Node) error {
-	return g.AddChainEdge(g.newAnonymous(node.Hash()), chain, node)
+	return g.AddChainEdge(g.newAnonymous(node.Hash()), chain, node, true)
 }
 
 // AddChain adds a vertex for each state in the chain and an edge for each
@@ -91,10 +96,10 @@ func (g *Graph) AddAnonymousChainEdge(chain Chain, node Node) error {
 // to uniquely identify each node. If any state in the chain references or
 // defines anonymous chains, they are added via [AddChainEdgeByRef] or
 // [AddAnonymousChainEdge] respectively.
-func (g *Graph) AddChain(ref ChainRef, chain Chain) error {
+func (g *Graph) AddChain(ref ChainRef, chain Chain, anonymous bool) error {
 	var prev *Node
 	for i, state := range chain {
-		node := Node{State: state, ChainRef: ref, Index: i}
+		node := Node{State: state, ChainRef: ref, Index: i, Anonymous: anonymous}
 
 		err := g.AddVertex(node)
 		if err != nil {

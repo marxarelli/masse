@@ -1,5 +1,5 @@
 package state
 
 #Source: {
-	#Copy | #Git | #Image | #Local | #Merge | #Scratch
+	#Copy | #Git | #Image | #Local | #Merge | #Scratch | #Extend
 }

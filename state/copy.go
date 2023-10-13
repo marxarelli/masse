@@ -23,7 +23,7 @@ func (cp *Copy) Compile(primary llb.State, secondary ChainStates) (llb.State, er
 	copyOpts := []llb.CopyOption{
 		&llb.CopyInfo{
 			FollowSymlinks:      true,
-			CopyDirContentsOnly: true,
+			CopyDirContentsOnly: false,
 			AttemptUnpack:       false,
 			CreateDestPath:      true,
 			AllowWildcard:       true,
@@ -32,11 +32,13 @@ func (cp *Copy) Compile(primary llb.State, secondary ChainStates) (llb.State, er
 		cp.Options,
 	}
 
-	for _, src := range cp.Source {
+	dest := qualifyStatePath(primary, cp.Destination)
+	for _, srcGlob := range cp.Source {
+		src := qualifyStatePath(from, srcGlob.String())
 		if fa == nil {
-			fa = llb.Copy(from, src.String(), cp.Destination, copyOpts...)
+			fa = llb.Copy(from, src, dest, copyOpts...)
 		} else {
-			fa = fa.Copy(from, src.String(), cp.Destination, copyOpts...)
+			fa = fa.Copy(from, src, dest, copyOpts...)
 		}
 	}
 
