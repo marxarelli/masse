@@ -8,14 +8,19 @@ type Git struct {
 	Options GitOptions `json:"options"`
 }
 
-func (git *Git) Compile(_ llb.State, _ ChainStates) (llb.State, error) {
-	return llb.Git(git.Repo, git.Ref, git.Options), nil
+func (git *Git) CompileSource(_ ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {
+	return llb.Git(
+		git.Repo,
+		git.Ref,
+		append(constraintsTo[llb.GitOption](constraints), git.Options)...,
+	), nil
 }
 
 type GitOptions []*GitOption
 
 type GitOption struct {
 	*KeepGitDir
+	*Constraint
 }
 
 func (opts GitOptions) SetGitOption(gi *llb.GitInfo) {

@@ -8,7 +8,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 	"gitlab.wikimedia.org/dduvall/phyton/layout"
-	"gitlab.wikimedia.org/dduvall/phyton/state"
 )
 
 var solveCommand = &cli.Command{
@@ -22,12 +21,18 @@ var solveCommand = &cli.Command{
 			Aliases:  []string{"t"},
 			Required: true,
 		},
+		&cli.StringFlag{
+			Name:     "platform",
+			Aliases:  []string{"p"},
+			Required: true,
+		},
 	},
 }
 
 func solveAction(clicontext *cli.Context) error {
 	file := clicontext.String("file")
 	target := clicontext.String("target")
+	platform := clicontext.String("platform")
 
 	data, err := os.ReadFile(file)
 	if err != nil {
@@ -39,12 +44,22 @@ func solveAction(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to load layout")
 	}
 
-	graph, err := root.LayoutGraph(target)
-	if err != nil {
-		return errors.Wrap(err, "failed to construct graph from layout")
+	layout, ok := root.Layouts[target]
+	if !ok {
+		return errors.Wrapf(err, "unknown layout %q", target)
 	}
 
-	st, err := state.Solve(graph)
+	graph, err := layout.Graph(root.Chains)
+	if err != nil {
+		return errors.Wrap(err, "failed to get layout graph")
+	}
+
+	solver, err := layout.ResolvePlatformSolver(platform)
+	if err != nil {
+		return err
+	}
+
+	st, err := solver.Solve(graph)
 	if err != nil {
 		return errors.Wrap(err, "failed to solve layout graph")
 	}

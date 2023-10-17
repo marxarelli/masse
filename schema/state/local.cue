@@ -10,7 +10,10 @@ import (
 }
 
 #LocalOption: {
-	common.#Include | common.#Exclude | #FollowPaths | #SharedKeyHint | #Differ
+	common.#Include | common.#Exclude |
+	#FollowPaths | #SharedKeyHint |
+	#Differ |
+	#Constraint
 }
 
 #FollowPaths: {

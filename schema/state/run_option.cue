@@ -5,9 +5,10 @@ import (
 )
 
 #RunOption: {
-	#Env | #Host |
+	#Host |
 	#CacheMount | #SourceMount |
-	#TmpFSMount | #ReadOnly
+	#TmpFSMount | #ReadOnly |
+	#Option
 }
 
 #Host: {

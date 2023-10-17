@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/moby/buildkit/client/llb"
 	"github.com/stretchr/testify/require"
 	"gitlab.wikimedia.org/dduvall/phyton/common"
 	"gitlab.wikimedia.org/dduvall/phyton/util/llbtest"
@@ -31,7 +30,10 @@ func TestDecodeImage(t *testing.T) {
 		Image{
 			Ref: "foo.example/image/ref",
 			Options: []*ImageOption{
-				{Platform: &Platform{Platform: common.Platform{OS: "linux", Architecture: "amd64"}}},
+				{Constraint: &Constraint{Platform: &Platform{Platform: common.Platform{
+					OS:           "linux",
+					Architecture: "amd64",
+				}}}},
 			},
 		},
 	)
@@ -42,7 +44,10 @@ func TestDecodeImage(t *testing.T) {
 		Image{
 			Ref: "foo.example/image/ref",
 			Options: []*ImageOption{
-				{Platform: &Platform{Platform: common.Platform{OS: "linux", Architecture: "amd64"}}},
+				{Constraint: &Constraint{Platform: &Platform{Platform: common.Platform{
+					OS:           "linux",
+					Architecture: "amd64",
+				}}}},
 			},
 		},
 	)
@@ -66,11 +71,15 @@ func TestCompileImage(t *testing.T) {
 		Ref: "some.example/image:ref",
 		Options: ImageOptions{
 			{LayerLimit: &LayerLimit{LayerLimit: 999}},
-			{Platform: &Platform{Platform: common.Platform{OS: "linux", Architecture: "arm64", Variant: "v8"}}},
+			{Constraint: &Constraint{Platform: &Platform{Platform: common.Platform{
+				OS:           "linux",
+				Architecture: "arm64",
+				Variant:      "v8",
+			}}}},
 		},
 	}
 
-	state, err := image.Compile(llb.Scratch(), ChainStates{})
+	state, err := image.CompileSource(ChainStates{})
 	req.NoError(err)
 
 	def, err := state.Marshal(context.TODO())

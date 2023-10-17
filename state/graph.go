@@ -12,6 +12,7 @@ import (
 
 type Graph struct {
 	graph.Graph[string, Node]
+	constraints []*Constraint
 	chains      Chains
 	addedChains sync.Map
 	anonCounter atomic.Uint32
@@ -19,7 +20,7 @@ type Graph struct {
 
 // NewGraph creates a new state DAG from the given [Chains] and terminal
 // [*Merge].
-func NewGraph(chains Chains, merge *Merge) (*Graph, error) {
+func NewGraph(chains Chains, merge *Merge, constraints ...*Constraint) (*Graph, error) {
 	g := &Graph{
 		Graph:       graph.New(nodeHash, graph.Directed(), graph.PreventCycles()),
 		chains:      chains,

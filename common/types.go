@@ -56,12 +56,6 @@ type Mode struct {
 	Mode uint32 `json:"value"`
 }
 
-type Platform struct {
-	OS           string `json:"os"`
-	Architecture string `json:"architecture"`
-	Variant      string `json:"variant"`
-}
-
 type User struct {
 	UID  *uint32 `json:"uid"`
 	User string  `json:"user"`

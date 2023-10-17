@@ -10,6 +10,6 @@ func (ex *Extend) ChainRefs() []ChainRef {
 	return []ChainRef{ex.Extend}
 }
 
-func (ex *Extend) Compile(_ llb.State, secondary ChainStates) (llb.State, error) {
+func (ex *Extend) CompileSource(secondary ChainStates, _ ...llb.ConstraintsOpt) (llb.State, error) {
 	return secondary.Resolve(ex.Extend)
 }

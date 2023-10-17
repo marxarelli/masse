@@ -28,6 +28,10 @@ type Compilable interface {
 	Compile(primary llb.State, secondary ChainStates) (llb.State, error)
 }
 
+type CompilableSource interface {
+	CompileSource(secondary ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error)
+}
+
 type State struct {
 	*Scratch `json:",inline"`
 	*Git     `json:",inline"`
@@ -158,6 +162,15 @@ func (state *State) ChainRefs() []ChainRef {
 	}
 
 	return cr.ChainRefs()
+}
+
+func (state *State) CompileSource(secondary ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {
+	c, ok := oneof[CompilableSource](state)
+	if !ok {
+		return llb.State{}, errors.Errorf("no compilable source state")
+	}
+
+	return c.CompileSource(secondary, constraints...)
 }
 
 func (state *State) Compile(primary llb.State, secondary ChainStates) (llb.State, error) {

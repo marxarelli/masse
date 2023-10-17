@@ -11,14 +11,26 @@ func (mg *Merge) ChainRefs() []ChainRef {
 }
 
 func (mg *Merge) Compile(primary llb.State, secondary ChainStates) (llb.State, error) {
+	return mg.compile(&primary, secondary)
+}
+
+func (mg *Merge) CompileSource(secondary ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {
+	return mg.compile(nil, secondary, constraints...)
+}
+
+func (mg *Merge) compile(primary *llb.State, secondary ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {
 	states := make([]llb.State, len(mg.Merge))
 	for i, ref := range mg.Merge {
 		state, err := secondary.Resolve(ref)
 		if err != nil {
-			return primary, err
+			return llb.State{}, err
 		}
 		states[i] = state
 	}
 
-	return llb.Merge(append([]llb.State{primary}, states...)), nil
+	if primary != nil {
+		states = append([]llb.State{*primary}, states...)
+	}
+
+	return llb.Merge(states, constraints...), nil
 }

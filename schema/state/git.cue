@@ -7,7 +7,7 @@ package state
 }
 
 #GitOption: {
-	#KeepGitDir
+	#KeepGitDir | #Constraint
 }
 
 #KeepGitDir: {

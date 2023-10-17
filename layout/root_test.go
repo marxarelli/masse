@@ -129,7 +129,7 @@ func TestDecodeLayout(t *testing.T) {
 			},
 			Layouts: Layouts{
 				"frontend": &Layout{
-					Authors: []*Author{
+					Authors: []Author{
 						{
 							Name:  "Dan Duvall",
 							Email: "dduvall@wikimedia.org",

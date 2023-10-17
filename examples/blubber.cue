@@ -55,5 +55,8 @@ layouts: {
 				keys: ["ssh-ed25519 ..."] }
 		]
 		comprises: ["frontend"]
+		platforms: [
+			{ os: "linux", architecture: "amd64" }
+		]
 	}
 }

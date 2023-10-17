@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/moby/buildkit/client/llb"
 	"github.com/stretchr/testify/require"
 	"gitlab.wikimedia.org/dduvall/phyton/util/llbtest"
 	"gitlab.wikimedia.org/dduvall/phyton/util/testdecode"
@@ -49,7 +48,7 @@ func TestCompileGit(t *testing.T) {
 		},
 	}
 
-	state, err := git.Compile(llb.Scratch(), ChainStates{})
+	state, err := git.CompileSource(ChainStates{})
 	req.NoError(err)
 
 	def, err := state.Marshal(context.TODO())

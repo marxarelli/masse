@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/moby/buildkit/client/llb"
 	"github.com/stretchr/testify/require"
 	"gitlab.wikimedia.org/dduvall/phyton/common"
 	"gitlab.wikimedia.org/dduvall/phyton/util/llbtest"
@@ -93,7 +92,7 @@ func TestCompileLocal(t *testing.T) {
 		},
 	}
 
-	state, err := local.Compile(llb.Scratch(), ChainStates{})
+	state, err := local.CompileSource(ChainStates{})
 	req.NoError(err)
 
 	def, err := state.Marshal(context.TODO())

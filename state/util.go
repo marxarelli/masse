@@ -24,3 +24,11 @@ func qualifyStatePath(state llb.State, path string) string {
 
 	return abs
 }
+
+func constraintsTo[T any](opts []llb.ConstraintsOpt) []T {
+	ts := make([]T, len(opts))
+	for i, x := range opts {
+		ts[i] = x.(T)
+	}
+	return ts
+}

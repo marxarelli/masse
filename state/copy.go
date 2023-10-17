@@ -12,7 +12,15 @@ type Copy struct {
 	Options     CopyOptions   `json:"options"`
 }
 
+func (cp *Copy) CompileSource(secondary ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {
+	return cp.compile(llb.Scratch(), secondary, constraints...)
+}
+
 func (cp *Copy) Compile(primary llb.State, secondary ChainStates) (llb.State, error) {
+	return cp.compile(primary, secondary)
+}
+
+func (cp *Copy) compile(primary llb.State, secondary ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {
 	from, err := secondary.Resolve(cp.From)
 	if err != nil {
 		return primary, err
@@ -42,7 +50,7 @@ func (cp *Copy) Compile(primary llb.State, secondary ChainStates) (llb.State, er
 		}
 	}
 
-	return primary.File(fa), nil
+	return primary.File(fa, constraints...), nil
 }
 
 func (cp *Copy) ChainRefs() []ChainRef {

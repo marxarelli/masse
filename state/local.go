@@ -17,8 +17,11 @@ type Local struct {
 	Options LocalOptions
 }
 
-func (l *Local) Compile(_ llb.State, _ ChainStates) (llb.State, error) {
-	return llb.Local(l.Name, l.Options), nil
+func (l *Local) CompileSource(_ ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {
+	return llb.Local(
+		l.Name,
+		append(constraintsTo[llb.LocalOption](constraints), l.Options)...,
+	), nil
 }
 
 type LocalOptions []*LocalOption
@@ -35,6 +38,7 @@ type LocalOption struct {
 	*FollowPaths
 	*SharedKeyHint
 	*Differ
+	*Constraint
 }
 
 func (opt *LocalOption) SetLocalOption(info *llb.LocalInfo) {

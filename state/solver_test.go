@@ -46,7 +46,7 @@ func TestSolve(t *testing.T) {
 	g, err := NewGraph(chains, &Merge{Merge: []ChainRef{"production", "final"}})
 	req.NoError(err)
 
-	state, err := Solve(g)
+	state, err := NewSolver().Solve(g)
 	req.NoError(err)
 	req.NotNil(state)
 }
