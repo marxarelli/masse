@@ -1,11 +1,22 @@
 package state
 
-import "github.com/moby/buildkit/client/llb"
+import (
+	"fmt"
+
+	"github.com/moby/buildkit/client/llb"
+)
 
 type Git struct {
 	Repo    string     `json:"git"`
 	Ref     string     `json:"ref"`
 	Options GitOptions `json:"optionsValue"`
+}
+
+func (git *Git) Description() string {
+	return fmt.Sprintf(
+		"%s#%s",
+		git.Repo, git.Ref,
+	)
 }
 
 func (git *Git) CompileSource(_ ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {

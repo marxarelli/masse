@@ -11,6 +11,10 @@ type Image struct {
 	Options ImageOptions `json:"options"`
 }
 
+func (image *Image) Description() string {
+	return image.Ref
+}
+
 func (image *Image) CompileSource(_ ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {
 	options := append(constraintsTo[llb.ImageOption](constraints), image.Options)
 

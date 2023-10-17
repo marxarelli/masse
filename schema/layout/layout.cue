@@ -8,7 +8,19 @@ import (
 #Layout: {
 	comprises!: [state.#ChainRef, ...state.#ChainRef]
 	authors: [#Author, ...#Author]
-	platforms?: [common.#Platform, ...common.#Platform]
+	platforms?: [#LayoutPlatform, ...#LayoutPlatform]
+	if platforms != _|_ {
+		platformsValue: [
+			for p in platforms {
+				[
+					if (p & string) != _|_ { common.#Platform & { name: p } },
+					p,
+				][0]
+			}
+		]
+	}
 	parameters?:    #Parameters
 	configuration?: #ImageConfig
 }
+
+#LayoutPlatform: string | common.#Platform

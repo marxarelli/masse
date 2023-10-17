@@ -27,7 +27,7 @@ var drawCommand = &cli.Command{
 		&cli.StringFlag{
 			Name:    "colorscheme",
 			Aliases: []string{"c"},
-			Value:   "paired9",
+			Value:   "ylgn9",
 		},
 	},
 }

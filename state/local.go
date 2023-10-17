@@ -1,6 +1,8 @@
 package state
 
 import (
+	"fmt"
+
 	"github.com/moby/buildkit/client/llb"
 	"github.com/moby/buildkit/solver/pb"
 )
@@ -15,6 +17,13 @@ const (
 type Local struct {
 	Name    string       `json:"local"`
 	Options LocalOptions `json:"optionsValue"`
+}
+
+func (l *Local) Description() string {
+	return fmt.Sprintf(
+		"[%s]",
+		l.Name,
+	)
 }
 
 func (l *Local) CompileSource(_ ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {

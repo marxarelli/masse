@@ -85,11 +85,13 @@ func (s *solver) Solve(g *Graph) (llb.State, error) {
 			}
 		}
 
+		constraints := append(s.constraints, llb.WithCustomName(node.Description()))
+
 		var state llb.State
 		if compiledPrimary == nil {
-			state, err = node.State.CompileSource(compiledSecondary, s.constraints...)
+			state, err = node.State.CompileSource(compiledSecondary, constraints...)
 		} else {
-			state, err = node.State.Compile(*compiledPrimary, compiledSecondary)
+			state, err = node.State.Compile(*compiledPrimary, compiledSecondary, constraints...)
 		}
 
 		if err != nil {

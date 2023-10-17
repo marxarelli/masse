@@ -3,6 +3,7 @@ package state
 import (
 	"fmt"
 	"hash/fnv"
+	"strconv"
 
 	"github.com/dominikbraun/graph"
 )
@@ -33,10 +34,15 @@ func (n Node) Properties() []NodeProperty {
 	}
 }
 
+func (n Node) Description() string {
+	return n.State.Description()
+}
+
 func (n Node) Label() NodeProperty {
+	desc := strconv.Quote(n.Description())
 	return graph.VertexAttribute(
 		"label",
-		fmt.Sprintf("%s: %s", n.Hash(), n.State.Kind()),
+		desc[1:len(desc)-1],
 	)
 }
 

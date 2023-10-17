@@ -1,17 +1,30 @@
 package state
 
-import "github.com/moby/buildkit/client/llb"
+import (
+	"strings"
+
+	"github.com/moby/buildkit/client/llb"
+)
 
 type Merge struct {
 	Merge []ChainRef
+}
+
+func (mg *Merge) Description() string {
+	refs := make([]string, len(mg.Merge))
+	for i, ref := range mg.Merge {
+		refs[i] = string(ref)
+	}
+
+	return strings.Join(refs, " ∪ ")
 }
 
 func (mg *Merge) ChainRefs() []ChainRef {
 	return mg.Merge
 }
 
-func (mg *Merge) Compile(primary llb.State, secondary ChainStates) (llb.State, error) {
-	return mg.compile(&primary, secondary)
+func (mg *Merge) Compile(primary llb.State, secondary ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {
+	return mg.compile(&primary, secondary, constraints...)
 }
 
 func (mg *Merge) CompileSource(secondary ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {

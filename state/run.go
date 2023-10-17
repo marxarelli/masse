@@ -1,6 +1,7 @@
 package state
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -17,13 +18,20 @@ type Run struct {
 	Options   RunOptions `json:"optionsValue"`
 }
 
-func (run *Run) Compile(primary llb.State, secondary ChainStates) (llb.State, error) {
+func (run *Run) Description() string {
+	return fmt.Sprintf(
+		"$ %s",
+		run.ShellCommand(),
+	)
+}
+
+func (run *Run) Compile(primary llb.State, secondary ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {
 	ro, err := run.LLBRunOptions(secondary)
 	if err != nil {
 		return primary, err
 	}
 
-	return primary.Run(ro...).Root(), nil
+	return primary.Run(append(ro, constraintsTo[llb.RunOption](constraints)...)...).Root(), nil
 }
 
 func (run *Run) LLBRunOptions(states ChainStates) ([]llb.RunOption, error) {
@@ -50,12 +58,12 @@ func (run *Run) ChainRefs() []ChainRef {
 	return refs
 }
 
+func (run *Run) ShellCommand() string {
+	return run.Command + " " + strings.Join(run.QuotedArguments(), " ")
+}
+
 func (run *Run) ShellArgs() []string {
-	return []string{
-		"/bin/sh",
-		"-c",
-		run.Command + " " + strings.Join(run.QuotedArguments(), " "),
-	}
+	return []string{"/bin/sh", "-c", run.ShellCommand()}
 }
 
 func (run *Run) QuotedArguments() []string {

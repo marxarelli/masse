@@ -1,7 +1,6 @@
 package state
 
 import (
-	"strings"
 	"wikimedia.org/dduvall/phyton/schema/common"
 )
 
@@ -10,17 +9,11 @@ import (
 }
 
 #SymbolicPlatform: {
-	platform!: string
-	_parts:    strings.SplitN(platform, "/", 3)
-	platformValue:     common.#Platform & [
-		if len(_parts) > 2 {
-			{os: _parts[0], architecture: _parts[1], variant: _parts[2]}
-		},
-		{os: _parts[0], architecture: _parts[1]},
-	][0]
+	platform!:     string
+	platformValue: common.#Platform & {name: platform}
 }
 
 #LiteralPlatform: {
-	platform!: common.#Platform
-	platformValue:     platform
+	platform!:     common.#Platform
+	platformValue: platform
 }

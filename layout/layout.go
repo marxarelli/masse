@@ -10,11 +10,11 @@ import (
 type Layouts map[string]*Layout
 
 type Layout struct {
-	Comprises     []state.ChainRef
-	Authors       []Author
-	Platforms     []common.Platform
-	Parameters    Parameters
-	Configuration ImageConfig
+	Comprises     []state.ChainRef  `json:"comprises"`
+	Authors       []Author          `json:"authors"`
+	Platforms     []common.Platform `json:"platformsValue"`
+	Parameters    Parameters        `json:"parameters"`
+	Configuration ImageConfig       `json:"configuration"`
 }
 
 // Graph returns a new [state.Graph] for the [Layout] and the given

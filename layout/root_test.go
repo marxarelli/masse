@@ -69,6 +69,10 @@ func TestDecodeLayout(t *testing.T) {
 							keys: [ "ssh-ed25519 ..." ] }
 					]
 					comprises: [ "frontend" ]
+					platforms: [
+						{ os: "linux", architecture: "arm64", variant: "v8" },
+						"linux/amd64",
+					]
 				}
 			}
 		}`,
@@ -139,6 +143,10 @@ func TestDecodeLayout(t *testing.T) {
 						},
 					},
 					Comprises: []state.ChainRef{"frontend"},
+					Platforms: []common.Platform{
+						{OS: "linux", Architecture: "arm64", Variant: "v8"},
+						{OS: "linux", Architecture: "amd64"},
+					},
 				},
 			},
 		},

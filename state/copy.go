@@ -1,6 +1,8 @@
 package state
 
 import (
+	"fmt"
+
 	"github.com/moby/buildkit/client/llb"
 	"gitlab.wikimedia.org/dduvall/phyton/common"
 )
@@ -12,15 +14,18 @@ type Copy struct {
 	Options     CopyOptions   `json:"optionsValue"`
 }
 
+func (cp *Copy) Description() string {
+	return fmt.Sprintf(
+		"{%s}%+v -> %+v",
+		cp.From, cp.Source, cp.Destination,
+	)
+}
+
 func (cp *Copy) CompileSource(secondary ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {
-	return cp.compile(llb.Scratch(), secondary, constraints...)
+	return cp.Compile(llb.Scratch(), secondary, constraints...)
 }
 
-func (cp *Copy) Compile(primary llb.State, secondary ChainStates) (llb.State, error) {
-	return cp.compile(primary, secondary)
-}
-
-func (cp *Copy) compile(primary llb.State, secondary ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {
+func (cp *Copy) Compile(primary llb.State, secondary ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {
 	from, err := secondary.Resolve(cp.From)
 	if err != nil {
 		return primary, err

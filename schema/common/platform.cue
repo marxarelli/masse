@@ -1,5 +1,9 @@
 package common
 
+import(
+	"strings"
+)
+
 // See https://github.com/opencontainers/image-spec/blob/main/config.md#properties
 // and https://go.dev/doc/install/source#environment
 #OS:
@@ -41,8 +45,18 @@ package common
 }
 
 #Platform: {
-	// See https://github.com/opencontainers/image-spec/blob/main/config.md#properties
+	name?: string
+
 	os:           #OS
 	architecture: #Architecture
 	variant?:     *#Variants[architecture] | ""
+
+	if name != _|_ {
+		_parts:    strings.SplitN(name, "/", 3)
+		os: _parts[0]
+		architecture: _parts[1]
+		if len(_parts) > 2 {
+			variant: _parts[2]
+		}
+	}
 }

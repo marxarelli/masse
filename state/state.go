@@ -2,6 +2,7 @@ package state
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/moby/buildkit/client/llb"
 	"github.com/pkg/errors"
@@ -24,12 +25,28 @@ const (
 	WithKind              = "with"
 )
 
+var (
+	kindEmoji = map[StateKind]string{
+		GitKind:   "🐝",
+		ImageKind: "🌦️",
+		LocalKind: "🌸",
+		CopyKind:  "🌼",
+		DiffKind:  "🍀",
+		LinkKind:  "🌺",
+		MergeKind: "🌿",
+	}
+)
+
 type Compilable interface {
-	Compile(primary llb.State, secondary ChainStates) (llb.State, error)
+	Compile(primary llb.State, secondary ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error)
 }
 
 type CompilableSource interface {
 	CompileSource(secondary ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error)
+}
+
+type Describable interface {
+	Description() string
 }
 
 type State struct {
@@ -44,6 +61,23 @@ type State struct {
 	*Extend  `json:",inline"`
 	*Run     `json:",inline"`
 	*With    `json:",inline"`
+}
+
+func (state *State) Description() string {
+	kind := state.Kind()
+
+	emoji, ok := kindEmoji[kind]
+	if !ok {
+		emoji = "🌱"
+	}
+
+	desc := string(kind)
+
+	if field, ok := oneof[Describable](state); ok {
+		desc = field.Description()
+	}
+
+	return fmt.Sprintf("%s %s", emoji, desc)
 }
 
 func (state *State) UnmarshalJSON(data []byte) error {
@@ -173,11 +207,11 @@ func (state *State) CompileSource(secondary ChainStates, constraints ...llb.Cons
 	return c.CompileSource(secondary, constraints...)
 }
 
-func (state *State) Compile(primary llb.State, secondary ChainStates) (llb.State, error) {
+func (state *State) Compile(primary llb.State, secondary ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {
 	c, ok := oneof[Compilable](state)
 	if !ok {
 		return llb.State{}, errors.Errorf("no compilable state")
 	}
 
-	return c.Compile(primary, secondary)
+	return c.Compile(primary, secondary, constraints...)
 }
