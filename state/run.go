@@ -12,9 +12,9 @@ type LLBRunOptions interface {
 }
 
 type Run struct {
-	Command   string `json:"run"`
-	Arguments []string
-	Options   RunOptions
+	Command   string     `json:"run"`
+	Arguments []string   `json:"arguments"`
+	Options   RunOptions `json:"optionsValue"`
 }
 
 func (run *Run) Compile(primary llb.State, secondary ChainStates) (llb.State, error) {

@@ -9,7 +9,7 @@ type Copy struct {
 	Source      []common.Glob `json:"source"`
 	From        ChainRef      `json:"from"`
 	Destination string        `json:"destination"`
-	Options     CopyOptions   `json:"options"`
+	Options     CopyOptions   `json:"optionsValue"`
 }
 
 func (cp *Copy) CompileSource(secondary ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {

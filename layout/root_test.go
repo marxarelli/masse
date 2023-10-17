@@ -85,7 +85,7 @@ func TestDecodeLayout(t *testing.T) {
 					}},
 				},
 				"go": state.Chain{
-					{Image: &state.Image{Ref: "docker-registry.wikimedia.org/golang1.19:1.19-1-20230730"}},
+					{Image: &state.Image{Ref: "docker-registry.wikimedia.org/golang1.19:1.19-1-20230730", Inherit: true}},
 				},
 				"tools": state.Chain{
 					{Merge: &state.Merge{Merge: []state.ChainRef{"go"}}},

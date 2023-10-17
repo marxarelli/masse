@@ -22,9 +22,9 @@ var solveCommand = &cli.Command{
 			Required: true,
 		},
 		&cli.StringFlag{
-			Name:     "platform",
-			Aliases:  []string{"p"},
-			Required: true,
+			Name:    "platform",
+			Aliases: []string{"p"},
+			Value:   "linux/amd64",
 		},
 	},
 }

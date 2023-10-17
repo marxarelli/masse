@@ -13,8 +13,8 @@ const (
 )
 
 type Local struct {
-	Name    string `json:"local"`
-	Options LocalOptions
+	Name    string       `json:"local"`
+	Options LocalOptions `json:"optionsValue"`
 }
 
 func (l *Local) CompileSource(_ ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {

@@ -11,7 +11,7 @@ type Link struct {
 	Source      []common.Glob `json:"source"`
 	From        ChainRef      `json:"from"`
 	Destination string        `json:"destination"`
-	Options     LinkOptions   `json:"options"`
+	Options     LinkOptions   `json:"optionsValue"`
 }
 
 func (ln *Link) ChainRefs() []ChainRef {

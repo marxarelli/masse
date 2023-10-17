@@ -5,7 +5,7 @@ import "github.com/moby/buildkit/client/llb"
 type Git struct {
 	Repo    string     `json:"git"`
 	Ref     string     `json:"ref"`
-	Options GitOptions `json:"options"`
+	Options GitOptions `json:"optionsValue"`
 }
 
 func (git *Git) CompileSource(_ ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {

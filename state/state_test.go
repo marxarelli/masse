@@ -23,7 +23,7 @@ func TestDecodeState(t *testing.T) {
 			{ diff: [ { run: "make stuff" } ] },
 		]`,
 		Chain{
-			{Image: &Image{Ref: "foo.example/image/ref"}},
+			{Image: &Image{Ref: "foo.example/image/ref", Inherit: true}},
 			{With: &With{With: []*Option{
 				{Env: &Env{Env: common.Env{"FOO": "BAR"}}},
 			}}},

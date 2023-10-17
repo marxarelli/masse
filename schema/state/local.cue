@@ -1,12 +1,16 @@
 package state
 
 import (
+	"list"
 	"wikimedia.org/dduvall/phyton/schema/common"
 )
 
 #Local: {
 	local!: string
-	options?: [...#LocalOption]
+	options?: #LocalOption | [#LocalOption, ...#LocalOption]
+	if options != _|_ {
+		optionsValue: list.FlattenN([options], 1)
+	}
 }
 
 #LocalOption: {

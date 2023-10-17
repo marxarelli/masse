@@ -20,7 +20,17 @@ func TestDecodeImage(t *testing.T) {
 		"state.#Image",
 		`state.#Image & { image: "foo.example/image/ref" }`,
 		Image{
-			Ref: "foo.example/image/ref",
+			Ref:     "foo.example/image/ref",
+			Inherit: true,
+		},
+	)
+
+	testdecode.Run(tester,
+		"state.#Image/inherit:false",
+		`state.#Image & { image: "foo.example/image/ref", inherit: false }`,
+		Image{
+			Ref:     "foo.example/image/ref",
+			Inherit: false,
 		},
 	)
 
@@ -28,7 +38,8 @@ func TestDecodeImage(t *testing.T) {
 		"state.#Image/options/platform/literal",
 		`state.#Image & { image: "foo.example/image/ref", options: [ { platform: { os: "linux", architecture: "amd64" } } ] }`,
 		Image{
-			Ref: "foo.example/image/ref",
+			Ref:     "foo.example/image/ref",
+			Inherit: true,
 			Options: []*ImageOption{
 				{Constraint: &Constraint{Platform: &Platform{Platform: common.Platform{
 					OS:           "linux",
@@ -42,7 +53,8 @@ func TestDecodeImage(t *testing.T) {
 		"state.#Image/options/platform/symbolic",
 		`state.#Image & { image: "foo.example/image/ref", options: [ { platform: "linux/amd64" } ] }`,
 		Image{
-			Ref: "foo.example/image/ref",
+			Ref:     "foo.example/image/ref",
+			Inherit: true,
 			Options: []*ImageOption{
 				{Constraint: &Constraint{Platform: &Platform{Platform: common.Platform{
 					OS:           "linux",
@@ -56,7 +68,8 @@ func TestDecodeImage(t *testing.T) {
 		"state.#Image/options/layerLimit",
 		`state.#Image & { image: "foo.example/image/ref", options: [ { layerLimit: 999 } ] }`,
 		Image{
-			Ref: "foo.example/image/ref",
+			Ref:     "foo.example/image/ref",
+			Inherit: true,
 			Options: []*ImageOption{
 				{LayerLimit: &LayerLimit{LayerLimit: 999}},
 			},

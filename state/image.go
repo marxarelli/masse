@@ -2,17 +2,28 @@ package state
 
 import (
 	"github.com/moby/buildkit/client/llb"
+	"github.com/moby/buildkit/client/llb/imagemetaresolver"
 )
 
 type Image struct {
 	Ref     string       `json:"image"`
+	Inherit bool         `json:"inherit"`
 	Options ImageOptions `json:"options"`
 }
 
 func (image *Image) CompileSource(_ ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {
+	options := append(constraintsTo[llb.ImageOption](constraints), image.Options)
+
+	if image.Inherit {
+		options = append(
+			options,
+			llb.WithMetaResolver(imagemetaresolver.Default()),
+		)
+	}
+
 	return llb.Image(
 		image.Ref,
-		append(constraintsTo[llb.ImageOption](constraints), image.Options)...,
+		options...,
 	), nil
 }
 

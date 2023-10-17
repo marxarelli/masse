@@ -15,12 +15,7 @@ chains: {
 
 	go: [
 		{ image: "docker-registry.wikimedia.org/golang1.19:1.19-1-20230730" },
-		{ with: [
-			{ env: {
-				PATH:	"/go/bin:/usr/lib/go-1.19/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-			} },
-			{ directory: "/src" }
-		] },
+		{ with: directory: "/src" },
 	]
 
 	tools: [
