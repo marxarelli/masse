@@ -13,7 +13,7 @@ type Merge struct {
 func (mg *Merge) Description() string {
 	refs := make([]string, len(mg.Merge))
 	for i, ref := range mg.Merge {
-		refs[i] = string(ref)
+		refs[i] = "{" + string(ref) + "}"
 	}
 
 	return strings.Join(refs, " ∪ ")
