@@ -57,7 +57,7 @@ chains: {
 
   binaries: [
     { extend: "toolchain" },
-  { with: directory: "/src" },
+    { with: directory: "/src" },
     { link: ".", from: "repo" },
     { run: "make" },
   ]
