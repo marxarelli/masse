@@ -11,140 +11,129 @@ express complex container image build graphs in. It aims to:
 
  1. Give users compact yet powerful declarative constructs to express how
     their container filesystems should be created, composed, and packaged.
- 2. Provide an API for users to define new build constructs (macros, e.g.).
- 3. Provide a policy API for operators to constrain privileged operations.
- 4. Maintain a lazy evaluation model by expressing all build instructions as
+ 2. Provide composable build primitives based on (nearly) all operations
+    and options in the BuildKit LLB API.
+ 3. Provide an API for users to define new build constructs (macros, e.g.) on
+    top of build primitives.
+ 4. Provide a policy API for operators to constrain privileged operations.
+ 5. Maintain a lazy evaluation model by expressing all build instructions as
     [Low-Level Build (LLB)][llb].
- 5. Formally separate container filesystem creation from image configuration.
- 6. Give users a simple API for composing images from built filesystems and
+ 6. Formally separate container filesystem creation from image configuration.
+ 7. Give users a simple API for composing images from built filesystems and
     configuration.
- 7. Bake supply chain security into the specification itself. Can the layout
+ 8. Bake supply chain security into the specification itself. Can the layout
     itself subsume an [in-toto assertions][in-toto-spec]?
 
-## Known unknowns
+## Based on CUE
 
-### Specification and configuration language
+The schema and user defined configuration will be written in [CUE][cue], an
+"open-source data validation language and inference engine with its roots in
+logic programming."
 
-Oh to choose.
+As a JSON superset, CUE has nearly the same compactness of YAML but is a very
+powerful language for schema definition, validation/constraints, and user
+facing configuration. With CUE we can support composable user defined types
+and module imports. It's constructs are rich and coherent.
 
-#### YAML
+See [schema/apt/macros.cue](./schema/apt/macros.cue) for an example of what an
+`apt install` macro looks like.
 
-YAML is well known. It is also notorious for its ambiguity and abuse.
+## Build chains
 
-By itself, it cannot satisfy the goal of provide user defined extension
-(macros).  It would need something like embedded CEL and esoteric YAML
-mappings for real language constructs and evaluation.
-
-```
-macros:
-  apt::packages:
-    - assert: # validation or guards akin to Haskell
-        $packages: []
-        $options: []
-        where: "packages.all(p, p.matches(debianPackage))"
-      invalid: "Invalid package names"
-      =>: !cel |
-        [
-          Run {
-            command: "apt-get update && apt-get install --no-recommends -y",
-            args: packages,
-            options: [
-              env({
-
-              }),
-              Cache {
-                path: "/var/cache/apt",
-                access: Cache.LOCKED,
-              },
-            ] + runOptions(options),
-          },
-        ]
-
-targets:
-  go:
-    - image: docker-registry.wikimedia.org/golang1.19:1.19-1-20230730
-
-  build-tools:
-    - merge: [go]
-    - diff:
-        - apt::packages: [gcc, git, make]
-
-```
-
-See [examples/blubber.yaml](./examples/blubber.yaml) for what a configuration
-might look like in YAML with embedded CEL expressions for macros.
-
-#### CEL + protobuf
-
-CEL expressions are capable of representing a build graph on their own.
-However, a large graph would contain a lot of type-declaration overhead,
-hardly the compact format needed here.
-
-CEL (or YAML + embedded CEL) would require the schema to be written in Proto
-definitions to get the data structure into Go for evaluation to [LLB][llb].
-
-The protobuf schema would need an additional validation layer as well, likely
-also in CEL using something like [protoc-gen-validate][protoc-gen-validate].
-
-#### CUE
-
-[CUE][cue] is very interesting. It has nearly the same compactness of YAML but
-is a very powerful language for schema definition, validation/constraints, and
-user configuration. It's constructs are rich and coherent.
-
-Macros, for instance, can be accomplished quite easily using embedded
-definitions and hidden fields.
+Build processes are defined as independent chains of the overall build graph.
+This is meant to strike a balance between flexibility in graph node definition
+while improving readability/reasoning of the overall build graph.
 
 ```cue
-#Chain: [...#State]
+chains: {
+  repo: [
+    { git: "https://my.example/repo.git" },
+  ]
 
-#State: {
-  #Git | #ImageSource | #Run | #Link | #Diff | #Merge | #StateOptions
-}
+  toolchain: [
+    { image: "docker-registry.wikimedia.org/golang1.19:1.19-1-20230730" },
+    { apt.install & { #packages: [ "gcc", "git", "make" ] } },
+  ]
 
-#Diff: {
-  diff: #Chain
-}
+  binaries: [
+    { extend: "toolchain" },
+  { with: directory: "/src" },
+    { link: ".", from: "repo" },
+    { run: "make" },
+  ]
 
-// #AptInstall unifies with #Diff since its #packages field is hidden and so
-// it is a valid #State
-#AptInstall: #Diff & {
-  #packages: [...string]
-  diff: [
-    {
-      run: "apt-get install -y"
-      arguments: #packages
-      options: [
-        {
-          cache: "/var/lib/apt"
-          access: "locked"
-        },
-        {
-          cache: "/var/cache/apt"
-          access: "locked"
-        }
-      ]
-    },
+  application: [
+    { copy: "my-compiled-program", from: "binaries" },
   ]
 }
-
-targets: {
-  go: [ { image: "docker-registry.wikimedia.org/golang1.19:1.19-1-20230730" } ]
-
-  build_tools: [
-    { merge: [targets.go] },
-    #AptInstall & {
-      #packages: ["gcc", "git", "make"]
-    },
-  ]
 ```
 
-Note that in the above, `targets.go` is referencing directly the `go` field of
-`targets`, another very powerful construct akin to YAML anchors but much
-better.
+As you can see with `{ extend: "toolchain" }` and `{ link: ".", from: "repo"
+}` above, dependency chains are referenced by name. Chain references are
+resolved when the internal DAG is constructed. Cycles are also
+detected/prevented during internal DAG construction.
 
-CUE also supports imports, meaning users would be able to publish, share,
-import macros.
+## Macros
+
+We can combine CUE's [definition][cuedefs] and [embedding][cueembeds]
+constructs to support a standard library and user-defined macros.
+
+For example, the typical `apt install` pattern that's repeated in so many
+Dockerfiles across the internet can be achieved with the following definition.
+
+```cue
+package apt
+
+#PackageName: "[a-z0-9][a-z0-9+\\.\\-]+"
+#VersionSpec: "(?:[0-9]+:)?[0-9]+[a-zA-Z0-9\\.\\+\\-~]*"
+#ReleaseName: "[a-zA-Z](?:[a-zA-Z0-9\\-]*[a-zA-Z0-9]+)?"
+
+#Package: =~ "^\(#PackageName)(?:=\(#VersionSpec)|/\(#ReleaseName))?$"
+
+install: {
+  #packages: [#Package, ...#Package]
+
+  {
+    run: "apt-get install -y"
+    arguments: #packages
+    options: [
+      { env: { "DEBIAN_FRONTEND": "noninteractive" } },
+      { cache: "/var/lib/apt", access: "locked" },
+      { cache: "/var/cache/apt", access: "locked" },
+    ]
+  }
+}
+```
+
+As you can see, the macro can define its parameter as a CUE definition,
+provide validation constraints. In CUE terminology each package name must
+"unify" with the regex constrained string.
+
+```cue
+#Package: =~ "^\(#PackageName)(?:=\(#VersionSpec)|/\(#ReleaseName))?$"
+```
+
+The macro can "return" its resulting build operations (in this case a single
+`{ run: ... }`) using an embed.
+
+## TODOs
+
+Many many things, including:
+
+ * The `layout` specification needs attention. It should likely take the same
+   approach as the `chains` specification and provide primitives that map onto
+   [OCI][oci] specifications to allow for maximum flexibility in how resulting
+   manifests are constructed. Perhaps the section should even be renamed
+   `manifests`?
+ * A BuildKit [frontend][frontend] (Dockerfile syntax) should be implemented
+   soon to allow people to test this out with standard Docker tooling.
+ * The `buildctl` output is wonky with emojis. It seems like width is not
+   being computed correctly. This is likely an upstream bug.
+ * Organize macros into a stdlib and implement macros for most of
+   [Blubber][blubber]'s higher level builder directives (npm, python, php,
+   etc.).
+ * At the moment, environment variables are not substituted in command
+   strings. Should they be?
 
 ## License
 
@@ -154,5 +143,9 @@ Phyton is licensed under the GNU General Public License 3.0 or later
 [buildkit]: https://docs.docker.com/build/buildkit/
 [llb]: https://docs.docker.com/build/buildkit/#llb
 [in-toto-spec]: https://github.com/in-toto/docs/blob/master/in-toto-spec.md
-[protoc-gen-validate]: https://github.com/bufbuild/protoc-gen-validate
 [cue]: https://cuelang.org
+[cuedefs]: https://cuelang.org/docs/references/spec/#definitions-and-hidden-fields
+[cueembeds]: https://cuelang.org/docs/references/spec/#embedding
+[oci]: https://github.com/opencontainers/image-spec
+[frontend]: https://docs.docker.com/build/dockerfile/frontend/
+[blubber]: https://gitlab.wikimedia.org/repos/releng/blubber
