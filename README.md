@@ -38,6 +38,12 @@ and module imports. It's constructs are rich and coherent.
 See [schema/apt/macros.cue](./schema/apt/macros.cue) for an example of what an
 `apt install` macro looks like.
 
+## Example config
+
+To skip straight to what a build configuration looks like in Phyton, see
+[examples/blubber.cue](./examples/blubber.cue). This is a port of Blubber's
+own `blubber.yaml` to Phyton.
+
 ## Build chains
 
 Build processes are defined as independent chains of the overall build graph.
@@ -114,7 +120,28 @@ provide validation constraints. In CUE terminology each package name must
 ```
 
 The macro can "return" its resulting build operations (in this case a single
-`{ run: ... }`) using an embed.
+`{ run: ... }`) using an embed. The use of this shared macro is simply a CUE
+unification with the definition.
+
+```cue
+import (
+	"wikimedia.org/dduvall/phyton/schema/apt"
+)
+
+chains:
+    go: [
+		{ image: "docker-registry.wikimedia.org/golang1.19:1.19-1-20230730" },
+		apt.install & { #packages: [ "gcc", "git", "make" ] },
+	]
+```
+
+Note that the CUE folks are working on adding syntactic sugar for this
+"function" pattern. The expression could be as simple as the following in the
+future.
+
+```
+apt.install(["gcc","git", "make"])
+```
 
 ## TODOs
 
