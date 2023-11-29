@@ -15,14 +15,17 @@ express complex container image build graphs in. It aims to:
     and options in the BuildKit LLB API.
  3. Provide an API for users to define new build constructs (macros, e.g.) on
     top of build primitives.
- 4. Provide a policy API for operators to constrain privileged operations.
- 5. Maintain a lazy evaluation model by expressing all build instructions as
-    [Low-Level Build (LLB)][llb].
- 6. Formally separate container filesystem creation from image configuration.
- 7. Give users a simple API for composing images from built filesystems and
+ 4. Provide a policy API for operators to assert arbitrary conditions on the
+    [Low Level Build][llb] instructions prior to actual building (e.g. base
+    images must come from certain registries).
+ 5. Formally separate container filesystem creation from image configuration.
+ 6. Give users a simple API for composing manifests from built filesystems and
     configuration.
- 8. Bake supply chain security into the specification itself. Can the layout
-    itself subsume an [in-toto assertions][in-toto-spec]?
+ 7. Support creation of manifests that contain only arbitrary meta data (e.g.
+    Software Bill of Materials (SBoMs) or [attestations][in-toto-spec]).
+ 8. Support dynamic generation of build instructions, configuration, and
+    manifest definitions via a pattern of intermediate solving. (TODO: wth
+    does this mean)
 
 ## Based on CUE
 
@@ -125,14 +128,14 @@ unification with the definition.
 
 ```cue
 import (
-	"wikimedia.org/dduvall/phyton/schema/apt"
+  "wikimedia.org/dduvall/phyton/schema/apt"
 )
 
 chains:
-    go: [
-		{ image: "docker-registry.wikimedia.org/golang1.19:1.19-1-20230730" },
-		apt.install & { #packages: [ "gcc", "git", "make" ] },
-	]
+  go: [
+    { image: "docker-registry.wikimedia.org/golang1.19:1.19-1-20230730" },
+    apt.install & { #packages: [ "gcc", "git", "make" ] },
+  ]
 ```
 
 Note that the CUE folks are working on adding syntactic sugar for this
