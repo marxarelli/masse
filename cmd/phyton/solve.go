@@ -7,7 +7,8 @@ import (
 	"github.com/moby/buildkit/client/llb"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
-	"gitlab.wikimedia.org/dduvall/phyton/layout"
+
+	"gitlab.wikimedia.org/dduvall/phyton/config"
 )
 
 var solveCommand = &cli.Command{
@@ -31,37 +32,37 @@ var solveCommand = &cli.Command{
 
 func solveAction(clicontext *cli.Context) error {
 	file := clicontext.String("file")
-	target := clicontext.String("target")
+	targetName := clicontext.String("target")
 	platform := clicontext.String("platform")
 
 	data, err := os.ReadFile(file)
 	if err != nil {
-		return errors.Wrap(err, "failed to read layout file")
+		return errors.Wrap(err, "failed to read config file")
 	}
 
-	root, err := layout.Load(file, data)
+	root, err := config.Load(file, data)
 	if err != nil {
-		return errors.Wrap(err, "failed to load layout")
+		return errors.Wrap(err, "failed to load config")
 	}
 
-	layout, ok := root.Layouts[target]
+	target, ok := root.Targets[targetName]
 	if !ok {
-		return errors.Wrapf(err, "unknown layout %q", target)
+		return errors.Wrapf(err, "unknown target %q", targetName)
 	}
 
-	graph, err := layout.Graph(root.Chains)
+	graph, err := target.Graph(root.Chains)
 	if err != nil {
-		return errors.Wrap(err, "failed to get layout graph")
+		return errors.Wrap(err, "failed to get target graph")
 	}
 
-	solver, err := layout.ResolvePlatformSolver(platform)
+	solver, err := target.ResolvePlatformSolver(platform)
 	if err != nil {
 		return err
 	}
 
 	st, err := solver.Solve(graph)
 	if err != nil {
-		return errors.Wrap(err, "failed to solve layout graph")
+		return errors.Wrap(err, "failed to solve target graph")
 	}
 
 	def, err := st.Marshal(context.TODO())

@@ -10,7 +10,7 @@ import (
 	"github.com/dominikbraun/graph/draw"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
-	"gitlab.wikimedia.org/dduvall/phyton/layout"
+	"gitlab.wikimedia.org/dduvall/phyton/config"
 )
 
 var drawCommand = &cli.Command{
@@ -38,17 +38,17 @@ func drawAction(clicontext *cli.Context) error {
 
 	data, err := os.ReadFile(file)
 	if err != nil {
-		return errors.Wrap(err, "failed to read layout file")
+		return errors.Wrap(err, "failed to read config file")
 	}
 
-	root, err := layout.Load(file, data)
+	root, err := config.Load(file, data)
 	if err != nil {
-		return errors.Wrap(err, "failed to load layout")
+		return errors.Wrap(err, "failed to load config")
 	}
 
-	graph, err := root.LayoutGraph(target)
+	graph, err := root.TargetGraph(target)
 	if err != nil {
-		return errors.Wrap(err, "failed to construct graph from layout")
+		return errors.Wrap(err, "failed to construct target graph")
 	}
 
 	var buffer bytes.Buffer

@@ -1,4 +1,4 @@
-package layout
+package config
 
 import "gitlab.wikimedia.org/dduvall/phyton/common"
 

@@ -18,9 +18,9 @@ type Graph struct {
 	anonCounter atomic.Uint32
 }
 
-// NewGraph creates a new state DAG from the given [Chains] and terminal
-// [*Merge].
-func NewGraph(chains Chains, merge *Merge, constraints ...*Constraint) (*Graph, error) {
+// NewGraph creates a new state DAG from the given global [Chains] and
+// sink [ChainRef].
+func NewGraph(chains Chains, ref ChainRef, constraints ...*Constraint) (*Graph, error) {
 	g := &Graph{
 		Graph:       graph.New(nodeHash, graph.Directed(), graph.PreventCycles()),
 		chains:      chains,
@@ -28,26 +28,14 @@ func NewGraph(chains Chains, merge *Merge, constraints ...*Constraint) (*Graph, 
 		anonCounter: atomic.Uint32{},
 	}
 
-	sink := Node{
-		State:     &State{Merge: merge},
-		ChainRef:  ChainRef("."),
-		Index:     -1,
-		Anonymous: false,
+	chain, ok := g.chains[ref]
+	if !ok {
+		return nil, errors.Errorf("unknown chain %q", ref)
 	}
 
-	err := g.AddNode(sink)
-	if err != nil {
-		return nil, err
-	}
+	_, err := g.AddChain(ref, chain, false)
 
-	for _, ref := range merge.ChainRefs() {
-		err := g.AddChainEdgeByRef(ref, sink)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return g, nil
+	return g, err
 }
 
 // AddChainEdgeByRef resolves a current chain by name only before calling

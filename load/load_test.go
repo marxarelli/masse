@@ -47,7 +47,7 @@ func TestMainInstanceWith(t *testing.T) {
 				`    { image: "foo.example/image/ref" },`,
 				`  ]`,
 				`}`,
-				`layouts: foo: comprises: ["foo"]`,
+				`targets: foo: build: "foo"`,
 			)),
 		},
 	)

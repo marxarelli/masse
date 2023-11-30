@@ -38,12 +38,9 @@ func TestSolve(t *testing.T) {
 		"final": Chain{
 			&State{Copy: &Copy{Source: []common.Glob{"/srv/foo"}, From: "binaries"}},
 		},
-		"production": Chain{
-			&State{Image: &Image{Ref: "some.example/prod/env"}},
-		},
 	}
 
-	g, err := NewGraph(chains, &Merge{Merge: []ChainRef{"production", "final"}})
+	g, err := NewGraph(chains, ChainRef("final"))
 	req.NoError(err)
 
 	state, err := NewSolver().Solve(g)

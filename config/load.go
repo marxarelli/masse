@@ -1,4 +1,4 @@
-package layout
+package config
 
 import (
 	"path/filepath"
@@ -9,7 +9,7 @@ import (
 	"gitlab.wikimedia.org/dduvall/phyton/schema"
 )
 
-// Load loads the given layout configuration into a new *Root using a new CUE
+// Load loads the given target configuration into a new *Root using a new CUE
 // context. The path is used solely for location information in error
 // reporting.
 func Load(path string, data []byte) (*Root, error) {

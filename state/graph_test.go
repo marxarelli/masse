@@ -38,17 +38,14 @@ func TestGraph(t *testing.T) {
 		"final": Chain{
 			&State{Copy: &Copy{Source: []common.Glob{"/srv/foo"}, From: "binaries"}},
 		},
-		"production": Chain{
-			&State{Image: &Image{Ref: "some.example/prod/env"}},
-		},
 	}
 
-	g, err := NewGraph(chains, &Merge{Merge: []ChainRef{"production", "final"}})
+	g, err := NewGraph(chains, ChainRef("final"))
 	req.NoError(err)
 
 	edges, err := g.Edges()
 	req.NoError(err)
-	req.Len(edges, 12)
+	req.Len(edges, 10)
 
 	expectedEdges := [][]string{
 		{"repo[0]", "binaries[2]"},
@@ -61,8 +58,6 @@ func TestGraph(t *testing.T) {
 		{"binaries[0]", "binaries[1]"},
 		{"binaries[1]", "binaries[2]"},
 		{"binaries[2]", "final[0]"},
-		{"final[0]", "."},
-		{"production[0]", "."},
 	}
 
 	for _, vertices := range expectedEdges {

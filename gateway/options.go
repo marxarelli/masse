@@ -7,24 +7,24 @@ import (
 	"github.com/containerd/containerd/platforms"
 	"github.com/moby/buildkit/frontend/gateway/client"
 	"github.com/pkg/errors"
-	"gitlab.wikimedia.org/dduvall/phyton/layout"
+
+	"gitlab.wikimedia.org/dduvall/phyton/config"
 )
 
 const (
 	keyCacheFrom    = "cache-from"    // for registry only. deprecated in favor of keyCacheImports
 	keyCacheImports = "cache-imports" // JSON representation of []CacheOptionsEntry
 
-	keyLayoutLocal  = "layout-local"
-	keyLayoutFile   = "layout-file"
-	keyTargetLayout = "layout-target"
+	keyConfigLocal = "config-local"
+	keyConfigFile  = "config-file"
+	keyTarget      = "target"
 
-	defaultLayoutLocal = "layout"
-	defaultLayoutFile  = "layout.cue"
+	defaultConfigLocal = "config"
+	defaultConfigFile  = "phyton.cue"
 
 	// Dockerfile syntax= compatibility
 	dockerfileLocal   = "dockerfile" // tried prior to defaultLayoutLocal
-	keyDockerfilePath = "filename"   // = keyLayoutFile
-	keyTarget         = "target"     // = keyTargetLayout
+	keyDockerfilePath = "filename"   // = keyConfigFile
 
 	// Support the same build-arg: option prefix that buildkit's dockerfile
 	// frontend supports. Use the values as Phyton parameters.
@@ -34,17 +34,17 @@ const (
 
 // Options stores options to configure the build process.
 type Options struct {
-	// Name of the client's local context that contains the layout.cue file
-	LayoutLocal string
+	// Name of the client's local context that contains the config file
+	ConfigLocal string
 
-	// Path to the layout.cue file, relative to the LayoutLocal
-	LayoutFile string
+	// Path to the config file, relative to the ConfigLocal
+	ConfigFile string
 
-	// TargetLayout is the layout entry to build
-	TargetLayout string
+	// Target is the targets entry to build
+	Target string
 
 	// Parameters are user supplied build parameters
-	Parameters layout.Parameters
+	Parameters config.Parameters
 
 	// Session ID
 	SessionID string
@@ -56,9 +56,9 @@ type Options struct {
 // NewOptions creates a new Options with default values assigned
 func NewOptions() *Options {
 	return &Options{
-		LayoutLocal:  defaultLayoutLocal,
-		LayoutFile:   defaultLayoutFile,
-		Parameters:   layout.Parameters{},
+		ConfigLocal:  defaultConfigLocal,
+		ConfigFile:   defaultConfigFile,
+		Parameters:   config.Parameters{},
 		CacheOptions: []client.CacheOptionsEntry{},
 	}
 }
@@ -73,19 +73,19 @@ func ParseOptions(cbo client.BuildOpts) (*Options, error) {
 	// Assume Dockerfile syntax= usage based on product
 	// TODO test this
 	if cbo.Product == "docker" {
-		opts.LayoutLocal = dockerfileLocal
+		opts.ConfigLocal = dockerfileLocal
 	}
 
 	for k, v := range cbo.Opts {
 		switch k {
-		case keyLayoutLocal:
-			opts.LayoutLocal = v
+		case keyConfigLocal:
+			opts.ConfigLocal = v
 
-		case keyTargetLayout, keyTarget:
-			opts.TargetLayout = v
+		case keyTarget:
+			opts.Target = v
 
-		case keyLayoutFile, keyDockerfilePath:
-			opts.LayoutFile = v
+		case keyConfigFile, keyDockerfilePath:
+			opts.ConfigFile = v
 		}
 	}
 

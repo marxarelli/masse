@@ -46,7 +46,7 @@ func LoadBytes(data []byte, path string) (cue.Value, error) {
 }
 
 // MainInstanceWith returns a CUE instance with no package that unifies with a
-// layout.#Root
+// config.#Root
 func MainInstanceWith(files map[string][]byte) (*build.Instance, error) {
 	cfg, err := schema.LoaderConfig("/")
 	if err != nil {

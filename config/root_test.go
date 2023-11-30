@@ -1,10 +1,11 @@
-package layout
+package config
 
 import (
 	"testing"
 
 	"gitlab.wikimedia.org/dduvall/phyton/common"
 	"gitlab.wikimedia.org/dduvall/phyton/state"
+	"gitlab.wikimedia.org/dduvall/phyton/target"
 	"gitlab.wikimedia.org/dduvall/phyton/util/testdecode"
 )
 
@@ -13,13 +14,13 @@ func TestDecodeLayout(t *testing.T) {
 		T: t,
 		CUEImports: []string{
 			"wikimedia.org/dduvall/phyton/schema/apt",
-			"wikimedia.org/dduvall/phyton/schema/layout",
+			"wikimedia.org/dduvall/phyton/schema/config",
 		},
 	}
 
 	testdecode.Run(tester,
-		"layout.#Root",
-		`layout.#Root & {
+		"config.#Root",
+		`config.#Root & {
 			parameters: {
 				REPO_REMOTE: "https://some.example/repo.git"
 				REPO_REF: "refs/heads/main"
@@ -61,18 +62,14 @@ func TestDecodeLayout(t *testing.T) {
 				]
 			}
 
-			layouts: {
+			targets: {
 				frontend: {
-					authors: [
-						{ name: "Dan Duvall"
-							email: "dduvall@wikimedia.org"
-							keys: [ "ssh-ed25519 ..." ] }
-					]
-					comprises: [ "frontend" ]
-					platforms: [
-						{ os: "linux", architecture: "arm64", variant: "v8" },
-						"linux/amd64",
-					]
+					build: "frontend"
+					platforms: ["linux/amd64", "linux/arm64"]
+					runtime: {
+						user: { user: "nobody" }
+						entrypoint: ["/blubber-buildkit"]
+					}
 				}
 			}
 		}`,
@@ -131,22 +128,21 @@ func TestDecodeLayout(t *testing.T) {
 					}},
 				},
 			},
-			Layouts: Layouts{
-				"frontend": &Layout{
-					Authors: []Author{
-						{
-							Name:  "Dan Duvall",
-							Email: "dduvall@wikimedia.org",
-							Keys: []Key{
-								"ssh-ed25519 ...",
-							},
-						},
-					},
-					Comprises: []state.ChainRef{"frontend"},
+			Targets: target.Targets{
+				"frontend": &target.Target{
+					Build: state.ChainRef("frontend"),
 					Platforms: []common.Platform{
-						{OS: "linux", Architecture: "arm64", Variant: "v8"},
 						{OS: "linux", Architecture: "amd64"},
+						{OS: "linux", Architecture: "arm64"},
 					},
+					Runtime: target.Runtime{
+						User:       common.User{User: "nobody"},
+						Entrypoint: []string{"/blubber-buildkit"},
+						Env:        common.Env{},
+						Directory:  "/",
+						StopSignal: "SIGTERM",
+					},
+					Labels: map[string]string{},
 				},
 			},
 		},

@@ -3,8 +3,8 @@ import (
 )
 
 parameters: {
-	REPO_REMOTE: "https://gitlab.wikimedia.org/repos/releng/blubber.git"
-	REPO_REF: "refs/heads/main"
+	REPO_REMOTE: string | *"https://gitlab.wikimedia.org/repos/releng/blubber.git"
+	REPO_REF: string | *"refs/heads/main"
 }
 
 chains: {
@@ -38,18 +38,17 @@ chains: {
 	]
 
 	frontend: [
-		{ copy: "blubber-buildkit", from: "binaries" }
+		{ copy: "blubber-buildkit", from: "binaries" },
 	]
 }
 
-layouts: {
+targets: {
 	frontend: {
-		authors: [
-			{ name: "Dan Duvall"
-				email: "dduvall@wikimedia.org"
-				keys: ["ssh-ed25519 ..."] }
-		]
-		comprises: ["frontend"]
-		platforms: ["linux/amd64"]
+		build: "frontend"
+		platforms: ["linux/amd64", "linux/arm64"]
+		runtime: {
+			user: "nobody"
+			entrypoint: ["/blubber-buildkit"]
+		}
 	}
 }
