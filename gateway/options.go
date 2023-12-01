@@ -5,7 +5,9 @@ import (
 	"strings"
 
 	"github.com/containerd/containerd/platforms"
+	controlapi "github.com/moby/buildkit/api/services/control"
 	"github.com/moby/buildkit/frontend/gateway/client"
+	oci "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/pkg/errors"
 
 	"gitlab.wikimedia.org/dduvall/phyton/config"
@@ -16,7 +18,7 @@ const (
 	keyCacheImports = "cache-imports" // JSON representation of []CacheOptionsEntry
 
 	keyConfigLocal = "config-local"
-	keyConfigFile  = "config-file"
+	keyConfigFile  = "config"
 	keyTarget      = "target"
 
 	defaultConfigLocal = "config"

@@ -2,28 +2,11 @@ package common
 
 import (
 	"net"
-	"sort"
 	"time"
 )
 
 type Creation struct {
 	Ctime *time.Time `json:"ctime"`
-}
-
-type Env map[string]string
-
-func (env *Env) Sort() []string {
-	names := make([]string, len(*env))
-
-	i := 0
-	for name := range *env {
-		names[i] = name
-		i++
-	}
-
-	sort.Strings(names)
-
-	return names
 }
 
 type Exclude struct {

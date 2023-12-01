@@ -2,6 +2,7 @@ package common
 
 import (
 	"github.com/containerd/containerd/platforms"
+	"github.com/moby/buildkit/exporter/containerimage/exptypes"
 	oci "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/pkg/errors"
 )
@@ -31,10 +32,21 @@ func ParsePlatform(platformName string) (Platform, error) {
 	return platform, nil
 }
 
+func (p Platform) Export() exptypes.Platform {
+	return exptypes.Platform{
+		ID:       p.ID(),
+		Platform: p.OCI(),
+	}
+}
+
 func (p Platform) OCI() oci.Platform {
 	return oci.Platform{
 		OS:           p.OS,
 		Architecture: p.Architecture,
 		Variant:      p.Variant,
 	}
+}
+
+func (p Platform) ID() string {
+	return platforms.Format(p.OCI())
 }

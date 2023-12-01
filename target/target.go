@@ -1,7 +1,10 @@
 package target
 
 import (
+	"time"
+
 	"github.com/moby/buildkit/client/llb"
+	oci "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/pkg/errors"
 	"gitlab.wikimedia.org/dduvall/phyton/common"
 	"gitlab.wikimedia.org/dduvall/phyton/state"
@@ -31,6 +34,17 @@ func (target *Target) Solvers(constraints ...llb.ConstraintsOpt) []state.Solver 
 	}
 
 	return solvers
+}
+
+// NewImage returns the target as a new [oci.Image] for the given platform.
+func (target *Target) NewImage(platform common.Platform) oci.Image {
+	now := time.Now()
+
+	return oci.Image{
+		Created:  &now,
+		Platform: platform.OCI(),
+		Config:   target.Runtime.ImageConfig(),
+	}
 }
 
 // ResolvePlatformSolver returns a single [state.Solver] for the given

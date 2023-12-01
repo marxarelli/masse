@@ -67,7 +67,7 @@ func TestDecodeLayout(t *testing.T) {
 					build: "frontend"
 					platforms: ["linux/amd64", "linux/arm64"]
 					runtime: {
-						user: { user: "nobody" }
+						user: "nobody"
 						entrypoint: ["/blubber-buildkit"]
 					}
 				}

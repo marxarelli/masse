@@ -5,7 +5,7 @@ import (
 )
 
 #Runtime: {
-	user: *(common.#User & {uid: 0}) | common.#User
+	user: *"root" | string
 	env:  common.#Env
 	entrypoint?: [string, ...string]
 	arguments?: [...string]

@@ -1,8 +1,8 @@
-.PHONY: all phyton test
+.PHONY: all phyton phytond test
 
-all: phyton
-phyton:
-	go build ./cmd/phyton
+all: phyton phytond
+phyton phytond:
+	CGO_ENABLED=0 go build ./cmd/$@
 
 test:
 	go test ./...
