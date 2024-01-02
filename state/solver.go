@@ -11,25 +11,25 @@ type Solver interface {
 	Solve(g *Graph) (llb.State, error)
 }
 
-type solver struct {
+type platformSolver struct {
+	platform    common.Platform
 	constraints []llb.ConstraintsOpt
-}
-
-// NewSolver return a new [Solver] with the given [llb.ConstraintsOpt].
-func NewSolver(constraints ...llb.ConstraintsOpt) Solver {
-	return &solver{constraints: constraints}
 }
 
 // NewPlatformSolver returns a new [Solver] for the given [common.Platform]
 // and [llb.ConstraintsOpt].
 func NewPlatformSolver(p common.Platform, constraints ...llb.ConstraintsOpt) Solver {
-	return NewSolver(append(constraints, llb.Platform(p.OCI()))...)
+	sp := &Platform{p}
+	return &platformSolver{
+		platform:    p,
+		constraints: append(constraints, sp.LLBConstraints()...),
+	}
 }
 
 // Solve reduces a state graph to a singular [llb.State]. It walks the graph
 // in topological sort order, compiling each node and passing the output to
 // nodes on each outgoing edge.
-func (s *solver) Solve(g *Graph) (llb.State, error) {
+func (s *platformSolver) Solve(g *Graph) (llb.State, error) {
 	var (
 		result   llb.State
 		compiled map[string]llb.State
@@ -85,7 +85,9 @@ func (s *solver) Solve(g *Graph) (llb.State, error) {
 			}
 		}
 
-		constraints := append(s.constraints, llb.WithCustomName(node.Description()))
+		constraints := append(s.constraints, llb.WithCustomNamef(
+			"[%s] %s", s.platform.ID(), node.Description(),
+		))
 
 		var state llb.State
 		if compiledPrimary == nil {

@@ -14,7 +14,7 @@ import (
 				if (p & string) != _|_ {common.#Platform & {name: p}},
 				p,
 			][0]
-		},
+		}
 	]
 	labels: common.#Labels
 	runtime: #Runtime

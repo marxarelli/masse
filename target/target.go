@@ -25,17 +25,6 @@ func (target *Target) Graph(chains state.Chains) (*state.Graph, error) {
 	return state.NewGraph(chains, target.Build)
 }
 
-// Solvers returns a new [state.Solver] for each of the [Target]'s platforms.
-func (target *Target) Solvers(constraints ...llb.ConstraintsOpt) []state.Solver {
-	solvers := make([]state.Solver, len(target.Platforms))
-
-	for i, platform := range target.Platforms {
-		solvers[i] = state.NewPlatformSolver(platform, constraints...)
-	}
-
-	return solvers
-}
-
 // NewImage returns the target as a new [oci.Image] for the given platform.
 func (target *Target) NewImage(platform common.Platform) oci.Image {
 	now := time.Now()

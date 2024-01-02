@@ -38,13 +38,13 @@ chains: {
 	]
 
 	frontend: [
-		{ copy: "blubber-buildkit", from: "binaries" },
+		{ copy: "blubber-buildkit", from: "binaries" }, // from could be "chain" or "fromChain"
 	]
 }
 
 targets: {
 	frontend: {
-		build: "frontend"
+		chain: "frontend"
 		platforms: ["linux/amd64", "linux/arm64"]
 		runtime: {
 			user: "nobody"

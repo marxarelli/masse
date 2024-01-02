@@ -50,3 +50,7 @@ func (p Platform) OCI() oci.Platform {
 func (p Platform) ID() string {
 	return platforms.Format(p.OCI())
 }
+
+func (p Platform) String() string {
+	return p.ID()
+}
