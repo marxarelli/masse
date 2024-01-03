@@ -1,4 +1,6 @@
-# Masse
+# Massé
+
+![masse logo](./assets/masse-256.png)
 
 Masse is an extensible new [BuildKit][buildkit] frontend that allows users to
 express complex container image build graphs in [CUE][cue]. It aims to:

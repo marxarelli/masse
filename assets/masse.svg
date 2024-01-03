@@ -9,9 +9,9 @@
    id="svg5"
    inkscape:version="1.2 (dc2aeda, 2022-05-15)"
    sodipodi:docname="masse.svg"
-   inkscape:export-filename="masse.png"
-   inkscape:export-xdpi="107.34647"
-   inkscape:export-ydpi="107.34647"
+   inkscape:export-filename="masse-512.png"
+   inkscape:export-xdpi="54.265812"
+   inkscape:export-ydpi="54.265812"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -28,12 +28,12 @@
      inkscape:document-units="px"
      showgrid="true"
      showborder="false"
-     inkscape:zoom="0.69786166"
-     inkscape:cx="312.38283"
-     inkscape:cy="399.79271"
-     inkscape:window-width="1712"
+     inkscape:zoom="0.98692542"
+     inkscape:cx="125.64273"
+     inkscape:cy="467.10723"
+     inkscape:window-width="3430"
      inkscape:window-height="1380"
-     inkscape:window-x="1723"
+     inkscape:window-x="5"
      inkscape:window-y="27"
      inkscape:window-maximized="0"
      inkscape:current-layer="layer1"
@@ -48,59 +48,42 @@
      id="defs2">
     <marker
        style="overflow:visible"
-       id="marker12060"
-       refX="0"
+       id="Arrow4"
+       refX="-1"
        refY="0"
        orient="auto-start-reverse"
        inkscape:stockid="Arrow4"
-       markerWidth="5"
-       markerHeight="6"
+       markerWidth="35"
+       markerHeight="42"
        viewBox="0 0 5 6"
        inkscape:isstock="true"
        inkscape:collect="always"
-       preserveAspectRatio="xMidYMid">
+       preserveAspectRatio="xMidYMid"
+       markerUnits="userSpaceOnUse">
       <path
          style="fill:context-stroke;fill-rule:evenodd;stroke:none"
          d="m 1,0 -3,3 h -2 l 3,-3 -3,-3 h 2 z"
-         id="path12058" />
+         id="path1741" />
     </marker>
     <marker
-       markerWidth="0.52499998"
+       markerWidth="1.05"
        markerHeight="0.99999994"
        refX="0"
        refY="0"
        orient="auto-start-reverse"
-       id="CapTriangle"
-       viewBox="0 0 0.525 1"
+       id="CapRibbon2"
+       viewBox="0 0 1.05 1"
        inkscape:stockid="pin"
        style="overflow:visible"
        preserveAspectRatio="xMidYMid"
        inkscape:isstock="true"
        inkscape:collect="always">
       <path
-         id="path7813"
+         id="path63170"
          style="fill:context-stroke;stroke-linecap:butt"
-         d="M 0,-1 1,0 0,1 -0.05,0 Z"
+         d="M 0,-1 H 2 A 1.11,1.11 90 0 0 2,1 H 0 L -0.1,0 Z"
          sodipodi:nodetypes="sssssscsss"
          transform="scale(0.5)" />
-    </marker>
-    <marker
-       style="overflow:visible"
-       id="Arrow4"
-       refX="0"
-       refY="0"
-       orient="auto-start-reverse"
-       inkscape:stockid="Arrow4"
-       markerWidth="5"
-       markerHeight="6"
-       viewBox="0 0 5 6"
-       inkscape:isstock="true"
-       inkscape:collect="always"
-       preserveAspectRatio="xMidYMid">
-      <path
-         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
-         d="m 1,0 -3,3 h -2 l 3,-3 -3,-3 h 2 z"
-         id="path1741" />
     </marker>
     <marker
        style="overflow:visible"
@@ -273,15 +256,12 @@
        transform="translate(37.041665,10.583333)" />
     <g
        id="g12274"
-       transform="matrix(1.0005603,0,0,0.98906404,-0.04855002,-2.4462658)">
+       transform="matrix(0.93535589,0,0,0.98985008,2.1120726,-2.9043173)"
+       style="fill:none;stroke:#dbf3ec;stroke-width:10.6387;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:42.5548, 10.6387;stroke-dashoffset:17.0219">
       <path
-         style="fill:none;fill-opacity:1;stroke:#c0e6ff;stroke-width:3.96875;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker-start:url(#CapTriangle);marker-end:url(#Arrow4);paint-order:fill markers stroke"
-         d="m 137.58333,52.916666 c 0,0 -89.958331,-5.291667 -89.958331,84.666664"
-         id="path10774" />
-      <path
-         style="fill:none;fill-opacity:1;stroke:#404040;stroke-width:4.76724;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker-start:url(#CapTriangle);marker-end:url(#marker12060);paint-order:fill markers stroke"
-         d="m 137.58333,47.624998 c 0,0 -89.958332,-5.248332 -89.958332,84.666662"
-         id="path10964"
+         style="fill:none;fill-opacity:1;stroke:#dbf3ec;stroke-width:10.6387;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:42.5548, 10.6387;stroke-dashoffset:17.0219;stroke-opacity:1;marker-start:url(#CapRibbon2);marker-end:url(#Arrow4);paint-order:fill markers stroke"
+         d="m 122.29327,50.722649 c 0,0 -75.138288,1.448045 -75.138288,75.504961"
+         id="path10774"
          sodipodi:nodetypes="cc" />
     </g>
     <ellipse
@@ -343,21 +323,8 @@
          cx="20.033415"
          transform="rotate(-41.810241)" />
     </g>
-    <g
-       id="g12320"
-       transform="matrix(0,-0.82509151,-0.858994,0,256.22947,145.26884)">
-      <path
-         style="fill:none;fill-opacity:1;stroke:#c0e6ff;stroke-width:3.96875;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker-start:url(#CapTriangle);marker-end:url(#Arrow4);paint-order:fill markers stroke"
-         d="m 137.58333,52.916666 c 0,0 -89.958331,-5.291667 -89.958331,84.666664"
-         id="path12316" />
-      <path
-         style="fill:none;fill-opacity:1;stroke:#404040;stroke-width:4.76724;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker-start:url(#CapTriangle);marker-end:url(#marker12060);paint-order:fill markers stroke"
-         d="m 137.58333,48.489966 c 0,0 -89.95833,-6.443068 -89.95833,83.471924"
-         id="path12318"
-         sodipodi:nodetypes="cc" />
-    </g>
     <rect
-       style="fill:none;fill-opacity:1;stroke:#404040;stroke-width:10.583333;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:fill markers stroke;filter:url(#filter20186)"
+       style="fill:none;fill-opacity:1;stroke:#404040;stroke-width:10.583333;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:fill markers stroke;filter:url(#filter20186)"
        id="rect12230"
        width="211.66666"
        height="211.66666"
