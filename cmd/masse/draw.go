@@ -10,7 +10,7 @@ import (
 	"github.com/dominikbraun/graph/draw"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
-	"gitlab.wikimedia.org/dduvall/phyton/config"
+	"gitlab.wikimedia.org/dduvall/masse/config"
 )
 
 var drawCommand = &cli.Command{

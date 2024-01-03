@@ -7,8 +7,8 @@ import (
 
 	"cuelang.org/go/cue"
 	"github.com/stretchr/testify/require"
-	"gitlab.wikimedia.org/dduvall/phyton/load"
-	"gitlab.wikimedia.org/dduvall/phyton/schema"
+	"gitlab.wikimedia.org/dduvall/masse/load"
+	"gitlab.wikimedia.org/dduvall/masse/schema"
 )
 
 type Tester struct {

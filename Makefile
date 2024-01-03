@@ -1,11 +1,11 @@
-.PHONY: all phyton phytond test
+.PHONY: all masse massed test
 
-all: phyton phytond
-phyton phytond:
+all: masse massed
+masse massed:
 	CGO_ENABLED=0 go build ./cmd/$@
 
 test:
 	go test ./...
 
 clean:
-	rm -f phyton
+	rm -f masse

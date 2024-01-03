@@ -14,7 +14,7 @@ import (
 func TestLoad(t *testing.T) {
 	req := require.New(t)
 
-	tmpdir, err := os.MkdirTemp("", "phyton-load-test")
+	tmpdir, err := os.MkdirTemp("", "masse-load-test")
 	defer os.RemoveAll(tmpdir)
 	req.NoError(err)
 
@@ -22,7 +22,7 @@ func TestLoad(t *testing.T) {
 	err = os.WriteFile(cueFile, []byte(lines(
 		`package main`,
 		``,
-		`import "wikimedia.org/dduvall/phyton/schema/state"`,
+		`import "wikimedia.org/dduvall/masse/schema/state"`,
 		``,
 		`foo: state.#Run & { run: "foo" }`,
 	)), 0644)

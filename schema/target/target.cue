@@ -1,8 +1,8 @@
 package target
 
 import (
-	"wikimedia.org/dduvall/phyton/schema/common"
-	"wikimedia.org/dduvall/phyton/schema/state"
+	"wikimedia.org/dduvall/masse/schema/common"
+	"wikimedia.org/dduvall/masse/schema/state"
 )
 
 #Target: {

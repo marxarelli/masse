@@ -6,8 +6,8 @@ import (
 
 	"github.com/moby/buildkit/client/llb"
 	"github.com/stretchr/testify/require"
-	"gitlab.wikimedia.org/dduvall/phyton/common"
-	"gitlab.wikimedia.org/dduvall/phyton/util/llbtest"
+	"gitlab.wikimedia.org/dduvall/masse/common"
+	"gitlab.wikimedia.org/dduvall/masse/util/llbtest"
 )
 
 func TestCompileWith(t *testing.T) {

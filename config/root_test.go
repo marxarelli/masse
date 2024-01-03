@@ -3,18 +3,18 @@ package config
 import (
 	"testing"
 
-	"gitlab.wikimedia.org/dduvall/phyton/common"
-	"gitlab.wikimedia.org/dduvall/phyton/state"
-	"gitlab.wikimedia.org/dduvall/phyton/target"
-	"gitlab.wikimedia.org/dduvall/phyton/util/testdecode"
+	"gitlab.wikimedia.org/dduvall/masse/common"
+	"gitlab.wikimedia.org/dduvall/masse/state"
+	"gitlab.wikimedia.org/dduvall/masse/target"
+	"gitlab.wikimedia.org/dduvall/masse/util/testdecode"
 )
 
 func TestDecodeLayout(t *testing.T) {
 	tester := &testdecode.Tester{
 		T: t,
 		CUEImports: []string{
-			"wikimedia.org/dduvall/phyton/schema/apt",
-			"wikimedia.org/dduvall/phyton/schema/config",
+			"wikimedia.org/dduvall/masse/schema/apt",
+			"wikimedia.org/dduvall/masse/schema/config",
 		},
 	}
 

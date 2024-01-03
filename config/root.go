@@ -2,8 +2,8 @@ package config
 
 import (
 	"github.com/pkg/errors"
-	"gitlab.wikimedia.org/dduvall/phyton/state"
-	"gitlab.wikimedia.org/dduvall/phyton/target"
+	"gitlab.wikimedia.org/dduvall/masse/state"
+	"gitlab.wikimedia.org/dduvall/masse/target"
 )
 
 type Root struct {

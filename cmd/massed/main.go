@@ -1,4 +1,4 @@
-// Package main provides the phytond buildkit gateway.
+// Package main provides the massed buildkit gateway.
 package main
 
 import (
@@ -6,7 +6,7 @@ import (
 	"github.com/moby/buildkit/util/appcontext"
 	"github.com/moby/buildkit/util/bklog"
 
-	"gitlab.wikimedia.org/dduvall/phyton/gateway"
+	"gitlab.wikimedia.org/dduvall/masse/gateway"
 )
 
 func main() {

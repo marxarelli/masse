@@ -5,8 +5,8 @@ import (
 
 	"cuelang.org/go/cue/cuecontext"
 	"github.com/pkg/errors"
-	"gitlab.wikimedia.org/dduvall/phyton/load"
-	"gitlab.wikimedia.org/dduvall/phyton/schema"
+	"gitlab.wikimedia.org/dduvall/masse/load"
+	"gitlab.wikimedia.org/dduvall/masse/schema"
 )
 
 // Load loads the given target configuration into a new *Root using a new CUE

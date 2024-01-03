@@ -1,5 +1,5 @@
 import (
-	"wikimedia.org/dduvall/phyton/schema/apt"
+	"wikimedia.org/dduvall/masse/schema/apt"
 )
 
 parameters: {

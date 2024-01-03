@@ -10,7 +10,7 @@ import (
 	oci "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/pkg/errors"
 
-	"gitlab.wikimedia.org/dduvall/phyton/config"
+	"gitlab.wikimedia.org/dduvall/masse/config"
 )
 
 const (
@@ -22,14 +22,14 @@ const (
 	keyTarget      = "target"
 
 	defaultConfigLocal = "config"
-	defaultConfigFile  = "phyton.cue"
+	defaultConfigFile  = "masse.cue"
 
 	// Dockerfile syntax= compatibility
 	dockerfileLocal   = "dockerfile" // tried prior to defaultLayoutLocal
 	keyDockerfilePath = "filename"   // = keyConfigFile
 
 	// Support the same build-arg: option prefix that buildkit's dockerfile
-	// frontend supports. Use the values as Phyton parameters.
+	// frontend supports. Use the values as Masse parameters.
 	buildArgPrefix  = "build-arg:"
 	parameterPrefix = "parameter:"
 )

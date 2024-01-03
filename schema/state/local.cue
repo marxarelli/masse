@@ -2,7 +2,7 @@ package state
 
 import (
 	"list"
-	"wikimedia.org/dduvall/phyton/schema/common"
+	"wikimedia.org/dduvall/masse/schema/common"
 )
 
 #Local: {

@@ -9,8 +9,8 @@ import (
 
 func main() {
 	app := &cli.App{
-		Name:    "phyton",
-		Usage:   "Phyton container image builder",
+		Name:    "masse",
+		Usage:   "Masse container image builder",
 		Version: "0.0.1",
 		Flags: []cli.Flag{
 			&cli.StringFlag{

@@ -1,7 +1,7 @@
 package state
 
 import (
-	"wikimedia.org/dduvall/phyton/schema/common"
+	"wikimedia.org/dduvall/masse/schema/common"
 )
 
 #Platform: {

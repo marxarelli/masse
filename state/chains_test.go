@@ -3,14 +3,14 @@ package state
 import (
 	"testing"
 
-	"gitlab.wikimedia.org/dduvall/phyton/util/testdecode"
+	"gitlab.wikimedia.org/dduvall/masse/util/testdecode"
 )
 
 func TestDecodeChains(t *testing.T) {
 	tester := &testdecode.Tester{
 		T: t,
 		CUEImports: []string{
-			"wikimedia.org/dduvall/phyton/schema/state",
+			"wikimedia.org/dduvall/masse/schema/state",
 		},
 	}
 

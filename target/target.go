@@ -6,8 +6,8 @@ import (
 	"github.com/moby/buildkit/client/llb"
 	oci "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/pkg/errors"
-	"gitlab.wikimedia.org/dduvall/phyton/common"
-	"gitlab.wikimedia.org/dduvall/phyton/state"
+	"gitlab.wikimedia.org/dduvall/masse/common"
+	"gitlab.wikimedia.org/dduvall/masse/state"
 )
 
 type Targets map[string]*Target

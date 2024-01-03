@@ -1,4 +1,4 @@
-module gitlab.wikimedia.org/dduvall/phyton
+module gitlab.wikimedia.org/dduvall/masse
 
 go 1.21
 

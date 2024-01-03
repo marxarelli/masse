@@ -9,9 +9,9 @@ import (
 	"github.com/moby/buildkit/exporter/containerimage/exptypes"
 	"github.com/moby/buildkit/frontend/gateway/client"
 	"github.com/pkg/errors"
-	"gitlab.wikimedia.org/dduvall/phyton/common"
-	"gitlab.wikimedia.org/dduvall/phyton/config"
-	"gitlab.wikimedia.org/dduvall/phyton/state"
+	"gitlab.wikimedia.org/dduvall/masse/common"
+	"gitlab.wikimedia.org/dduvall/masse/config"
+	"gitlab.wikimedia.org/dduvall/masse/state"
 	"golang.org/x/sync/errgroup"
 )
 

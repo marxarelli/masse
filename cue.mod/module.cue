@@ -1,1 +1,1 @@
-module: "wikimedia.org/dduvall/phyton"
+module: "wikimedia.org/dduvall/masse"

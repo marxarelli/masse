@@ -4,7 +4,7 @@ import (
 	"github.com/dominikbraun/graph"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/pkg/errors"
-	"gitlab.wikimedia.org/dduvall/phyton/common"
+	"gitlab.wikimedia.org/dduvall/masse/common"
 )
 
 type Solver interface {

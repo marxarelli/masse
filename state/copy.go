@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/moby/buildkit/client/llb"
-	"gitlab.wikimedia.org/dduvall/phyton/common"
+	"gitlab.wikimedia.org/dduvall/masse/common"
 )
 
 type Copy struct {

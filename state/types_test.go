@@ -4,14 +4,14 @@ import (
 	"net"
 	"testing"
 
-	"gitlab.wikimedia.org/dduvall/phyton/common"
-	"gitlab.wikimedia.org/dduvall/phyton/util/testdecode"
+	"gitlab.wikimedia.org/dduvall/masse/common"
+	"gitlab.wikimedia.org/dduvall/masse/util/testdecode"
 )
 
 func TestDecode(t *testing.T) {
 	tester := &testdecode.Tester{
 		T:          t,
-		CUEImports: []string{"wikimedia.org/dduvall/phyton/schema/state"},
+		CUEImports: []string{"wikimedia.org/dduvall/masse/schema/state"},
 	}
 
 	testdecode.Run(tester,

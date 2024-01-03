@@ -2,7 +2,7 @@ package target
 
 import (
 	oci "github.com/opencontainers/image-spec/specs-go/v1"
-	"gitlab.wikimedia.org/dduvall/phyton/common"
+	"gitlab.wikimedia.org/dduvall/masse/common"
 )
 
 type Runtime struct {

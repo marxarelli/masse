@@ -9,7 +9,7 @@ import (
 	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/load"
 
-	"gitlab.wikimedia.org/dduvall/phyton/schema"
+	"gitlab.wikimedia.org/dduvall/masse/schema"
 )
 
 // LoadPath loads a CUE file.

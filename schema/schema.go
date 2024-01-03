@@ -6,10 +6,10 @@ import (
 
 	"cuelang.org/go/cue/load"
 
-	cuemod "gitlab.wikimedia.org/dduvall/phyton/cue.mod"
+	cuemod "gitlab.wikimedia.org/dduvall/masse/cue.mod"
 )
 
-// LoaderConfig returns a CUE [load.Config] that can load the embedded Phyton
+// LoaderConfig returns a CUE [load.Config] that can load the embedded Masse
 // schema definitions.
 func LoaderConfig(root string) (*load.Config, error) {
 	overlay := make(map[string]load.Source)

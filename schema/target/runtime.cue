@@ -1,7 +1,7 @@
 package target
 
 import (
-	"wikimedia.org/dduvall/phyton/schema/common"
+	"wikimedia.org/dduvall/masse/schema/common"
 )
 
 #Runtime: {

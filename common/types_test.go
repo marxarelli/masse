@@ -5,13 +5,13 @@ import (
 	"testing"
 	"time"
 
-	"gitlab.wikimedia.org/dduvall/phyton/util/testdecode"
+	"gitlab.wikimedia.org/dduvall/masse/util/testdecode"
 )
 
 func TestDecode(t *testing.T) {
 	tester := &testdecode.Tester{
 		T:          t,
-		CUEImports: []string{"wikimedia.org/dduvall/phyton/schema/common"},
+		CUEImports: []string{"wikimedia.org/dduvall/masse/schema/common"},
 	}
 
 	ctime, _ := time.Parse(time.RFC3339, "2020-01-20T01:02:03Z")

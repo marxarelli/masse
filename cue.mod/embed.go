@@ -17,13 +17,13 @@ func Module() string {
 	data, err := FS.ReadFile("module.cue")
 
 	if err != nil {
-		panic("could not read phyton embedded module.cue")
+		panic("could not read masse embedded module.cue")
 	}
 
 	module, err := ctx.CompileBytes(data).LookupPath(cue.ParsePath("module")).String()
 
 	if err != nil {
-		panic("error reading phyton embedded module.cue")
+		panic("error reading masse embedded module.cue")
 	}
 
 	return module

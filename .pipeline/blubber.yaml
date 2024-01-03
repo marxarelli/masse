@@ -21,14 +21,14 @@ variants:
     builders:
       - custom:
           requirements: [.]
-          command: [make, phytond]
+          command: [make, massed]
 
   gateway:
     copies:
       - from: build-gateway
-        source: /src/phytond
-        destination: /phytond
+        source: /src/massed
+        destination: /massed
       - from: build-gateway
         source: /etc/ssl/certs/ca-certificates.crt
         destination: /etc/ssl/certs/ca-certificates.crt
-    entrypoint: [/phytond]
+    entrypoint: [/massed]

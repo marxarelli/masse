@@ -1,13 +1,7 @@
-# Phyton
+# Masse
 
-> One of the parts which by their repetition make up a flowering plant, each
-> being a single joint of a stem with its leaf or leaves; a phytomer.
-
-– phyton. (2023) [Wiktionary](https://en.wiktionary.org/wiki/phyton).
-
-
-Phyton is an extensible new [BuildKit][buildkit] frontend that allows users to
-express complex container image build graphs in. It aims to:
+Masse is an extensible new [BuildKit][buildkit] frontend that allows users to
+express complex container image build graphs in [CUE][cue]. It aims to:
 
  1. Give users compact yet powerful declarative constructs to express how
     their container filesystems should be created, composed, and packaged.
@@ -43,9 +37,9 @@ See [schema/apt/macros.cue](./schema/apt/macros.cue) for an example of what an
 
 ## Example config
 
-To skip straight to what a build configuration looks like in Phyton, see
+To skip straight to what a build configuration looks like in Masse, see
 [examples/blubber.cue](./examples/blubber.cue). This is a port of Blubber's
-own `blubber.yaml` to Phyton.
+own `blubber.yaml` to Masse.
 
 ## Build chains
 
@@ -77,10 +71,10 @@ chains: {
 }
 ```
 
-As you can see with `{ extend: "toolchain" }` and `{ link: ".", from: "repo"
-}` above, dependency chains are referenced by name. Chain references are
-resolved when the internal DAG is constructed. Cycles are also
-detected/prevented during internal DAG construction.
+As you can see with `{ extend: "toolchain" }` and `{ link: ".", from: "repo"}`
+above, dependency chains are referenced by name. Chain references are resolved
+when the internal DAG is constructed. Cycles are also detected/prevented
+during internal DAG construction.
 
 ## Macros
 
@@ -128,7 +122,7 @@ unification with the definition.
 
 ```cue
 import (
-  "wikimedia.org/dduvall/phyton/schema/apt"
+  "wikimedia.org/dduvall/masse/schema/apt"
 )
 
 chains:
@@ -167,7 +161,7 @@ Many many things, including:
 
 ## License
 
-Phyton is licensed under the GNU General Public License 3.0 or later
+Masse is licensed under the GNU General Public License 3.0 or later
 (GPL-3.0+). See the LICENSE file for more details.
 
 [buildkit]: https://docs.docker.com/build/buildkit/

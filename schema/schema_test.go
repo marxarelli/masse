@@ -21,6 +21,6 @@ func TestLoaderConfig(t *testing.T) {
 		i++
 	}
 
-	req.Contains(overlayEntries, "/root/dir/cue.mod/pkg/wikimedia.org/dduvall/phyton/schema/common/creation.cue")
-	req.Contains(overlayEntries, "/root/dir/cue.mod/pkg/wikimedia.org/dduvall/phyton/schema/state/state.cue")
+	req.Contains(overlayEntries, "/root/dir/cue.mod/pkg/wikimedia.org/dduvall/masse/schema/common/creation.cue")
+	req.Contains(overlayEntries, "/root/dir/cue.mod/pkg/wikimedia.org/dduvall/masse/schema/state/state.cue")
 }
