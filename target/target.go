@@ -13,7 +13,7 @@ import (
 type Targets map[string]*Target
 
 type Target struct {
-	Build     state.ChainRef    `json:"build"`
+	Chain     state.ChainRef    `json:"chain"`
 	Platforms []common.Platform `json:"platformsValue"`
 	Runtime   Runtime           `json:"runtime"`
 	Labels    map[string]string `json:"labels"`
@@ -22,7 +22,7 @@ type Target struct {
 // Graph returns a new [state.Graph] for the [Target] and the given
 // [state.Chains].
 func (target *Target) Graph(chains state.Chains) (*state.Graph, error) {
-	return state.NewGraph(chains, target.Build)
+	return state.NewGraph(chains, target.Chain)
 }
 
 // NewImage returns the target as a new [oci.Image] for the given platform.

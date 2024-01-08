@@ -6,7 +6,7 @@ import (
 )
 
 #Target: {
-	build!: state.#ChainRef
+	chain!: state.#ChainRef
 	platforms!: [#TargetPlatform, ...#TargetPlatform]
 	platformsValue: [
 		for p in platforms {
