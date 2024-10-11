@@ -2,5 +2,5 @@ package load
 
 import "embed"
 
-//go:embed root.cue
+//go:embed *.cue
 var embedFS embed.FS

@@ -9,8 +9,6 @@ import (
 	"github.com/moby/buildkit/frontend/gateway/client"
 	oci "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/pkg/errors"
-
-	"gitlab.wikimedia.org/dduvall/masse/config"
 )
 
 const (
@@ -46,7 +44,7 @@ type Options struct {
 	Target string
 
 	// Parameters are user supplied build parameters
-	Parameters config.Parameters
+	Parameters map[string]string
 
 	// Session ID
 	SessionID string
@@ -60,7 +58,7 @@ func NewOptions() *Options {
 	return &Options{
 		ConfigLocal:  defaultConfigLocal,
 		ConfigFile:   defaultConfigFile,
-		Parameters:   config.Parameters{},
+		Parameters:   map[string]string,
 		CacheOptions: []client.CacheOptionsEntry{},
 	}
 }

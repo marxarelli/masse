@@ -1,5 +1,5 @@
 package state
 
 #Merge: {
-	merge!: [#ChainRef, ...#ChainRef]
+	merge!: [...#ChainRef]
 }

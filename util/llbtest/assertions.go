@@ -6,7 +6,6 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/moby/buildkit/solver/pb"
-	digest "github.com/opencontainers/go-digest"
 	"github.com/stretchr/testify/require"
 )
 
@@ -19,7 +18,7 @@ type Assertions struct {
 
 	t     *testing.T
 	def   *llb.Definition
-	opMap map[digest.Digest]pb.Op
+	opMap map[string]pb.Op
 	ops   []pb.Op
 }
 
@@ -91,7 +90,7 @@ func ContainsNFileActions[T any](t *testing.T, fileOp *pb.Op_File, n int, msg st
 // HasValidInputs takes a [pb.Op] and asserts that all of its [pb.Op.Inputs]
 // have a corresponding [pb.Op] in the given op map. If the assertion
 // succeeds, each corresponding [pb.Op] is returned.
-func HasValidInputs(t *testing.T, opMap map[digest.Digest]pb.Op, op pb.Op) []pb.Op {
+func HasValidInputs(t *testing.T, opMap map[string]pb.Op, op pb.Op) []pb.Op {
 	t.Helper()
 
 	inputOps := make([]pb.Op, len(op.Inputs))
@@ -114,32 +113,38 @@ func HasValidInputs(t *testing.T, opMap map[digest.Digest]pb.Op, op pb.Op) []pb.
 
 // ContainsNOps is a convenience method for ContainsNOps[any](...)
 func (llbt *Assertions) ContainsNOps(n int) []pb.Op {
+	llbt.t.Helper()
 	ops, _ := ContainsNOps[any](llbt.t, llbt.ops, n, "should contain %d ops: %s")
 	return ops
 }
 
 // ContainsNSourceOps is a convenience method for ContainsNOps[pb.Op_Source](...)
 func (llbt *Assertions) ContainsNSourceOps(n int) ([]pb.Op, []*pb.Op_Source) {
+	llbt.t.Helper()
 	return ContainsNOps[*pb.Op_Source](llbt.t, llbt.ops, n, "should contain %d source ops: %s")
 }
 
 // ContainsNFileOps is a convenience method for ContainsNOps[pb.Op_File](...)
 func (llbt *Assertions) ContainsNFileOps(n int) ([]pb.Op, []*pb.Op_File) {
+	llbt.t.Helper()
 	return ContainsNOps[*pb.Op_File](llbt.t, llbt.ops, n, "should contain %d file ops: %s")
 }
 
 // ContainsNExecOps is a convenience method for ContainsNOps[pb.Op_Exec](...)
 func (llbt *Assertions) ContainsNExecOps(n int) ([]pb.Op, []*pb.Op_Exec) {
+	llbt.t.Helper()
 	return ContainsNOps[*pb.Op_Exec](llbt.t, llbt.ops, n, "should contain %d exec ops: %s")
 }
 
 // ContainsNCopyActions is a convenience method for
 // ContainsNFileActions[pb.FileAction_Copy](...)
 func (llbt *Assertions) ContainsNCopyActions(fileOp *pb.Op_File, n int) ([]*pb.FileAction, []*pb.FileAction_Copy) {
+	llbt.t.Helper()
 	return ContainsNFileActions[*pb.FileAction_Copy](llbt.t, fileOp, n, "should contain %d copy actions: %s")
 }
 
 // HasValidInputs is a convenience method for [HasValidInputs]
 func (llbt *Assertions) HasValidInputs(op pb.Op) []pb.Op {
+	llbt.t.Helper()
 	return HasValidInputs(llbt.t, llbt.opMap, op)
 }

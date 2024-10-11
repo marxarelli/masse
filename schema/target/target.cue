@@ -1,12 +1,12 @@
 package target
 
 import (
-	"wikimedia.org/dduvall/masse/schema/common"
-	"wikimedia.org/dduvall/masse/schema/state"
+	"wikimedia.org/dduvall/masse/common"
+	"wikimedia.org/dduvall/masse/state"
 )
 
 #Target: {
-	chain!: state.#ChainRef
+	build!: state.#Chain
 	platforms!: [#TargetPlatform, ...#TargetPlatform]
 	platformsValue: [
 		for p in platforms {

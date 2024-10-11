@@ -11,8 +11,8 @@ import (
 )
 
 // ParseState marshals the given [llb.State] to a [llb.Definition], then
-// parses it as a [pb.Op] slice and map of [digest.Digest] to ops.
-func ParseState(t *testing.T, state llb.State) (map[digest.Digest]pb.Op, []pb.Op) {
+// parses it as a [pb.Op] slice and map of digests to ops.
+func ParseState(t *testing.T, state llb.State) (map[string]pb.Op, []pb.Op) {
 	t.Helper()
 
 	def, err := state.Marshal(context.TODO())
@@ -22,11 +22,11 @@ func ParseState(t *testing.T, state llb.State) (map[digest.Digest]pb.Op, []pb.Op
 }
 
 // ParseDef parses the given [llb.Definition] in a [pb.Op] slice and map of
-// [digest.Digest] to ops.
-func ParseDef(t *testing.T, def [][]byte) (map[digest.Digest]pb.Op, []pb.Op) {
+// digests to ops.
+func ParseDef(t *testing.T, def [][]byte) (map[string]pb.Op, []pb.Op) {
 	t.Helper()
 
-	m := map[digest.Digest]pb.Op{}
+	m := map[string]pb.Op{}
 	arr := make([]pb.Op, 0, len(def))
 
 	for _, dt := range def {
@@ -34,7 +34,7 @@ func ParseDef(t *testing.T, def [][]byte) (map[digest.Digest]pb.Op, []pb.Op) {
 		err := (&op).Unmarshal(dt)
 		require.NoError(t, err)
 		dgst := digest.FromBytes(dt)
-		m[dgst] = op
+		m[string(dgst)] = op
 		arr = append(arr, op)
 		// fmt.Printf(":: %T %+v\n", op.Op, op)
 	}
@@ -43,7 +43,7 @@ func ParseDef(t *testing.T, def [][]byte) (map[digest.Digest]pb.Op, []pb.Op) {
 }
 
 // LastOp returns the final Op in the given ordered slice
-func LastOp(t *testing.T, arr []pb.Op) (digest.Digest, int) {
+func LastOp(t *testing.T, arr []pb.Op) (string, int) {
 	t.Helper()
 
 	require.True(t, len(arr) > 1)

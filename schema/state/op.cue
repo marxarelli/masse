@@ -1,5 +1,3 @@
 package state
 
-#Op: {
-	#Copy | #Diff | #Link | #Merge | #Run | #With
-}
+#Op: #Merge | #Copy | #Diff | #Link | #Run | #With

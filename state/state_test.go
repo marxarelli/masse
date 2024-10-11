@@ -19,7 +19,7 @@ func TestDecodeState(t *testing.T) {
 			{ image: "foo.example/image/ref" },
 			{ with: [ { env: { FOO: "BAR" } } ] },
 			{ run: "apt-get install foo", options: [ { cache: "/var/cache/apt", access: "locked" } ] },
-			{ copy: ["foo/*"], from: "foo", options: [ { followSymlinks: true } ] },
+			{ copy: ["foo/*"], from: [{ git: "foo.git" }], options: [ { followSymlinks: true } ] },
 			{ diff: [ { run: "make stuff" } ] },
 		]`,
 		Chain{

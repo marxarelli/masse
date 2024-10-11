@@ -1,5 +1,5 @@
 import (
-	"wikimedia.org/dduvall/masse/schema/apt"
+	"wikimedia.org/dduvall/masse/apt"
 )
 
 parameters: {
@@ -19,32 +19,33 @@ chains: {
 	]
 
 	tools: [
-		{ extend: "go" },
+		{ extend: go },
 		{ diff: [ apt.install & { #packages: [ "gcc", "git", "make" ] } ] },
 	]
 
 	modules: [
-		{ extend: "go" },
-		{ link: [ "go.mod", "go.sum" ], from: "repo" },
+		{ extend: go },
+		{ link: [ "go.mod", "go.sum" ], from: repo },
 		{ diff: [ { run: "go mod download" } ] },
 	]
 
 	binaries: [
-		{ extend: "go" },
-		{ merge: ["tools", "modules"] },
-		{	link: ".", from: "repo" },
+		{ extend: go },
+		{ merge: [tools, modules] },
+		{	link: ".", from: repo },
 		{ run: "make clean blubber-buildkit"
 			options: [ { cache: "/root/.cache/go-build", access: "locked" } ] },
 	]
 
 	frontend: [
-		{ copy: "blubber-buildkit", from: "binaries" }, // from could be "chain" or "fromChain"
+		{ scratch: true },
+		{ copy: "blubber-buildkit", from: binaries },
 	]
 }
 
 targets: {
 	frontend: {
-		chain: "frontend"
+		build: frontend
 		platforms: ["linux/amd64", "linux/arm64"]
 		runtime: {
 			user: "nobody"

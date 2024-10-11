@@ -1,5 +1,5 @@
 package state
 
 #Scratch: {
-	scratch: true
+	scratch!: true
 }

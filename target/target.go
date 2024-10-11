@@ -3,26 +3,26 @@ package target
 import (
 	"time"
 
-	"github.com/moby/buildkit/client/llb"
+	"cuelang.org/go/cue"
 	oci "github.com/opencontainers/image-spec/specs-go/v1"
-	"github.com/pkg/errors"
 	"gitlab.wikimedia.org/dduvall/masse/common"
-	"gitlab.wikimedia.org/dduvall/masse/state"
 )
 
 type Targets map[string]*Target
 
 type Target struct {
-	Chain     state.ChainRef    `json:"chain"`
+	Build     cue.Value
 	Platforms []common.Platform `json:"platformsValue"`
 	Runtime   Runtime           `json:"runtime"`
 	Labels    map[string]string `json:"labels"`
 }
 
-// Graph returns a new [state.Graph] for the [Target] and the given
-// [state.Chains].
-func (target *Target) Graph(chains state.Chains) (*state.Graph, error) {
-	return state.NewGraph(chains, target.Chain)
+// UnmarshalCUE parses the given cue.Value into the target.
+func (target *Target) UnmarshalCUE(v cue.Value) error {
+	// Bail out to CUE->JSON->Go based decoding for now
+	// TODO work with all CUE values directly which should be faster and allow
+	// for better error reporting
+	return v.Decode(target)
 }
 
 // NewImage returns the target as a new [oci.Image] for the given platform.
@@ -34,29 +34,4 @@ func (target *Target) NewImage(platform common.Platform) oci.Image {
 		Platform: platform.OCI(),
 		Config:   target.Runtime.ImageConfig(),
 	}
-}
-
-// ResolvePlatformSolver returns a single [state.Solver] for the given
-// platform name. If the target does not include the given platform, an error
-// is returned.
-func (target *Target) ResolvePlatformSolver(platformName string, constraints ...llb.ConstraintsOpt) (state.Solver, error) {
-	platform, err := common.ParsePlatform(platformName)
-	if err != nil {
-		return nil, err
-	}
-
-	// Validate that the target contains this platform
-	found := false
-	for _, p := range target.Platforms {
-		if p == platform {
-			found = true
-			break
-		}
-	}
-
-	if !found {
-		return nil, errors.Errorf("target does not support platform %s", platformName)
-	}
-
-	return state.NewPlatformSolver(platform, constraints...), nil
 }

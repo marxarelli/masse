@@ -1,69 +1,45 @@
 package load
 
 import (
-	"os"
 	"path/filepath"
 
-	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/build"
-	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/load"
 
 	"gitlab.wikimedia.org/dduvall/masse/schema"
 )
 
-// LoadPath loads a CUE file.
-func LoadPath(path string) (cue.Value, error) {
-	path, err := filepath.Abs(path)
-	if err != nil {
-		return cue.Value{}, err
-	}
-
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return cue.Value{}, err
-	}
-
-	return LoadBytes(data, path)
-}
-
-// LoadBytes loads CUE configuration. It requires a file path to initialize
-// the [load.Config] overlay FS. However the file need not actually exist.
-func LoadBytes(data []byte, path string) (cue.Value, error) {
-	ctx := cuecontext.New()
-
-	dir := filepath.Dir(path)
-	cfg, err := schema.LoaderConfig(dir)
-	if err != nil {
-		return cue.Value{}, err
-	}
-
-	cfg.Overlay[path] = load.FromBytes(data)
-
-	instances := load.Instances([]string{"."}, cfg)
-	value := ctx.BuildInstance(instances[len(instances)-1])
-	return value, value.Err()
-}
-
 // MainInstanceWith returns a CUE instance with no package that unifies with a
 // config.#Root
-func MainInstanceWith(files map[string][]byte) (*build.Instance, error) {
-	cfg, err := schema.LoaderConfig("/")
+func MainInstanceWith(dir string, files map[string][]byte) (*build.Instance, error) {
+	dir, err := filepath.Abs(dir)
 	if err != nil {
 		return nil, err
 	}
 
-	cfg.Package = "_"
+	cfg, err := schema.LoaderConfig(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	cfg.Package = "main"
 
 	cueData, err := embedFS.ReadFile("root.cue")
 	if err != nil {
 		return nil, err
 	}
 
-	cfg.Overlay["/root.cue"] = load.FromBytes(cueData)
+	cfg.Overlay[filepath.Join(dir, "root.cue")] = load.FromBytes(cueData)
+
+	cueData, err = embedFS.ReadFile("module.cue")
+	if err != nil {
+		return nil, err
+	}
+
+	cfg.Overlay[filepath.Join(dir, "cue.mod", "module.cue")] = load.FromBytes(cueData)
 
 	for path, data := range files {
-		cfg.Overlay[path] = load.FromBytes(data)
+		cfg.Overlay[filepath.Join(dir, path)] = load.FromBytes(data)
 	}
 
 	instances := load.Instances([]string{"."}, cfg)

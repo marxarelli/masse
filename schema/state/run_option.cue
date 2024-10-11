@@ -1,13 +1,13 @@
 package state
 
 import (
-	"wikimedia.org/dduvall/masse/schema/common"
+	"wikimedia.org/dduvall/masse/common"
 )
 
 #RunOption: {
 	#Host |
-	#CacheMount | #SourceMount |
-	#TmpFSMount | #ReadOnly |
+	#CacheMount | #SourceMount | #TmpFSMount |
+	#ValidExitCodes |
 	#Option
 }
 
@@ -21,16 +21,17 @@ import (
 }
 
 #SourceMount: {
-	mount!: string
-	from:   #ChainRef
-	source: string | *"/"
+	mount!:   string
+	from:     #ChainRef
+	source:   string | *"/"
+	readonly: bool | *false
 }
 
 #TmpFSMount: {
 	tmpfs!: string
-	size:   uint64
+	size:   uint64 | *100Mi
 }
 
-#ReadOnly: {
-	readOnly!: *true | false
+#ValidExitCodes: {
+	validExitCodes!: [uint64, ...]
 }

@@ -20,7 +20,6 @@ func main() {
 			},
 		},
 		Commands: []*cli.Command{
-			drawCommand,
 			solveCommand,
 		},
 	}

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/moby/buildkit/client/llb"
+	"github.com/moby/buildkit/client/llb/sourceresolver"
 	digest "github.com/opencontainers/go-digest"
 	oci "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/pkg/errors"
@@ -28,7 +29,7 @@ func New(ref string, image oci.Image) llb.ImageMetaResolver {
 
 // ResolveImageConfig returns the [digest.Digest] and [oci.Image] (marshaled
 // to JSON) given at creation.
-func (tr *testResolver) ResolveImageConfig(ctx context.Context, ref string, opt llb.ResolveImageConfigOpt) (string, digest.Digest, []byte, error) {
+func (tr *testResolver) ResolveImageConfig(ctx context.Context, ref string, opt sourceresolver.Opt) (string, digest.Digest, []byte, error) {
 	image := oci.Image{
 		Created: tr.image.Created,
 		Author:  tr.image.Author,

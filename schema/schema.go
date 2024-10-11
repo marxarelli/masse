@@ -12,9 +12,14 @@ import (
 // LoaderConfig returns a CUE [load.Config] that can load the embedded Masse
 // schema definitions.
 func LoaderConfig(root string) (*load.Config, error) {
+	root, err := filepath.Abs(root)
+	if err != nil {
+		return nil, err
+	}
+
 	overlay := make(map[string]load.Source)
 
-	err := fs.WalkDir(FS, ".", func(path string, entry fs.DirEntry, err error) error {
+	err = fs.WalkDir(FS, ".", func(path string, entry fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -39,8 +44,13 @@ func LoaderConfig(root string) (*load.Config, error) {
 	}
 
 	return &load.Config{
-		Dir:     root,
-		Overlay: overlay,
+		Dir:        root,
+		Overlay:    overlay,
+		Package:    "_",
+		ModuleRoot: ".",
+		Env: []string{
+			"CUE_REGISTRY=none",
+		},
 	}, nil
 }
 
@@ -49,7 +59,6 @@ func pkgPath(root, path string) string {
 		root,
 		"/cue.mod/pkg",
 		cuemod.Module(),
-		"schema",
 		path,
 	)
 }

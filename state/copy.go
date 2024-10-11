@@ -9,7 +9,7 @@ import (
 
 type Copy struct {
 	Source      []common.Glob `json:"source"`
-	From        ChainRef      `json:"from"`
+	From        Chain         `json:"from"`
 	Destination string        `json:"destination"`
 	Options     CopyOptions   `json:"optionsValue"`
 }
@@ -25,11 +25,8 @@ func (cp *Copy) CompileSource(secondary ChainStates, constraints ...llb.Constrai
 	return cp.Compile(llb.Scratch(), secondary, constraints...)
 }
 
-func (cp *Copy) Compile(primary llb.State, secondary ChainStates, constraints ...llb.ConstraintsOpt) (llb.State, error) {
-	from, err := secondary.Resolve(cp.From)
-	if err != nil {
-		return primary, err
-	}
+func (cp *Copy) Compile(state llb.State, constraints ...llb.ConstraintsOpt) (llb.State, error) {
+	from := cp.From
 
 	var fa *llb.FileAction
 
@@ -45,7 +42,7 @@ func (cp *Copy) Compile(primary llb.State, secondary ChainStates, constraints ..
 		cp.Options,
 	}
 
-	dest := qualifyStatePath(primary, cp.Destination)
+	dest := qualifyStatePath(state, cp.Destination)
 	for _, srcGlob := range cp.Source {
 		src := qualifyStatePath(from, srcGlob.String())
 		if fa == nil {
@@ -55,11 +52,7 @@ func (cp *Copy) Compile(primary llb.State, secondary ChainStates, constraints ..
 		}
 	}
 
-	return primary.File(fa, constraints...), nil
-}
-
-func (cp *Copy) ChainRefs() []ChainRef {
-	return []ChainRef{cp.From}
+	return state.File(fa, constraints...), nil
 }
 
 type CopyOptions []*CopyOption

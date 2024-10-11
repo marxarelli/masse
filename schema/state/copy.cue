@@ -9,9 +9,5 @@ import (
 	source:      list.FlattenN([copy], 1)
 	from:        #ChainRef
 	destination: string | *"./"
-
-	options?: #CopyOption | [#CopyOption, ...#CopyOption]
-	if options != _|_ {
-		optionsValue: list.FlattenN([options], 1)
-	}
+	options?:    #CopyOption | [#CopyOption, ...#CopyOption]
 }

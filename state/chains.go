@@ -15,6 +15,12 @@ func (chain Chain) Tail() (int, *State) {
 	return 0, nil
 }
 
+// Compile is EXPERIMENTAL. Avoid the graph entirely and have instructions
+// compile their own dependencies JIT.
+func (chain Chain) Compile(constraints ...llb.ConstraintsOpt) {
+	scratch := llb.Scratch()
+}
+
 type ChainRef string
 
 type Chains map[ChainRef]Chain

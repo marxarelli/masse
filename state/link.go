@@ -10,17 +10,13 @@ import (
 
 type Link struct {
 	Source      []common.Glob `json:"source"`
-	From        ChainRef      `json:"from"`
+	From        Chain         `json:"from"`
 	Destination string        `json:"destination"`
 	Options     LinkOptions   `json:"optionsValue"`
 }
 
 func (ln *Link) Description() string {
 	return fmt.Sprintf("∪ %s", ln.Copy().Description())
-}
-
-func (ln *Link) ChainRefs() []ChainRef {
-	return []ChainRef{ln.From}
 }
 
 func (ln *Link) Copy() *Copy {

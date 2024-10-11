@@ -1,16 +1,12 @@
 package state
 
 import (
-	"list"
-	"wikimedia.org/dduvall/masse/schema/common"
+	"wikimedia.org/dduvall/masse/common"
 )
 
 #Local: {
-	local!: string
-	options?: #LocalOption | [#LocalOption, ...#LocalOption]
-	if options != _|_ {
-		optionsValue: list.FlattenN([options], 1)
-	}
+	local!:   string
+	options?: #LocalOption | [#LocalOption, ...]
 }
 
 #LocalOption: {

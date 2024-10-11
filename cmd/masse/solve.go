@@ -50,19 +50,9 @@ func solveAction(clicontext *cli.Context) error {
 		return errors.Wrapf(err, "unknown target %q", targetName)
 	}
 
-	graph, err := target.Graph(root.Chains)
+	st, err := target.Compile(root.Chains)
 	if err != nil {
-		return errors.Wrap(err, "failed to get target graph")
-	}
-
-	solver, err := target.ResolvePlatformSolver(platform)
-	if err != nil {
-		return err
-	}
-
-	st, err := solver.Solve(graph)
-	if err != nil {
-		return errors.Wrap(err, "failed to solve target graph")
+		return errors.Wrap(err, "failed to compile target %q", targetName)
 	}
 
 	def, err := st.Marshal(context.TODO())

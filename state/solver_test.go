@@ -43,7 +43,7 @@ func TestSolve(t *testing.T) {
 	g, err := NewGraph(chains, ChainRef("final"))
 	req.NoError(err)
 
-	state, err := NewSolver().Solve(g)
+	state, err := NewPlatformSolver(common.Platform{OS: "linux", Architecture: "amd64"}).Solve(g)
 	req.NoError(err)
 	req.NotNil(state)
 }
