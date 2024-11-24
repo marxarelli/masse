@@ -3,6 +3,7 @@ package v1
 import (
 	"cuelang.org/go/cue"
 	"github.com/moby/buildkit/client/llb"
+	"gitlab.wikimedia.org/dduvall/masse/internal/lookup"
 )
 
 type StateKind string
@@ -15,30 +16,23 @@ const (
 	LocalKind             = "local"
 	RunKind               = "run"
 	FileKind              = "file"
+	MergeKind             = "merge"
+	DiffKind              = "diff"
 )
 
 func (c *compiler) compileState(state llb.State, v cue.Value) (llb.State, error) {
-	iter, err := v.Fields(cue.Final(), cue.Concrete(true), cue.Optional(false))
-	if err != nil {
-		return state, err
-	}
+	state, found, err := lookup.WithDiscriminatorField(v, func(kind StateKind) (llb.State, bool) {
+		return c.compileDispatchStateKind(kind, state, v)
+	})
 
-	for iter.Next() {
-		sel := iter.Selector()
-
-		if sel.LabelType() == cue.StringLabel {
-			state, matched := c.compileDispatchKind(StateKind(sel.String()), state, v)
-
-			if matched {
-				return state, c.Error()
-			}
-		}
+	if found {
+		return state, c.addError(err)
 	}
 
 	return state, c.addError(errorf(v, "unsupported operation"))
 }
 
-func (c *compiler) compileDispatchKind(kind StateKind, state llb.State, v cue.Value) (llb.State, bool) {
+func (c *compiler) compileDispatchStateKind(kind StateKind, state llb.State, v cue.Value) (llb.State, bool) {
 	var err error
 	switch kind {
 	case ScratchKind:
@@ -55,6 +49,10 @@ func (c *compiler) compileDispatchKind(kind StateKind, state llb.State, v cue.Va
 		state, err = c.compileRun(state, v)
 	case FileKind:
 		state, err = c.compileFile(state, v)
+	case MergeKind:
+		state, err = c.compileMerge(state, v)
+	case DiffKind:
+		state, err = c.compileDiff(state, v)
 	default:
 		return state, false
 	}

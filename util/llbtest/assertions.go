@@ -136,6 +136,18 @@ func (llbt *Assertions) ContainsNExecOps(n int) ([]pb.Op, []*pb.Op_Exec) {
 	return ContainsNOps[*pb.Op_Exec](llbt.t, llbt.ops, n, "should contain %d exec ops: %s")
 }
 
+// ContainsNMergeOps is a convenience method for ContainsNOps[pb.Op_Merge](...)
+func (llbt *Assertions) ContainsNMergeOps(n int) ([]pb.Op, []*pb.Op_Merge) {
+	llbt.t.Helper()
+	return ContainsNOps[*pb.Op_Merge](llbt.t, llbt.ops, n, "should contain %d merge ops: %s")
+}
+
+// ContainsNDiffOps is a convenience method for ContainsNOps[pb.Op_Diff](...)
+func (llbt *Assertions) ContainsNDiffOps(n int) ([]pb.Op, []*pb.Op_Diff) {
+	llbt.t.Helper()
+	return ContainsNOps[*pb.Op_Diff](llbt.t, llbt.ops, n, "should contain %d diff ops: %s")
+}
+
 // ContainsNCopyActions is a convenience method for
 // ContainsNFileActions[pb.FileAction_Copy](...)
 func (llbt *Assertions) ContainsNCopyActions(fileOp *pb.Op_File, n int) ([]*pb.FileAction, []*pb.FileAction_Copy) {

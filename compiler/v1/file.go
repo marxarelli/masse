@@ -10,9 +10,9 @@ type FileActionKind string
 
 const (
 	CopyKind   FileActionKind = "copy"
-	MkfileKind FileActionKind = "mkfile"
-	MkdirKind  FileActionKind = "mkdir"
-	RmKind     FileActionKind = "rm"
+	MkfileKind                = "mkfile"
+	MkdirKind                 = "mkdir"
+	RmKind                    = "rm"
 )
 
 func (c *compiler) compileFile(state llb.State, v cue.Value) (llb.State, error) {
