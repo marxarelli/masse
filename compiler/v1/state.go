@@ -18,6 +18,7 @@ const (
 	FileKind              = "file"
 	MergeKind             = "merge"
 	DiffKind              = "diff"
+	WithKind              = "with"
 )
 
 func (c *compiler) compileState(state llb.State, v cue.Value) (llb.State, error) {
@@ -53,6 +54,8 @@ func (c *compiler) compileDispatchStateKind(kind StateKind, state llb.State, v c
 		state, err = c.compileMerge(state, v)
 	case DiffKind:
 		state, err = c.compileDiff(state, v)
+	case WithKind:
+		state, err = c.compileWith(state, v)
 	default:
 		return state, false
 	}
