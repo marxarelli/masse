@@ -1,3 +1,3 @@
 package state
 
-#Op: #Merge | #Copy | #Diff | #Link | #Run | #With
+#Op: #Merge | #Diff | #File | #Run | #With

@@ -143,6 +143,27 @@ func (llbt *Assertions) ContainsNCopyActions(fileOp *pb.Op_File, n int) ([]*pb.F
 	return ContainsNFileActions[*pb.FileAction_Copy](llbt.t, fileOp, n, "should contain %d copy actions: %s")
 }
 
+// ContainsNMkfileActions is a convenience method for
+// ContainsNFileActions[pb.FileAction_Mkfile](...)
+func (llbt *Assertions) ContainsNMkfileActions(fileOp *pb.Op_File, n int) ([]*pb.FileAction, []*pb.FileAction_Mkfile) {
+	llbt.t.Helper()
+	return ContainsNFileActions[*pb.FileAction_Mkfile](llbt.t, fileOp, n, "should contain %d mkfile actions: %s")
+}
+
+// ContainsNMkdirActions is a convenience method for
+// ContainsNFileActions[pb.FileAction_Mkdir](...)
+func (llbt *Assertions) ContainsNMkdirActions(fileOp *pb.Op_File, n int) ([]*pb.FileAction, []*pb.FileAction_Mkdir) {
+	llbt.t.Helper()
+	return ContainsNFileActions[*pb.FileAction_Mkdir](llbt.t, fileOp, n, "should contain %d mkdir actions: %s")
+}
+
+// ContainsNRmActions is a convenience method for
+// ContainsNFileActions[pb.FileAction_Rm](...)
+func (llbt *Assertions) ContainsNRmActions(fileOp *pb.Op_File, n int) ([]*pb.FileAction, []*pb.FileAction_Rm) {
+	llbt.t.Helper()
+	return ContainsNFileActions[*pb.FileAction_Rm](llbt.t, fileOp, n, "should contain %d rm actions: %s")
+}
+
 // HasValidInputs is a convenience method for [HasValidInputs]
 func (llbt *Assertions) HasValidInputs(op pb.Op) []pb.Op {
 	llbt.t.Helper()

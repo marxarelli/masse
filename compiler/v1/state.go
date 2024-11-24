@@ -14,6 +14,7 @@ const (
 	GitKind               = "git"
 	LocalKind             = "local"
 	RunKind               = "run"
+	FileKind              = "file"
 )
 
 func (c *compiler) compileState(state llb.State, v cue.Value) (llb.State, error) {
@@ -52,6 +53,8 @@ func (c *compiler) compileDispatchKind(kind StateKind, state llb.State, v cue.Va
 		state, err = c.compileLocal(state, v)
 	case RunKind:
 		state, err = c.compileRun(state, v)
+	case FileKind:
+		state, err = c.compileFile(state, v)
 	default:
 		return state, false
 	}

@@ -45,6 +45,8 @@ func WithCompiler[C target.Compiler](f func() C) TestOption {
 }
 
 func (tester *Tester) Run(name string, f func(*Tester)) {
+	tester.Helper()
+
 	tester.Tester.Run(name, func(t *testconfig.Tester) {
 		f(&Tester{
 			Tester:  t,

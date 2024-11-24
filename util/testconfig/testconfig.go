@@ -20,6 +20,8 @@ func New(t *testing.T, imports []string) *Tester {
 }
 
 func (tester *Tester) Run(name string, f func(*Tester)) {
+	tester.Helper()
+
 	tester.T.Run(name, func(t *testing.T) {
 		f(New(t, tester.CUEImports))
 	})

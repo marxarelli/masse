@@ -49,6 +49,15 @@ func Int64(root cue.Value, path string) (int64, error) {
 	return v.Int64()
 }
 
+func Bytes(root cue.Value, path string) ([]byte, error) {
+	v, err := Existing(root, path)
+	if err != nil {
+		return nil, err
+	}
+
+	return v.Bytes()
+}
+
 func Each(root cue.Value, path string, f func(cue.Value) error) error {
 	v, err := Existing(root, path)
 	if err != nil {
@@ -168,4 +177,25 @@ func DecodeListOrSingle[S ~[]E, E comparable](root cue.Value, path string) (S, e
 	}
 
 	return s, nil
+}
+
+func WithDiscriminatorField[T ~string, R any](v cue.Value, f func(T) (R, bool)) (R, bool, error) {
+	var nilR R
+	iter, err := v.Fields(cue.Final(), cue.Concrete(true), cue.Optional(false))
+	if err != nil {
+		return nilR, false, err
+	}
+
+	for iter.Next() {
+		sel := iter.Selector()
+
+		if sel.LabelType() == cue.StringLabel {
+			r, matched := f(T(sel.String()))
+			if matched {
+				return r, true, nil
+			}
+		}
+	}
+
+	return nilR, false, nil
 }

@@ -1,7 +1,10 @@
 package v1
 
 import (
+	"context"
 	errs "errors"
+	"path/filepath"
+	"strings"
 	"sync"
 
 	"cuelang.org/go/cue"
@@ -23,6 +26,7 @@ func newCompiler(chains map[string]cue.Value, options ...CompilerOption) *compil
 		chains: chains,
 		config: newConfig(options),
 		errors: []error{},
+		ctx:    context.Background(),
 	}
 }
 
@@ -32,6 +36,7 @@ type compiler struct {
 	config         *Config
 	errors         []error
 	mutex          sync.Mutex
+	ctx            context.Context
 }
 
 type chainCompiler func() *chainResult
@@ -62,6 +67,20 @@ func (c *compiler) CompileState(state llb.State, v cue.Value) (llb.State, error)
 
 func (c *compiler) Error() error {
 	return errs.Join(c.errors...)
+}
+
+func (c *compiler) WithContext(ctx context.Context) target.Compiler {
+	return c.withContext(ctx)
+}
+
+func (c *compiler) withContext(ctx context.Context) *compiler {
+	return &compiler{
+		chains:         c.chains,
+		chainCompilers: c.chainCompilers,
+		config:         c.config,
+		errors:         c.errors,
+		ctx:            ctx,
+	}
 }
 
 func (c *compiler) compileChain(v cue.Value) (llb.State, error) {
@@ -104,6 +123,23 @@ func (c *compiler) compileChainByRef(refv cue.Value) (llb.State, error) {
 
 	result := cc()
 	return result.state, c.addVError(refv, result.err)
+}
+
+func (c *compiler) absPath(state llb.State, path string) string {
+	if filepath.IsAbs(path) {
+		return path
+	}
+
+	hadTrailingSlash := strings.HasSuffix(path, "/")
+
+	cwd, _ := state.GetDir(c.ctx)
+	abs := filepath.Join(cwd, path)
+
+	if hadTrailingSlash {
+		abs += "/"
+	}
+
+	return abs
 }
 
 func (c *compiler) addError(err error) error {
