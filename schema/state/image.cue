@@ -3,7 +3,7 @@ package state
 #Image: {
 	image!:   string
 	inherit:  bool | *true
-	options?: #ImageOption | [#ImageOption, ...]
+	options?: #ImageOption | [#ImageOption, ...#ImageOption]
 }
 
 #ImageOption: {

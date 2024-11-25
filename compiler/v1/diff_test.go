@@ -18,6 +18,7 @@ func TestDiff(t *testing.T) {
 	)
 
 	compile.Test(
+		"run",
 		`state.#Diff & { diff: [{ run: "make libs" }] }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 			ops, dops := req.ContainsNDiffOps(1)

@@ -26,6 +26,7 @@ func TestFile(t *testing.T) {
 
 	compile.Run("Copy", func(compile *testcompile.Tester) {
 		compile.Test(
+			"minimal",
 			`state.#File & { file: { copy: "./foo", from: "local" } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -39,6 +40,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"destination",
 			`state.#File & { file: { copy: "/foo/bar", from: "local", destination: "./baz" } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -50,6 +52,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/ctime",
 			`state.#File & { file: { copy: "./to", from: "local", destination: "./the/sound", options: ctime: "2016-04-11T17:23:07-07:00" } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -61,6 +64,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/user/name",
 			`state.#File & { file: { copy: "./foo", from: "local", options: user: "kim" } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -70,6 +74,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/user/uid",
 			`state.#File & { file: { copy: "./foo", from: "local", options: uid: 9 } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -79,6 +84,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/group/name",
 			`state.#File & { file: { copy: "./foo", from: "local", options: group: "breeders" } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -88,6 +94,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/group/gid",
 			`state.#File & { file: { copy: "./foo", from: "local", options: gid: 1 } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -97,6 +104,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/copyDirectoryContents",
 			`state.#File & { file: { copy: "./foo", from: "local", options: copyDirectoryContents: true } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -106,6 +114,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/followSymlinks",
 			`state.#File & { file: { copy: "./foo", from: "local", options: followSymlinks: true } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -117,6 +126,7 @@ func TestFile(t *testing.T) {
 
 	compile.Run("Mkfile", func(compile *testcompile.Tester) {
 		compile.Test(
+			"minimal",
 			`state.#File & { file: { mkfile: "./foo", content: 'some content' } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -129,6 +139,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/mode",
 			`state.#File & { file: { mkfile: "./foo", content: 'some content', options: mode: 0o0666 } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -138,6 +149,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/ctime",
 			`state.#File & { file: { mkfile: "./foo", content: 'some content', options: ctime: "2016-04-11T17:23:07-07:00" } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -147,6 +159,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/user/name",
 			`state.#File & { file: { mkfile: "./foo", content: 'some content', options: user: "kim" } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -156,6 +169,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/user/uid",
 			`state.#File & { file: { mkfile: "./foo", content: 'some content', options: uid: 9 } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -165,6 +179,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/group/name",
 			`state.#File & { file: { mkfile: "./foo", content: 'some content', options: group: "breeders" } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -174,6 +189,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/group/gid",
 			`state.#File & { file: { mkfile: "./foo", content: 'some content', options: gid: 1 } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -185,6 +201,7 @@ func TestFile(t *testing.T) {
 
 	compile.Run("Mkdir", func(compile *testcompile.Tester) {
 		compile.Test(
+			"minimal",
 			`state.#File & { file: { mkdir: "./foo" } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -197,6 +214,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/createParents",
 			`state.#File & { file: { mkdir: "./foo", options: createParents: true } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -206,6 +224,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/mode",
 			`state.#File & { file: { mkdir: "./foo", options: mode: 0o0777 } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -215,6 +234,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/ctime",
 			`state.#File & { file: { mkdir: "./foo", options: ctime: "2016-04-11T17:23:07-07:00" } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -224,6 +244,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/user/name",
 			`state.#File & { file: { mkdir: "./foo", options: user: "kim" } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -233,6 +254,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/user/uid",
 			`state.#File & { file: { mkdir: "./foo", options: uid: 9 } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -242,6 +264,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/group/name",
 			`state.#File & { file: { mkdir: "./foo", options: group: "breeders" } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -251,6 +274,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/group/gid",
 			`state.#File & { file: { mkdir: "./foo", options: gid: 1 } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -262,6 +286,7 @@ func TestFile(t *testing.T) {
 
 	compile.Run("Rm", func(compile *testcompile.Tester) {
 		compile.Test(
+			"minimal",
 			`state.#File & { file: { rm: "./foo" } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -274,6 +299,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/allowNotFound",
 			`state.#File & { file: { rm: "./foo", options: allowNotFound: true } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
@@ -283,6 +309,7 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
+			"options/allowWildcard",
 			`state.#File & { file: { rm: "./foo", options: allowWildcard: true } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)

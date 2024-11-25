@@ -1,5 +1,5 @@
 package state
 
 #Diff: {
-	diff!: [#Op, ...#Op] | *null
+	diff!: #Op | [#Op, ...#Op] | *null
 }

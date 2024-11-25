@@ -22,18 +22,21 @@ const (
 )
 
 func (c *compiler) compileState(state llb.State, v cue.Value) (llb.State, error) {
-	state, found, err := lookup.WithDiscriminatorField(v, func(kind StateKind) (llb.State, bool) {
+	var found bool
+	var err error
+
+	state, found, err = lookup.WithDiscriminatorField(v, func(kind StateKind) (llb.State, bool, error) {
 		return c.compileDispatchStateKind(kind, state, v)
 	})
 
 	if found {
-		return state, c.addError(err)
+		return state, err
 	}
 
-	return state, c.addError(errorf(v, "unsupported operation"))
+	return state, errorf(v, "unsupported operation")
 }
 
-func (c *compiler) compileDispatchStateKind(kind StateKind, state llb.State, v cue.Value) (llb.State, bool) {
+func (c *compiler) compileDispatchStateKind(kind StateKind, state llb.State, v cue.Value) (llb.State, bool, error) {
 	var err error
 	switch kind {
 	case ScratchKind:
@@ -57,10 +60,8 @@ func (c *compiler) compileDispatchStateKind(kind StateKind, state llb.State, v c
 	case WithKind:
 		state, err = c.compileWith(state, v)
 	default:
-		return state, false
+		return state, false, err
 	}
 
-	c.addVError(v, err)
-
-	return state, true
+	return state, true, err
 }

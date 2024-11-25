@@ -10,6 +10,10 @@ func (c *compiler) compileDiff(lower llb.State, v cue.Value) (llb.State, error) 
 	upper := lower
 
 	err := lookup.EachOrValue(v, "diff", func(opv cue.Value) error {
+		if opv.IsNull() {
+			return errorf(opv, "diff cannot have a null operation")
+		}
+
 		var err error
 		upper, err = c.compileState(upper, opv)
 		if err != nil {

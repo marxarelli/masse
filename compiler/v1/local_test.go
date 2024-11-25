@@ -17,6 +17,7 @@ func TestLocal(t *testing.T) {
 	)
 
 	compile.Test(
+		"minimal",
 		`state.#Local & { local: "foo" }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 			_, sops := req.ContainsNSourceOps(1)
@@ -25,17 +26,8 @@ func TestLocal(t *testing.T) {
 	)
 
 	compile.Test(
+		"options/include",
 		`state.#Local & { local: "foo", options: include: ["*.c"] }`,
-		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
-			_, sops := req.ContainsNSourceOps(1)
-			req.Equal("local://foo", sops[0].Source.Identifier)
-			req.Contains(sops[0].Source.Attrs, "local.includepattern")
-			req.Equal(`["*.c"]`, sops[0].Source.Attrs["local.includepattern"])
-		},
-	)
-
-	compile.Test(
-		`state.#Local & { local: "foo", options: [ { include: ["*.c"] } ] }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 			_, sops := req.ContainsNSourceOps(1)
 			req.Equal("local://foo", sops[0].Source.Identifier)

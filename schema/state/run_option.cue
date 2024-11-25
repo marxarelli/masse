@@ -33,5 +33,5 @@ import (
 }
 
 #ValidExitCodes: {
-	validExitCodes!: [uint64, ...]
+	validExitCodes!: [uint64, ...uint64]
 }

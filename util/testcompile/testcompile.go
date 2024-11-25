@@ -28,7 +28,10 @@ type Test struct {
 	Compiler target.Compiler
 	State    llb.State
 	Value    cue.Value
+	Compile  CompileFunc
 }
+
+type CompileFunc func(*Test) (llb.State, error)
 
 type TestOption func(*Test)
 
@@ -44,6 +47,12 @@ func WithCompiler[C target.Compiler](f func() C) TestOption {
 	})
 }
 
+func WithCompileFunc(f CompileFunc) TestOption {
+	return TestOption(func(test *Test) {
+		test.Compile = f
+	})
+}
+
 func (tester *Tester) Run(name string, f func(*Tester)) {
 	tester.Helper()
 
@@ -56,18 +65,21 @@ func (tester *Tester) Run(name string, f func(*Tester)) {
 }
 
 func (tester *Tester) Test(
-	expr string,
+	name, expr string,
 	testFunc func(*testing.T, *llbtest.Assertions, *Test),
 	options ...TestOption,
 ) {
 	tester.Helper()
 
-	tester.Tester.Test(expr, func(t *testing.T, req *require.Assertions, v cue.Value) {
+	tester.Tester.Test(name, expr, func(t *testing.T, req *require.Assertions, v cue.Value) {
 		t.Helper()
 
 		test := &Test{
 			State: llb.Scratch(),
 			Value: v,
+			Compile: func(test *Test) (llb.State, error) {
+				return test.Compiler.CompileState(test.State, test.Value)
+			},
 		}
 
 		for _, opt := range append(tester.options, options...) {
@@ -80,7 +92,7 @@ func (tester *Tester) Test(
 			)
 		}
 
-		state, err := test.Compiler.CompileState(test.State, test.Value)
+		state, err := test.Compile(test)
 		req.NoError(err)
 
 		test.State = state

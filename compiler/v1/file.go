@@ -21,7 +21,7 @@ func (c *compiler) compileFile(state llb.State, v cue.Value) (llb.State, error) 
 	err := lookup.EachOrValue(v, "file", func(filev cue.Value) error {
 		var found bool
 		var err error
-		fa, found, err = lookup.WithDiscriminatorField(filev, func(kind FileActionKind) (*llb.FileAction, bool) {
+		fa, found, err = lookup.WithDiscriminatorField(filev, func(kind FileActionKind) (*llb.FileAction, bool, error) {
 			return c.compileDispatchFileKind(kind, state, fa, filev)
 		})
 
@@ -47,7 +47,7 @@ func (c *compiler) compileFile(state llb.State, v cue.Value) (llb.State, error) 
 	return state.File(fa), nil
 }
 
-func (c *compiler) compileDispatchFileKind(kind FileActionKind, state llb.State, fa *llb.FileAction, v cue.Value) (*llb.FileAction, bool) {
+func (c *compiler) compileDispatchFileKind(kind FileActionKind, state llb.State, fa *llb.FileAction, v cue.Value) (*llb.FileAction, bool, error) {
 	var err error
 	switch kind {
 	case CopyKind:
@@ -57,10 +57,8 @@ func (c *compiler) compileDispatchFileKind(kind FileActionKind, state llb.State,
 	case RmKind:
 		fa, err = c.compileRm(state, fa, v)
 	default:
-		return fa, false
+		return fa, false, err
 	}
 
-	c.addVError(v, err)
-
-	return fa, true
+	return fa, true, err
 }

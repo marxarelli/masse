@@ -17,6 +17,7 @@ func TestGit(t *testing.T) {
 	)
 
 	compile.Test(
+		"minimal",
 		`state.#Git & { git: "https://an.example/repo.git" }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 			_, sops := req.ContainsNSourceOps(1)
@@ -27,6 +28,7 @@ func TestGit(t *testing.T) {
 	)
 
 	compile.Test(
+		"ref",
 		`state.#Git & { git: "https://an.example/repo.git", ref: "refs/tags/foo" }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 			_, sops := req.ContainsNSourceOps(1)
@@ -37,6 +39,7 @@ func TestGit(t *testing.T) {
 	)
 
 	compile.Test(
+		"options/keepGitdir/true",
 		`state.#Git & { git: "https://an.example/repo.git", options: keepGitDir: true }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 			_, sops := req.ContainsNSourceOps(1)
@@ -47,6 +50,7 @@ func TestGit(t *testing.T) {
 	)
 
 	compile.Test(
+		"options/keepGitdir/false",
 		`state.#Git & { git: "https://an.example/repo.git", options: keepGitDir: false }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 			_, sops := req.ContainsNSourceOps(1)

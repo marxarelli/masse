@@ -27,14 +27,7 @@ func TestImage(t *testing.T) {
 	)
 
 	compile.Test(
-		`state.#Image & { image: "an.example/image/ref", inherit: false }`,
-		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
-			_, sops := req.ContainsNSourceOps(1)
-			req.Equal("docker-image://an.example/image/ref:latest", sops[0].Source.Identifier)
-		},
-	)
-
-	compile.Test(
+		"minimal",
 		`state.#Image & { image: "an.example/image/ref" }`,
 		func(t *testing.T, req *llbtest.Assertions, run *testcompile.Test) {
 			_, sops := req.ContainsNSourceOps(1)
@@ -48,6 +41,16 @@ func TestImage(t *testing.T) {
 	)
 
 	compile.Test(
+		"inherit/false",
+		`state.#Image & { image: "an.example/image/ref", inherit: false }`,
+		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
+			_, sops := req.ContainsNSourceOps(1)
+			req.Equal("docker-image://an.example/image/ref:latest", sops[0].Source.Identifier)
+		},
+	)
+
+	compile.Test(
+		"options/layerLimit",
 		`state.#Image & { image: "an.example/image/ref", options: layerLimit: 20 }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 			_, sops := req.ContainsNSourceOps(1)

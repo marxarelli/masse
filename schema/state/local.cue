@@ -6,7 +6,7 @@ import (
 
 #Local: {
 	local!:   string
-	options?: #LocalOption | [#LocalOption, ...]
+	options?: #LocalOption | [#LocalOption, ...#LocalOption]
 }
 
 #LocalOption: {

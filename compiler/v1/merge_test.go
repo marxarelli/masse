@@ -27,6 +27,7 @@ func TestMerge(t *testing.T) {
 	)
 
 	compile.Test(
+		"minimal",
 		`state.#Merge & { merge: ["repo", "files"] }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 			ops, mops := req.ContainsNMergeOps(1)

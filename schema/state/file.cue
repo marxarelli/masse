@@ -1,8 +1,8 @@
 package state
 
 #File: {
-	file!:    #FileAction | [#FileAction, ...]
-	options?: #Option | [#Option, ...]
+	file!:    #FileAction | [#FileAction, ...#FileAction]
+	options?: #Option | [#Option, ...#Option]
 }
 
 #FileAction: {

@@ -9,6 +9,7 @@ import (
 
 type Compiler interface {
 	Compile(*Target) (llb.State, error)
+	CompileChain(cue.Value) (llb.State, error)
 	CompileState(llb.State, cue.Value) (llb.State, error)
 	Error() error
 	WithContext(context.Context) Compiler

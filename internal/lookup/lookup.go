@@ -179,7 +179,7 @@ func DecodeListOrSingle[S ~[]E, E comparable](root cue.Value, path string) (S, e
 	return s, nil
 }
 
-func WithDiscriminatorField[T ~string, R any](v cue.Value, f func(T) (R, bool)) (R, bool, error) {
+func WithDiscriminatorField[T ~string, R any](v cue.Value, f func(T) (R, bool, error)) (R, bool, error) {
 	var nilR R
 	iter, err := v.Fields(cue.Final(), cue.Concrete(true), cue.Optional(false))
 	if err != nil {
@@ -190,9 +190,9 @@ func WithDiscriminatorField[T ~string, R any](v cue.Value, f func(T) (R, bool)) 
 		sel := iter.Selector()
 
 		if sel.LabelType() == cue.StringLabel {
-			r, matched := f(T(sel.String()))
+			r, matched, err := f(T(sel.String()))
 			if matched {
-				return r, true, nil
+				return r, true, err
 			}
 		}
 	}

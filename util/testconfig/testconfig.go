@@ -27,10 +27,10 @@ func (tester *Tester) Run(name string, f func(*Tester)) {
 	})
 }
 
-func (tester *Tester) Test(expr string, f func(*testing.T, *require.Assertions, cue.Value)) {
+func (tester *Tester) Test(name, expr string, f func(*testing.T, *require.Assertions, cue.Value)) {
 	tester.Helper()
 
-	tester.T.Run(expr, func(t *testing.T) {
+	tester.T.Run(name, func(t *testing.T) {
 		t.Helper()
 		t.Parallel()
 		req := require.New(t)
