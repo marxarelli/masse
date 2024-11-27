@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/moby/buildkit/client/llb"
 	"github.com/moby/buildkit/client/llb/imagemetaresolver"
+	"gitlab.wikimedia.org/dduvall/masse/common"
 )
 
 type CompilerOption interface {
@@ -17,11 +18,21 @@ func (f compilerOption) SetCompilerOption(cfg *Config) {
 
 type Config struct {
 	ImageMetaResolver llb.ImageMetaResolver
+	Platform          *Platform
+}
+
+func (cfg *Config) Constraints() Constraints {
+	return Constraints{
+		&Constraint{
+			Platform: cfg.Platform,
+		},
+	}
 }
 
 func newConfig(options []CompilerOption) *Config {
 	cfg := &Config{
 		ImageMetaResolver: imagemetaresolver.Default(),
+		Platform:          defaultPlatform,
 	}
 
 	for _, opt := range options {
@@ -34,5 +45,11 @@ func newConfig(options []CompilerOption) *Config {
 func WithImageMetaResolver(resolver llb.ImageMetaResolver) CompilerOption {
 	return compilerOption(func(cfg *Config) {
 		cfg.ImageMetaResolver = resolver
+	})
+}
+
+func WithPlatform(platform common.Platform) CompilerOption {
+	return compilerOption(func(cfg *Config) {
+		cfg.Platform = &Platform{Platform: platform}
 	})
 }

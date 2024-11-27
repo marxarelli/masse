@@ -12,8 +12,8 @@ import (
 // Load loads the given configuration into a new *Root using a new CUE
 // context. The path is used solely for location information in error
 // reporting.
-func Load(path string, data []byte) (*Root, error) {
-	val, err := LoadCUE(path, data)
+func Load(path string, data []byte, parameters map[string]string) (*Root, error) {
+	val, err := LoadCUE(path, data, parameters)
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +27,7 @@ func Load(path string, data []byte) (*Root, error) {
 }
 
 // LoadCUE loads the given configuration and returns the root cue.Value.
-func LoadCUE(path string, data []byte) (cue.Value, error) {
+func LoadCUE(path string, data []byte, parameters map[string]string) (cue.Value, error) {
 	ctx := cuecontext.New(cuecontext.EvaluatorVersion(cuecontext.EvalV2))
 
 	basename := filepath.Base(path)
@@ -44,5 +44,21 @@ func LoadCUE(path string, data []byte) (cue.Value, error) {
 		return cue.Value{}, errors.Wrapf(err, "failed to parse configuration from %q", path)
 	}
 
-	return ctx.BuildInstance(main), nil
+	root := ctx.BuildInstance(main)
+
+	if parameters != nil {
+		paramValues := make(map[string]cue.Value, len(parameters))
+		for name, expr := range parameters {
+			value := ctx.CompileString(expr)
+			if err := value.Err(); err != nil {
+				return root, errors.Wrapf(err, "failed to compile parameter %q", name)
+			}
+
+			paramValues[name] = value
+		}
+
+		root = root.FillPath(cue.ParsePath("parameters"), paramValues)
+	}
+
+	return root, nil
 }

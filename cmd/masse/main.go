@@ -16,7 +16,7 @@ func main() {
 			&cli.StringFlag{
 				Name:    "file",
 				Aliases: []string{"f"},
-				Value:   "layout.cue",
+				Value:   "masse.cue",
 			},
 		},
 		Commands: []*cli.Command{

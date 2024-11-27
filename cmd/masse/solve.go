@@ -1,13 +1,14 @@
 package main
 
 import (
-	"context"
 	"os"
 
 	"github.com/moby/buildkit/client/llb"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 
+	"gitlab.wikimedia.org/dduvall/masse/common"
+	compiler "gitlab.wikimedia.org/dduvall/masse/compiler/v1"
 	"gitlab.wikimedia.org/dduvall/masse/config"
 )
 
@@ -33,16 +34,21 @@ var solveCommand = &cli.Command{
 func solveAction(clicontext *cli.Context) error {
 	file := clicontext.String("file")
 	targetName := clicontext.String("target")
-	platform := clicontext.String("platform")
+	platformName := clicontext.String("platform")
+
+	platform, err := common.ParsePlatform(platformName)
+	if err != nil {
+		return errors.Wrapf(err, "failed to parse platform %q", platformName)
+	}
 
 	data, err := os.ReadFile(file)
 	if err != nil {
 		return errors.Wrap(err, "failed to read config file")
 	}
 
-	root, err := config.Load(file, data)
+	root, err := config.Load(file, data, nil)
 	if err != nil {
-		return errors.Wrap(err, "failed to load config")
+		return errors.Wrapf(err, "failed to load config %q", file)
 	}
 
 	target, ok := root.Targets[targetName]
@@ -50,12 +56,14 @@ func solveAction(clicontext *cli.Context) error {
 		return errors.Wrapf(err, "unknown target %q", targetName)
 	}
 
-	st, err := target.Compile(root.Chains)
+	compiler := compiler.New(root.Chains, compiler.WithPlatform(platform)).WithContext(clicontext.Context)
+
+	st, err := compiler.Compile(target)
 	if err != nil {
-		return errors.Wrap(err, "failed to compile target %q", targetName)
+		return errors.Wrapf(err, "failed to compile target %q", targetName)
 	}
 
-	def, err := st.Marshal(context.TODO())
+	def, err := st.Marshal(clicontext.Context)
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal LLB state")
 	}

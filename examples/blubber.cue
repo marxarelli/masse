@@ -1,3 +1,5 @@
+package main
+
 import (
 	"wikimedia.org/dduvall/masse/apt"
 )
@@ -14,38 +16,39 @@ chains: {
 	]
 
 	go: [
-		{ image: "docker-registry.wikimedia.org/golang1.19:1.19-1-20230730" },
+		{ image: "docker-registry.wikimedia.org/golang1.22:1.22-20241124" },
 		{ with: directory: "/src" },
 	]
 
 	tools: [
-		{ extend: go },
+		{ extend: "go" },
 		{ diff: [ apt.install & { #packages: [ "gcc", "git", "make" ] } ] },
 	]
 
 	modules: [
-		{ extend: go },
-		{ link: [ "go.mod", "go.sum" ], from: repo },
+		{ extend: "go" },
+		{ file: [
+			{ copy: "go.mod", from: "repo" },
+			{ copy: "go.sum", from: "repo" },
+		] },
 		{ diff: [ { run: "go mod download" } ] },
 	]
 
 	binaries: [
-		{ extend: go },
-		{ merge: [tools, modules] },
-		{	link: ".", from: repo },
+		{ extend: "go" },
+		{ merge: ["tools", "modules"] },
+		{ file: { copy: ".", from: "repo" } },
 		{ run: "make clean blubber-buildkit"
 			options: [ { cache: "/root/.cache/go-build", access: "locked" } ] },
-	]
-
-	frontend: [
-		{ scratch: true },
-		{ copy: "blubber-buildkit", from: binaries },
 	]
 }
 
 targets: {
 	frontend: {
-		build: frontend
+		build: [
+			{ scratch: true },
+			{ file: { copy: "blubber-buildkit", from: "binaries" } },
+		],
 		platforms: ["linux/amd64", "linux/arm64"]
 		runtime: {
 			user: "nobody"

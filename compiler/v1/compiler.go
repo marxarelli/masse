@@ -85,6 +85,10 @@ func (c *compiler) withContext(ctx context.Context) *compiler {
 	}
 }
 
+func (c *compiler) constraints() Constraints {
+	return c.config.Constraints()
+}
+
 func (c *compiler) absPath(state llb.State, path string) string {
 	if filepath.IsAbs(path) {
 		return path

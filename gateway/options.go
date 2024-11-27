@@ -19,7 +19,7 @@ const (
 	keyConfigFile  = "config"
 	keyTarget      = "target"
 
-	defaultConfigLocal = "config"
+	defaultConfigLocal = "dockerfile"
 	defaultConfigFile  = "masse.cue"
 
 	// Dockerfile syntax= compatibility
@@ -58,7 +58,7 @@ func NewOptions() *Options {
 	return &Options{
 		ConfigLocal:  defaultConfigLocal,
 		ConfigFile:   defaultConfigFile,
-		Parameters:   map[string]string,
+		Parameters:   map[string]string{},
 		CacheOptions: []client.CacheOptionsEntry{},
 	}
 }

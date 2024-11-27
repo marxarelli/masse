@@ -10,8 +10,8 @@ import (
 	"github.com/moby/buildkit/frontend/gateway/client"
 	"github.com/pkg/errors"
 	"gitlab.wikimedia.org/dduvall/masse/common"
+	compiler "gitlab.wikimedia.org/dduvall/masse/compiler/v1"
 	"gitlab.wikimedia.org/dduvall/masse/config"
-	"gitlab.wikimedia.org/dduvall/masse/state"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -43,7 +43,7 @@ func (gw *Gateway) Run() (*client.Result, error) {
 		return nil, errors.Wrapf(err, "failed to read config from %s", gw.options.ConfigFile)
 	}
 
-	root, err := config.Load(gw.options.ConfigFile, data)
+	root, err := config.Load(gw.options.ConfigFile, data, gw.options.Parameters)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to load config from %s", gw.options.ConfigFile)
 	}
@@ -51,11 +51,6 @@ func (gw *Gateway) Run() (*client.Result, error) {
 	target, ok := root.Targets[gw.options.Target]
 	if !ok {
 		return nil, errors.Wrapf(err, "unknown target %q", gw.options.Target)
-	}
-
-	graph, err := target.Graph(root.Chains)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get target graph")
 	}
 
 	exportPlatforms := &exptypes.Platforms{
@@ -69,12 +64,12 @@ func (gw *Gateway) Run() (*client.Result, error) {
 	for i, tp := range target.Platforms {
 		func(i int, tp common.Platform) {
 			eg.Go(func() (err error) {
-				solver := state.NewPlatformSolver(tp)
+				compiler := compiler.New(root.Chains, compiler.WithPlatform(tp)).WithContext(ctx)
 
-				// Solve to LLB state
-				st, err := solver.Solve(graph)
+				// Compile to LLB state
+				st, err := compiler.Compile(target)
 				if err != nil {
-					return errors.Wrap(err, "failed to solve target graph")
+					return errors.Wrap(err, "failed to compile target")
 				}
 
 				def, err := st.Marshal(ctx)

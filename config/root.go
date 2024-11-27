@@ -12,7 +12,7 @@ type Root struct {
 	Chains     map[string]cue.Value
 }
 
-// UnmarshalCUE parses the given cue.Value into the root config.
+// UnmarshalCUE parses the given [cue.Value] into the root config.
 func (root *Root) UnmarshalCUE(rv cue.Value) error {
 	params, err := lookup.Existing(rv, "parameters")
 	if err != nil {

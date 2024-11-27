@@ -18,14 +18,14 @@ import (
 )
 
 parameters: {
-	REPO_REMOTE: string | *"https://gitlab.wikimedia.org/repos/releng/blubber.git"
-	REPO_REF: string | *"refs/heads/main"
+	repo: string | *"https://gitlab.wikimedia.org/repos/releng/blubber.git"
+	ref: string | *"refs/heads/main"
 }
 
 chains: {
 	repo: [
-		{ git: parameters.REPO_REMOTE
-			ref: parameters.REPO_REF },
+		{ git: parameters.repo
+			ref: parameters.ref },
 	]
 
 	go: [
@@ -40,14 +40,17 @@ chains: {
 
 	modules: [
 		{ extend: "go" },
-		{ link: [ "go.mod", "go.sum" ], from: "repo" },
+		{ file: [
+				{ copy: "go.mod", from: "repo" },
+				{ copy: "go.sum", from: "repo" },
+		] },
 		{ diff: [ { run: "go mod download" } ] },
 	]
 
 	binaries: [
 		{ extend: "go" },
 		{ merge: ["tools", "modules"] },
-		{	link: ".", from: "repo" },
+		{	file: { copy: ".", from: "repo" } },
 		{ run: "make clean blubber-buildkit"
 			options: [ { cache: "/root/.cache/go-build", access: "locked" } ] },
 	]
@@ -57,7 +60,7 @@ targets: {
 	frontend: {
 		build: [
 			{ scratch: true },
-			{ copy: "blubber-buildkit", from: "binaries" },
+			{ file: { copy: "blubber-buildkit", from: "binaries" } },
 		]
 		platforms: ["linux/amd64", "linux/arm64"]
 		runtime: {
@@ -67,6 +70,9 @@ targets: {
 	}
 }
 		`),
+		map[string]string{
+			"ref": "refs/tags/v1.0",
+		},
 	)
 
 	req.NoError(err)

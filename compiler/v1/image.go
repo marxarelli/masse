@@ -22,13 +22,13 @@ func (c *compiler) compileImage(state llb.State, v cue.Value) (llb.State, error)
 		return state, vError(v, err)
 	}
 
-	llbOptions := []llb.ImageOption{options}
+	imageOptions := []llb.ImageOption{c.constraints(), options}
 
 	if inherit {
-		llbOptions = append(llbOptions, llb.WithMetaResolver(c.config.ImageMetaResolver))
+		imageOptions = append(imageOptions, llb.WithMetaResolver(c.config.ImageMetaResolver))
 	}
 
-	return llb.Image(ref, llbOptions...), nil
+	return llb.Image(ref, imageOptions...), nil
 }
 
 type ImageOptions []*ImageOption

@@ -22,7 +22,7 @@ func (c *compiler) compileGit(state llb.State, v cue.Value) (llb.State, error) {
 		return state, vError(v, err)
 	}
 
-	return llb.Git(repo, ref, options), nil
+	return llb.Git(repo, ref, c.constraints(), options), nil
 }
 
 type GitOptions []*GitOption
