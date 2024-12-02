@@ -6,7 +6,7 @@ import (
 
 #Copy: {
 	copy!:       string
-	from:        #ChainRef
+	from!:       #ChainRef
 	destination: string | *"./"
 	options?:    #CopyOption | [#CopyOption, ...#CopyOption]
 }
