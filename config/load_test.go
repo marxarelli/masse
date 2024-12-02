@@ -71,7 +71,7 @@ targets: {
 }
 		`),
 		map[string]string{
-			"ref": "refs/tags/v1.0",
+			"ref": `"refs/tags/v1.0"`,
 		},
 	)
 

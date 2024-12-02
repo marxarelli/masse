@@ -27,7 +27,9 @@ func (tester *Tester) Run(name string, f func(*Tester)) {
 	})
 }
 
-func (tester *Tester) Test(name, expr string, f func(*testing.T, *require.Assertions, cue.Value)) {
+type TestFunc func(*testing.T, *require.Assertions, cue.Value)
+
+func (tester *Tester) Test(name, expr string, f TestFunc) {
 	tester.Helper()
 
 	tester.T.Run(name, func(t *testing.T) {

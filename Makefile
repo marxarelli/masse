@@ -1,13 +1,13 @@
 .PHONY: all masse massed test
 
-GCFLAGS := ""
+GOBUILD_FLAGS :=
 
 # Compile without optimizations (when debugging)
-#GCFLAGS := "all=-N -l"
+#GOBUILD_FLAGS := -gcflags "all=-N -l"
 
 all: masse massed
 masse massed:
-	CGO_ENABLED=0 go build -gcflags $(GCFLAGS) ./cmd/$@
+	CGO_ENABLED=0 go build $(GOBUILD_FLAGS) ./cmd/$@
 
 test:
 	go test ./...
