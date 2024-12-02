@@ -16,7 +16,7 @@ func TestFile(t *testing.T) {
 		testcompile.WithCompiler(func() *compiler {
 			c := newCompiler(nil)
 			c.chainCompilers = map[string]chainCompiler{
-				"local": func() *chainResult {
+				"local": func(_ *compiler) *chainResult {
 					return &chainResult{state: llb.Local("context").Dir("/src")}
 				},
 			}

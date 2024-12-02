@@ -17,7 +17,7 @@ func TestExtend(t *testing.T) {
 		testcompile.WithCompiler(func() *compiler {
 			c := newCompiler(nil, WithImageMetaResolver(testmetaresolver.New("golang:1.23", oci.Image{})))
 			c.chainCompilers = map[string]chainCompiler{
-				"go": func() *chainResult {
+				"go": func(_ *compiler) *chainResult {
 					return &chainResult{
 						state: llb.Image("golang:1.23"),
 					}

@@ -94,7 +94,7 @@ func TestRun(t *testing.T) {
 		testcompile.WithCompiler(func() *compiler {
 			c := newCompiler(nil)
 			c.chainCompilers = map[string]chainCompiler{
-				"repo": func() *chainResult {
+				"repo": func(_ *compiler) *chainResult {
 					return &chainResult{state: llb.Git("an.example/repo.git", "refs/heads/main")}
 				},
 			}
@@ -124,7 +124,7 @@ func TestRun(t *testing.T) {
 		testcompile.WithCompiler(func() *compiler {
 			c := newCompiler(nil)
 			c.chainCompilers = map[string]chainCompiler{
-				"repo": func() *chainResult {
+				"repo": func(_ *compiler) *chainResult {
 					return &chainResult{state: llb.Git("an.example/repo.git", "refs/heads/main")}
 				},
 			}

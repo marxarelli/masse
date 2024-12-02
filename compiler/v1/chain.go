@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"strings"
+
 	"cuelang.org/go/cue"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/pkg/errors"
@@ -39,11 +41,20 @@ func (c *compiler) compileChainByRef(refv cue.Value) (llb.State, error) {
 		return state, c.addVError(refv, err)
 	}
 
-	cc, ok := c.chainCompilers[ref]
-	if !ok {
-		return state, c.addError(errors.Errorf("unknown chain %q", ref))
+	for _, r := range c.refStack {
+		if ref == r {
+			return state, c.addVError(
+				refv,
+				errors.Errorf("chain ref cycle detected: %s -> %s", strings.Join(c.refStack, " -> "), ref),
+			)
+		}
 	}
 
-	result := cc()
+	cc, ok := c.chainCompilers[ref]
+	if !ok {
+		return state, c.addVError(refv, errors.Errorf("unknown chain %q", ref))
+	}
+
+	result := cc(c.withRefOnStack(ref))
 	return result.state, c.addVError(refv, result.err)
 }

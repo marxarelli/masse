@@ -18,12 +18,12 @@ func TestTarget(t *testing.T) {
 		testcompile.WithCompiler(func() *compiler {
 			c := newCompiler(nil)
 			c.chainCompilers = map[string]chainCompiler{
-				"repo": func() *chainResult {
+				"repo": func(_ *compiler) *chainResult {
 					return &chainResult{
 						state: llb.Git("an.example/repo.git", "refs/heads/main"),
 					}
 				},
-				"go": func() *chainResult {
+				"go": func(_ *compiler) *chainResult {
 					return &chainResult{
 						state: llb.Image("golang:1.23", llb.WithMetaResolver(testmetaresolver.New("golang:1.23", oci.Image{}))),
 					}

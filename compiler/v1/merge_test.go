@@ -15,10 +15,10 @@ func TestMerge(t *testing.T) {
 		testcompile.WithCompiler(func() *compiler {
 			c := newCompiler(nil)
 			c.chainCompilers = map[string]chainCompiler{
-				"repo": func() *chainResult {
+				"repo": func(_ *compiler) *chainResult {
 					return &chainResult{state: llb.Git("an.example/repo.git", "refs/heads/main")}
 				},
-				"files": func() *chainResult {
+				"files": func(_ *compiler) *chainResult {
 					return &chainResult{state: llb.Scratch().File(llb.Copy(llb.Local("context"), "/src", "/dest"))}
 				},
 			}

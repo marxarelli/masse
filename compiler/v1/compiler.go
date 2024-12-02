@@ -25,6 +25,7 @@ func newCompiler(chains map[string]cue.Value, options ...CompilerOption) *compil
 
 	return &compiler{
 		chains:         chains,
+		chainCache:     map[string]*chainResult{},
 		chainCompilers: map[string]chainCompiler{},
 		config:         cfg,
 		errors:         []error{},
@@ -34,14 +35,31 @@ func newCompiler(chains map[string]cue.Value, options ...CompilerOption) *compil
 
 type compiler struct {
 	chains         map[string]cue.Value
+	chainCache     map[string]*chainResult
 	chainCompilers map[string]chainCompiler
 	config         *Config
 	errors         []error
 	mutex          sync.Mutex
 	ctx            context.Context
+	refStack       []string
 }
 
-type chainCompiler func() *chainResult
+func (c *compiler) copy(mut func(*compiler)) *compiler {
+	newC := &compiler{
+		chains:         c.chains,
+		chainCache:     c.chainCache,
+		chainCompilers: c.chainCompilers,
+		config:         c.config,
+		errors:         c.errors,
+		ctx:            c.ctx,
+		mutex:          c.mutex,
+		refStack:       c.refStack,
+	}
+	mut(newC)
+	return newC
+}
+
+type chainCompiler func(c *compiler) *chainResult
 
 type chainResult struct {
 	state llb.State
@@ -49,15 +67,7 @@ type chainResult struct {
 }
 
 func (c *compiler) Compile(target *target.Target) (llb.State, error) {
-	for ref, chain := range c.chains {
-		func(ref string, chain cue.Value) {
-			c.chainCompilers[ref] = sync.OnceValue(func() *chainResult {
-				st, err := c.compileChain(chain)
-				return &chainResult{state: st, err: err}
-			})
-		}(ref, chain)
-	}
-
+	c.defineChainCompilers()
 	return c.compileChain(target.Build)
 }
 
@@ -74,17 +84,36 @@ func (c *compiler) Error() error {
 }
 
 func (c *compiler) WithContext(ctx context.Context) target.Compiler {
-	return c.withContext(ctx)
+	return c.copy(func(c *compiler) {
+		c.ctx = ctx
+	})
 }
 
-func (c *compiler) withContext(ctx context.Context) *compiler {
-	return &compiler{
-		chains:         c.chains,
-		chainCompilers: c.chainCompilers,
-		config:         c.config,
-		errors:         c.errors,
-		ctx:            ctx,
+func (c *compiler) defineChainCompilers() {
+	for ref, chain := range c.chains {
+		func(ref string, chain cue.Value) {
+			c.chainCompilers[ref] = func(c *compiler) *chainResult {
+				var chainMutex sync.Mutex
+				chainMutex.Lock()
+				defer chainMutex.Unlock()
+
+				if result, cached := c.chainCache[ref]; cached {
+					return result
+				}
+
+				st, err := c.compileChain(chain)
+				result := &chainResult{state: st, err: err}
+				c.chainCache[ref] = result
+				return result
+			}
+		}(ref, chain)
 	}
+}
+
+func (c *compiler) withRefOnStack(chainRef string) *compiler {
+	return c.copy(func(c *compiler) {
+		c.refStack = append(c.refStack, chainRef)
+	})
 }
 
 func (c *compiler) constraints() Constraints {
