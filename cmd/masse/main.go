@@ -20,7 +20,7 @@ func main() {
 			},
 		},
 		Commands: []*cli.Command{
-			solveCommand,
+			compileCommand,
 		},
 	}
 

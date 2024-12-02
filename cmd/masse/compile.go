@@ -12,11 +12,11 @@ import (
 	"gitlab.wikimedia.org/dduvall/masse/config"
 )
 
-var solveCommand = &cli.Command{
-	Name:    "solve",
+var compileCommand = &cli.Command{
+	Name:    "compile",
 	Aliases: []string{"s"},
-	Usage:   "solve -t {target}",
-	Action:  solveAction,
+	Usage:   "compile -t {target}",
+	Action:  compileAction,
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:     "target",
@@ -31,7 +31,7 @@ var solveCommand = &cli.Command{
 	},
 }
 
-func solveAction(clicontext *cli.Context) error {
+func compileAction(clicontext *cli.Context) error {
 	file := clicontext.String("file")
 	targetName := clicontext.String("target")
 	platformName := clicontext.String("platform")
