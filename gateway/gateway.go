@@ -2,172 +2,135 @@ package gateway
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 
-	"github.com/moby/buildkit/client/llb"
-	"github.com/moby/buildkit/exporter/containerimage/exptypes"
+	"github.com/moby/buildkit/frontend/dockerui"
 	"github.com/moby/buildkit/frontend/gateway/client"
+	dockerspec "github.com/moby/docker-image-spec/specs-go/v1"
+	oci "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/pkg/errors"
 	"gitlab.wikimedia.org/dduvall/masse/common"
-	compiler "gitlab.wikimedia.org/dduvall/masse/compiler/v1"
+	v1compiler "gitlab.wikimedia.org/dduvall/masse/compiler/v1"
 	"gitlab.wikimedia.org/dduvall/masse/config"
-	"golang.org/x/sync/errgroup"
 )
 
 func Run(ctx context.Context, c client.Client) (*client.Result, error) {
-	opts, err := ParseOptions(c.BuildOpts())
-
+	gw, err := New(ctx, c)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to parse gateway options")
+		return nil, err
 	}
 
-	return New(ctx, c, opts).Run()
+	return gw.Run()
 }
 
 // Gateway reads in a client layout and transforms the target into LLB for
 // buildkitd
 type Gateway struct {
-	client.Client
-	ctx     context.Context
-	options *Options
+	*dockerui.Client
+	bkClient client.Client
+	ctx      context.Context
 }
 
-func New(ctx context.Context, c client.Client, opts *Options) *Gateway {
-	return &Gateway{Client: c, ctx: ctx, options: opts}
+func New(ctx context.Context, bkClient client.Client) (*Gateway, error) {
+	client, err := dockerui.NewClient(bkClient)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Gateway{
+		Client:   client,
+		bkClient: bkClient,
+		ctx:      ctx,
+	}, nil
 }
 
 func (gw *Gateway) Run() (*client.Result, error) {
-	data, err := gw.readFromConfigLocal(gw.options.ConfigFile, true)
+	root, err := gw.loadConfig()
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to read config from %s", gw.options.ConfigFile)
+		return nil, errors.Wrap(err, "failed to load config")
 	}
 
-	root, err := config.Load(gw.options.ConfigFile, data, gw.options.Parameters)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to load config from %s", gw.options.ConfigFile)
-	}
-
-	target, ok := root.Targets[gw.options.Target]
+	target, ok := root.Targets[gw.Config.Target]
 	if !ok {
-		return nil, errors.Wrapf(err, "unknown target %q", gw.options.Target)
+		return nil, errors.Wrapf(err, "unknown target %q", gw.Config.Target)
 	}
 
-	exportPlatforms := &exptypes.Platforms{
-		Platforms: make([]exptypes.Platform, len(target.Platforms)),
+	if gw.Config.TargetPlatforms == nil || len(gw.Config.TargetPlatforms) == 0 {
+		gw.Config.TargetPlatforms = target.OCIPlatforms()
+	} else {
+		// TODO validate requested platforms against target
 	}
-	finalResult := client.NewResult()
 
-	eg, ctx := errgroup.WithContext(gw.ctx)
+	resultBuilder, err := gw.Build(
+		gw.ctx,
+		func(ctx context.Context, platform *oci.Platform, idx int) (
+			client.Reference,
+			*dockerspec.DockerOCIImage,
+			*dockerspec.DockerOCIImage,
+			error,
+		) {
+			targetPlatform := common.PlatformFromOCI(platform)
 
-	// Solve for all platforms in parallel
-	for i, tp := range target.Platforms {
-		func(i int, tp common.Platform) {
-			eg.Go(func() (err error) {
-				compiler := compiler.New(root.Chains, compiler.WithPlatform(tp)).WithContext(ctx)
+			compiler := v1compiler.New(
+				root.Chains,
+				v1compiler.WithPlatform(targetPlatform),
+				v1compiler.WithContext(ctx),
+			)
 
-				// Compile to LLB state
-				st, err := compiler.Compile(target)
-				if err != nil {
-					return errors.Wrap(err, "failed to compile target")
-				}
+			// Compile to LLB state
+			st, err := compiler.Compile(target)
+			if err != nil {
+				return nil, nil, nil, errors.Wrap(err, "failed to compile target")
+			}
 
-				def, err := st.Marshal(ctx)
-				if err != nil {
-					return errors.Wrap(err, "failed to marshal LLB state")
-				}
+			def, err := st.Marshal(ctx)
+			if err != nil {
+				return nil, nil, nil, errors.Wrap(err, "failed to marshal target state")
+			}
 
-				// Solve LLB state to client result
-				res, err := gw.Solve(ctx, client.SolveRequest{
-					Definition:   def.ToPB(),
-					CacheImports: gw.options.CacheOptions,
-				})
-				if err != nil {
-					return err
-				}
-
-				ref, err := res.SingleRef()
-				if err != nil {
-					return err
-				}
-
-				imageJSON, err := json.Marshal(target.NewImage(tp))
-				if err != nil {
-					return errors.Wrap(err, "failed to marshal image config")
-				}
-
-				exportPlatform := tp.Export()
-				exportPlatforms.Platforms[i] = exportPlatform
-
-				finalResult.AddMeta(
-					fmt.Sprintf("%s/%s", exptypes.ExporterImageConfigKey, exportPlatform),
-					imageJSON,
-				)
-				finalResult.AddRef(exportPlatform.ID, ref)
-
-				return nil
+			// Solve LLB state to client result
+			res, err := gw.bkClient.Solve(ctx, client.SolveRequest{
+				Definition:   def.ToPB(),
+				CacheImports: gw.CacheImports,
 			})
-		}(i, tp)
-	}
+			if err != nil {
+				return nil, nil, nil, err
+			}
 
-	if err := eg.Wait(); err != nil {
-		return nil, err
-	}
+			ref, err := res.SingleRef()
+			if err != nil {
+				return nil, nil, nil, err
+			}
 
-	platformData, err := json.Marshal(exportPlatforms)
-	if err != nil {
-		return nil, err
-	}
+			img := target.NewImage(targetPlatform)
 
-	finalResult.AddMeta(exptypes.ExporterPlatformsKey, platformData)
+			dimg := dockerspec.DockerOCIImage{
+				Image: img,
+				Config: dockerspec.DockerOCIImageConfig{
+					ImageConfig: img.Config,
+				},
+			}
 
-	return finalResult, nil
-}
-
-func (gw *Gateway) readFromConfigLocal(filepath string, required bool) ([]byte, error) {
-	st := llb.Local(gw.options.ConfigLocal,
-		llb.SessionID(gw.options.SessionID),
-		llb.FollowPaths([]string{filepath}),
-		llb.SharedKeyHint(gw.options.ConfigLocal+"-"+filepath),
+			return ref, &dimg, nil, nil
+		},
 	)
 
-	def, err := st.Marshal(gw.ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := gw.Solve(gw.ctx, client.SolveRequest{
-		Definition: def.ToPB(),
-	})
+	return resultBuilder.Finalize()
+}
+
+func (gw *Gateway) loadConfig() (*config.Root, error) {
+	src, err := gw.ReadEntrypoint(gw.ctx, "CUE")
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to read config")
 	}
 
-	ref, err := res.SingleRef()
+	root, err := config.Load(src.Filename, src.Data, gw.Config.BuildArgs)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "failed to load config %q", src.Filename)
 	}
 
-	// If the file is not required, try to stat it first, and if it doesn't
-	// exist, simply return an empty byte slice. If the file is required, we'll
-	// save an extra stat call and just try to read it.
-	if !required {
-		_, err := ref.StatFile(gw.ctx, client.StatRequest{
-			Path: filepath,
-		})
-
-		if err != nil {
-			return []byte{}, nil
-		}
-	}
-
-	fileBytes, err := ref.ReadFile(gw.ctx, client.ReadRequest{
-		Filename: filepath,
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return fileBytes, nil
+	return root, nil
 }

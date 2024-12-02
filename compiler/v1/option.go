@@ -6,8 +6,8 @@ import (
 	"gitlab.wikimedia.org/dduvall/masse/internal/lookup"
 )
 
-func (c *compiler) compileOptions(state llb.State, v cue.Value) (llb.State, error) {
-	options, err := lookup.DecodeListOrSingle[Options](v, "options")
+func (c *compiler) compileWith(state llb.State, v cue.Value) (llb.State, error) {
+	options, err := lookup.DecodeListOrSingle[Options](v, "with")
 	if err != nil {
 		return state, vError(v, err)
 	}

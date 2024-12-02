@@ -13,6 +13,26 @@ type Platform struct {
 	Variant      string `json:"variant"`
 }
 
+func DefaultPlatform() Platform {
+	return Platform{
+		OS:           "linux",
+		Architecture: "amd64",
+		Variant:      "",
+	}
+}
+
+func PlatformFromOCI(p *oci.Platform) Platform {
+	if p != nil {
+		return Platform{
+			OS:           p.OS,
+			Architecture: p.Architecture,
+			Variant:      p.Variant,
+		}
+	}
+
+	return DefaultPlatform()
+}
+
 // ParsePlatform returns a new [Platform] for the given platform shorthand
 // name (e.g. "linux/arm64/v8").
 func ParsePlatform(platformName string) (Platform, error) {

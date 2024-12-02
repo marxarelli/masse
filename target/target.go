@@ -35,3 +35,12 @@ func (target *Target) NewImage(platform common.Platform) oci.Image {
 		Config:   target.Runtime.ImageConfig(),
 	}
 }
+
+func (target *Target) OCIPlatforms() []oci.Platform {
+	platforms := make([]oci.Platform, len(target.Platforms))
+	for i, tp := range target.Platforms {
+		platforms[i] = tp.OCI()
+	}
+
+	return platforms
+}

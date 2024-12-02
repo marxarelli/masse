@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"context"
+
 	"github.com/moby/buildkit/client/llb"
 	"github.com/moby/buildkit/client/llb/imagemetaresolver"
 	"gitlab.wikimedia.org/dduvall/masse/common"
@@ -18,6 +20,7 @@ func (f compilerOption) SetCompilerOption(cfg *Config) {
 
 type Config struct {
 	ImageMetaResolver llb.ImageMetaResolver
+	InitialContext    context.Context
 	Platform          *Platform
 }
 
@@ -31,6 +34,7 @@ func (cfg *Config) Constraints() Constraints {
 
 func newConfig(options []CompilerOption) *Config {
 	cfg := &Config{
+		InitialContext:    context.Background(),
 		ImageMetaResolver: imagemetaresolver.Default(),
 		Platform:          defaultPlatform,
 	}
@@ -40,6 +44,12 @@ func newConfig(options []CompilerOption) *Config {
 	}
 
 	return cfg
+}
+
+func WithContext(ctx context.Context) CompilerOption {
+	return compilerOption(func(cfg *Config) {
+		cfg.InitialContext = ctx
+	})
 }
 
 func WithImageMetaResolver(resolver llb.ImageMetaResolver) CompilerOption {

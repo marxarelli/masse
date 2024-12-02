@@ -21,12 +21,14 @@ func newCompiler(chains map[string]cue.Value, options ...CompilerOption) *compil
 		chains = map[string]cue.Value{}
 	}
 
+	cfg := newConfig(options)
+
 	return &compiler{
 		chains:         chains,
 		chainCompilers: map[string]chainCompiler{},
-		config:         newConfig(options),
+		config:         cfg,
 		errors:         []error{},
-		ctx:            context.Background(),
+		ctx:            cfg.InitialContext,
 	}
 }
 
