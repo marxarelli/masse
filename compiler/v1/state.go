@@ -18,6 +18,7 @@ const (
 	FileKind              = "file"
 	MergeKind             = "merge"
 	DiffKind              = "diff"
+	OpsKind               = "ops"
 	WithKind              = "with"
 )
 
@@ -57,6 +58,8 @@ func (c *compiler) compileDispatchStateKind(kind StateKind, state llb.State, v c
 		state, err = c.compileMerge(state, v)
 	case DiffKind:
 		state, err = c.compileDiff(state, v)
+	case OpsKind:
+		state, err = c.compileOps(state, v)
 	case WithKind:
 		state, err = c.compileWith(state, v)
 	default:
