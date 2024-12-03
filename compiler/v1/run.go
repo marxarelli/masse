@@ -25,7 +25,7 @@ func (c *compiler) compileRun(state llb.State, v cue.Value) (llb.State, error) {
 		args[i] = strconv.Quote(arg)
 	}
 
-	options, err := lookup.DecodeListOrSingle[RunOptions](v, "options")
+	options, err := lookup.DecodeOptions[RunOptions](v)
 	if err != nil {
 		return state, vError(v, err)
 	}
@@ -65,6 +65,7 @@ type RunOption struct {
 	*TmpFSMount
 	*ValidExitCodes
 	*Option
+	*Constraint
 }
 
 func (opt *RunOption) SetRunOption(info *llb.ExecInfo) {

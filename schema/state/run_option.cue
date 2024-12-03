@@ -8,7 +8,8 @@ import (
 	#Host |
 	#CacheMount | #SourceMount | #TmpFSMount |
 	#ValidExitCodes |
-	#Option
+	#Option |
+	#Constraint
 }
 
 #Host: {

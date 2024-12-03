@@ -44,7 +44,12 @@ func (c *compiler) compileFile(state llb.State, v cue.Value) (llb.State, error) 
 		return state, errorf(v, "file actions failed to compile")
 	}
 
-	return state.File(fa), nil
+	options, err := lookup.DecodeOptions[Constraints](v)
+	if err != nil {
+		return state, vError(v, err)
+	}
+
+	return state.File(fa, options), nil
 }
 
 func (c *compiler) compileDispatchFileKind(kind FileActionKind, state llb.State, fa *llb.FileAction, v cue.Value) (*llb.FileAction, bool, error) {

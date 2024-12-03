@@ -27,7 +27,7 @@ func (c *compiler) compileCopy(state llb.State, fa *llb.FileAction, v cue.Value)
 		return fa, err
 	}
 
-	options, err := lookup.DecodeListOrSingle[CopyOptions](v, "options")
+	options, err := lookup.DecodeOptions[CopyOptions](v)
 	if err != nil {
 		return fa, vError(v, err)
 	}

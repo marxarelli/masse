@@ -2,6 +2,12 @@ package v1
 
 import "github.com/moby/buildkit/client/llb"
 
+type Constraint struct {
+	*Platform
+	*CustomName
+	*ProgressGroup
+}
+
 type Constraints []*Constraint
 
 func (cons Constraints) SetConstraintsOption(constraints *llb.Constraints) {
@@ -44,10 +50,6 @@ func (cons Constraints) SetOCILayoutOption(info *llb.OCILayoutInfo) {
 	for _, c := range cons {
 		c.SetOCILayoutOption(info)
 	}
-}
-
-type Constraint struct {
-	*Platform
 }
 
 func (c *Constraint) SetConstraintsOption(constraints *llb.Constraints) {

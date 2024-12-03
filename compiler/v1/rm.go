@@ -12,7 +12,7 @@ func (c *compiler) compileRm(state llb.State, fa *llb.FileAction, v cue.Value) (
 		return fa, vError(v, err)
 	}
 
-	options, err := lookup.DecodeListOrSingle[RmOptions](v, "options")
+	options, err := lookup.DecodeOptions[RmOptions](v)
 	if err != nil {
 		return fa, vError(v, err)
 	}

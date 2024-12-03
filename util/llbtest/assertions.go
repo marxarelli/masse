@@ -6,6 +6,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/moby/buildkit/solver/pb"
+	digest "github.com/opencontainers/go-digest"
 	"github.com/stretchr/testify/require"
 )
 
@@ -16,10 +17,11 @@ import (
 type Assertions struct {
 	*require.Assertions
 
-	t     *testing.T
-	def   *llb.Definition
-	opMap map[string]pb.Op
-	ops   []pb.Op
+	t        *testing.T
+	def      *llb.Definition
+	opMap    map[string]pb.Op
+	ops      []pb.Op
+	metadata map[digest.Digest]llb.OpMetadata
 }
 
 // New returns a new [Assertions] that encapsulates the [testing.T] and
@@ -35,6 +37,7 @@ func New(t *testing.T, def *llb.Definition) *Assertions {
 		def:        def,
 		opMap:      opMap,
 		ops:        ops,
+		metadata:   def.Metadata,
 	}
 }
 
@@ -111,6 +114,28 @@ func HasValidInputs(t *testing.T, opMap map[string]pb.Op, op pb.Op) []pb.Op {
 	return inputOps
 }
 
+// HasMetadata takes a [pb.Op] and asserts that it has an entry in the
+// definition metadata. The corresponding [llb.OpMetadata] is returned.
+func HasMetadata(t *testing.T, metadata map[digest.Digest]llb.OpMetadata, op pb.Op) llb.OpMetadata {
+	t.Helper()
+
+	dt, err := op.Marshal()
+	require.NoError(t, err)
+
+	digest := digest.FromBytes(dt)
+	md, ok := metadata[digest]
+
+	require.True(
+		t,
+		ok,
+		"no metadata found for op %+v digest %+v",
+		op,
+		digest,
+	)
+
+	return md
+}
+
 // ContainsNOps is a convenience method for ContainsNOps[any](...)
 func (llbt *Assertions) ContainsNOps(n int) []pb.Op {
 	llbt.t.Helper()
@@ -180,4 +205,10 @@ func (llbt *Assertions) ContainsNRmActions(fileOp *pb.Op_File, n int) ([]*pb.Fil
 func (llbt *Assertions) HasValidInputs(op pb.Op) []pb.Op {
 	llbt.t.Helper()
 	return HasValidInputs(llbt.t, llbt.opMap, op)
+}
+
+// HasMetadata is a convenience method for [HasMetadata]
+func (llbt *Assertions) HasMetadata(op pb.Op) llb.OpMetadata {
+	llbt.t.Helper()
+	return HasMetadata(llbt.t, llbt.metadata, op)
 }

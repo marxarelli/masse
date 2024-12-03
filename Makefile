@@ -13,4 +13,4 @@ test:
 	go test ./...
 
 clean:
-	rm -f masse
+	rm -f masse massed

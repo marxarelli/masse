@@ -15,7 +15,7 @@ func (c *compiler) compileLocal(state llb.State, v cue.Value) (llb.State, error)
 		return state, vError(v, err)
 	}
 
-	options, err := lookup.DecodeListOrSingle[LocalOptions](v, "options")
+	options, err := lookup.DecodeOptions[LocalOptions](v)
 	if err != nil {
 		return state, vError(v, err)
 	}

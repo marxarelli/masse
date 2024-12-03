@@ -20,6 +20,10 @@ func (p *Platform) constraintsOpt() llb.ConstraintsOpt {
 	return llb.Platform(p.Platform.OCI())
 }
 
+func (p *Platform) SetConstraintsOption(c *llb.Constraints) {
+	p.constraintsOpt().SetConstraintsOption(c)
+}
+
 func (p *Platform) SetImageOption(info *llb.ImageInfo) {
 	p.constraintsOpt().SetImageOption(info)
 }

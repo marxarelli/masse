@@ -17,7 +17,7 @@ func (c *compiler) compileGit(state llb.State, v cue.Value) (llb.State, error) {
 		return state, vError(v, err)
 	}
 
-	options, err := lookup.DecodeListOrSingle[GitOptions](v, "options")
+	options, err := lookup.DecodeOptions[GitOptions](v)
 	if err != nil {
 		return state, vError(v, err)
 	}

@@ -24,6 +24,19 @@ func TestFile(t *testing.T) {
 		}),
 	)
 
+	compile.Run("options", func(compile *testcompile.Tester) {
+		compile.Test(
+			"customName",
+			`state.#File & { file: { copy: "./foo", from: "local" }, options: customName: "copying foo" }`,
+			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
+				ops, _ := req.ContainsNFileOps(1)
+				md := req.HasMetadata(ops[0])
+				req.Contains(md.Description, "llb.customname")
+				req.Equal("copying foo", md.Description["llb.customname"])
+			},
+		)
+	})
+
 	compile.Run("Copy", func(compile *testcompile.Tester) {
 		compile.Test(
 			"minimal",

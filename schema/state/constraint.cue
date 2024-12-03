@@ -1,5 +1,7 @@
 package state
 
 #Constraint: {
-	#Platform
+	#Platform |
+	#CustomName |
+	#ProgressGroup
 }

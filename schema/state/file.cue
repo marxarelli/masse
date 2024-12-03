@@ -2,7 +2,7 @@ package state
 
 #File: {
 	file!:    #FileAction | [#FileAction, ...#FileAction]
-	options?: #Option | [#Option, ...#Option]
+	options?: #Constraint | [#Constraint, ...#Constraint]
 }
 
 #FileAction: {

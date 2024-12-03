@@ -144,6 +144,10 @@ func DecodeListOrSingle[S ~[]E, E comparable](root cue.Value, path string) (S, e
 		return s, err
 	}
 
+	if !v.IsConcrete() {
+		return s, errors.Errorf("cannot decode non-concrete value %q", v)
+	}
+
 	if v.Kind() != cue.ListKind {
 		var e E
 		err := v.Decode(&e)
@@ -177,6 +181,25 @@ func DecodeListOrSingle[S ~[]E, E comparable](root cue.Value, path string) (S, e
 	}
 
 	return s, nil
+}
+
+func DecodeOptions[S ~[]E, E comparable](root cue.Value) (S, error) {
+	defaults := S{}
+	var err error
+
+	if Lookup(root, "#defaultOptions").Exists() {
+		defaults, err = DecodeListOrSingle[S](root, "#defaultOptions")
+		if err != nil {
+			return defaults, err
+		}
+	}
+
+	options, err := DecodeListOrSingle[S](root, "options")
+	if err != nil {
+		return defaults, err
+	}
+
+	return append(defaults, options...), nil
 }
 
 func WithDiscriminatorField[T ~string, R any](v cue.Value, f func(T) (R, bool, error)) (R, bool, error) {

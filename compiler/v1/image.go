@@ -17,7 +17,7 @@ func (c *compiler) compileImage(state llb.State, v cue.Value) (llb.State, error)
 		return state, vError(v, err)
 	}
 
-	options, err := lookup.DecodeListOrSingle[ImageOptions](v, "options")
+	options, err := lookup.DecodeOptions[ImageOptions](v)
 	if err != nil {
 		return state, vError(v, err)
 	}

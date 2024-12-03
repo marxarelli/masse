@@ -12,7 +12,7 @@ func (c *compiler) compileMkfile(kind FileActionKind, state llb.State, fa *llb.F
 		return fa, vError(v, err)
 	}
 
-	options, err := lookup.DecodeListOrSingle[MkfileOptions](v, "options")
+	options, err := lookup.DecodeOptions[MkfileOptions](v)
 	if err != nil {
 		return fa, vError(v, err)
 	}

@@ -46,6 +46,28 @@ func TestRun(t *testing.T) {
 	)
 
 	compile.Test(
+		"defaultOptions/customName",
+		`state.#Run & { run: "make" }`,
+		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
+			ops, _ := req.ContainsNExecOps(1)
+			md := req.HasMetadata(ops[0])
+			req.Contains(md.Description, "llb.customname")
+			req.Equal("$ make", md.Description["llb.customname"])
+		},
+	)
+
+	compile.Test(
+		"defaultOptions/customName/arguments",
+		`state.#Run & { run: "make", arguments: ["foo"] }`,
+		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
+			ops, _ := req.ContainsNExecOps(1)
+			md := req.HasMetadata(ops[0])
+			req.Contains(md.Description, "llb.customname")
+			req.Equal("$ make foo", md.Description["llb.customname"])
+		},
+	)
+
+	compile.Test(
 		"options/host",
 		`state.#Run & { run: "make", options: [ { host: "foo", ip: "1.1.1.1" } ] }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
@@ -159,6 +181,17 @@ func TestRun(t *testing.T) {
 			req.Equal(pb.MountType_TMPFS, mnt.MountType)
 			req.NotNil(mnt.TmpfsOpt)
 			req.Equal(int64(1024*1024*200), mnt.TmpfsOpt.Size)
+		},
+	)
+
+	compile.Test(
+		"options/customName",
+		`state.#Run & { run: "make -C /src", options: customName: "building foo" }`,
+		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
+			ops, _ := req.ContainsNExecOps(1)
+			md := req.HasMetadata(ops[0])
+			req.Contains(md.Description, "llb.customname")
+			req.Equal("building foo", md.Description["llb.customname"])
 		},
 	)
 }
