@@ -4,6 +4,7 @@ import (
 	"wikimedia.org/dduvall/masse/common"
 )
 
+// Local uses a directory from the build host as the initial filesystem for a build chain.
 #Local: {
 	local!:   string
 	options?: #LocalOption | [#LocalOption, ...#LocalOption]
