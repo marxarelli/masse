@@ -1,4 +1,4 @@
-// syntax=registry:5000/masse:latest
+// syntax=marxarelli/masse:v0.0.1
 package main
 
 parameters: {
