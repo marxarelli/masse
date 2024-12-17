@@ -2,7 +2,6 @@ package state
 
 import (
 	"list"
-	"strings"
 )
 
 #CopyOp: {

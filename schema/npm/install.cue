@@ -1,9 +1,5 @@
 package npm
 
-import (
-	"list"
-)
-
 install: {
 	#command: "ci" | *"install"
 	#environment: string | *"production"
