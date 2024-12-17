@@ -2,28 +2,25 @@ package state
 
 import (
 	"list"
+	"strings"
 )
 
 #CopyOp: {
-	copy!:       string | [string, ...string]
-	from!:       #ChainRef
-	destination: string | *"./"
-	options?:    #CopyOption | [#CopyOption, ...#CopyOption]
+	copy!:                      string | [string, ...string]
+	$from        = from!:       #ChainRef
+	$destination = destination: string | *"./"
+	$options     = options?:    #CopyOption | [#CopyOption, ...#CopyOption]
 
-	_from: from
-	_destination: destination
-	_options: options
+	let sources = list.FlattenN([copy], 1)
 
 	ops: [
 		{
 			file: [
-				for cp in list.FlattenN([copy], 1) {
-					copy: cp
-					from: _from
-					destination: _destination
-					if _options != _|_ {
-						options: _options
-					}
+				for src in sources {
+					copy: src
+					from: $from
+					destination: $destination
+					options?: $options
 				}
 			]
 		}

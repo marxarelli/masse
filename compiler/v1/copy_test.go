@@ -26,7 +26,7 @@ func TestCopyOp(t *testing.T) {
 	compile.Run("CopyOp", func(compile *testcompile.Tester) {
 		compile.Test(
 			"single",
-			`state.#CopyOp & { copy: "./foo", from: "local" }`,
+			`state.#Op & { copy: "./foo", from: "local" }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
 				_, copies := req.ContainsNCopyActions(fops[0], 1)
@@ -40,7 +40,7 @@ func TestCopyOp(t *testing.T) {
 
 		compile.Test(
 			"multiple",
-			`state.#CopyOp & { copy: ["./foo", "./bar"], from: "local" }`,
+			`state.#Op & { copy: ["./foo", "./bar"], from: "local" }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
 				_, copies := req.ContainsNCopyActions(fops[0], 2)

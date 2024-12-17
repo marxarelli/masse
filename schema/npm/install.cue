@@ -1,9 +1,11 @@
 package npm
 
+import (
+	"list"
+)
+
 install: {
 	#command: "ci" | *"install"
-	#packageFile: string | *"package.json"
-	#lockFile: string | *"package-lock.json"
 	#environment: string | *"production"
 	#cache: string | *"/var/lib/cache/npm"
 

@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -8,11 +9,12 @@ import (
 
 func TestLoaderConfig(t *testing.T) {
 	req := require.New(t)
+	dir := t.TempDir()
 
-	cfg, err := LoaderConfig("/root/dir")
+	cfg, err := LoaderConfig(dir)
 
 	req.NoError(err)
-	req.Equal("/root/dir", cfg.Dir)
+	req.Equal(dir, cfg.Dir)
 
 	overlayEntries := make([]string, len(cfg.Overlay))
 	i := 0
@@ -21,6 +23,6 @@ func TestLoaderConfig(t *testing.T) {
 		i++
 	}
 
-	req.Contains(overlayEntries, "/root/dir/cue.mod/pkg/wikimedia.org/dduvall/masse/common/creation.cue")
-	req.Contains(overlayEntries, "/root/dir/cue.mod/pkg/wikimedia.org/dduvall/masse/state/state.cue")
+	req.Contains(overlayEntries, filepath.Join(dir, "/cue.mod/pkg/wikimedia.org/dduvall/masse/common/creation.cue"))
+	req.Contains(overlayEntries, filepath.Join(dir, "/cue.mod/pkg/wikimedia.org/dduvall/masse/state/state.cue"))
 }
