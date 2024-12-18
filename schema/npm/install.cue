@@ -12,11 +12,18 @@ install: {
 	#options?:    state.#RunOption | [state.#RunOption, ...state.#RunOption]
 
 	let $options = list.Concat([
+		list.FlattenN(
+			[
+				if #options != _|_ {
+					#options
+				}
+			],
+			1,
+		),
 		[
 			{ env: { NPM_CONFIG_CACHE: #cache } },
 			{ cache: #cache, access: "locked" },
 		],
-		list.FlattenN([#options | []], 1),
 	])
 
 	{
