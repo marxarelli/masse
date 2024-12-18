@@ -19,7 +19,7 @@ install: {
 		list.FlattenN([#options | []], 1),
 	])
 
-	state.#Ops & {
+	{
 		ops: [
 			{
 				run: "npm \(#command)"
