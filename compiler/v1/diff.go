@@ -7,9 +7,18 @@ import (
 )
 
 func (c *compiler) compileDiff(lower llb.State, v cue.Value) (llb.State, error) {
+	var err error
 	upper := lower
 
-	err := lookup.EachOrValue(v, "diff", func(opv cue.Value) error {
+	ref := lookup.Lookup(v, "from")
+	if ref.Exists() && ref.IsConcrete() {
+		lower, err = c.compileChainByRef(ref)
+		if err != nil {
+			return lower, err
+		}
+	}
+
+	err = lookup.EachOrValue(v, "diff", func(opv cue.Value) error {
 		if opv.IsNull() {
 			return errorf(opv, "diff cannot have a null operation")
 		}
@@ -26,5 +35,10 @@ func (c *compiler) compileDiff(lower llb.State, v cue.Value) (llb.State, error) 
 		return lower, vError(v, err)
 	}
 
-	return llb.Diff(lower, upper), nil
+	options, err := lookup.DecodeOptions[Constraints](v)
+	if err != nil {
+		return lower, vError(v, err)
+	}
+
+	return llb.Diff(lower, upper, options), nil
 }
