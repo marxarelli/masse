@@ -13,6 +13,10 @@ package state
 
 	// options is one or more image options.
 	options?: #ImageOption | [#ImageOption, ...#ImageOption]
+
+	#defaultOptions: [
+		{ customName: "💽 \(image)" },
+	]
 }
 
 #ImageOption: {

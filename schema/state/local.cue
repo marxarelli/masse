@@ -8,6 +8,10 @@ import (
 #Local: {
 	local!:   string
 	options?: #LocalOption | [#LocalOption, ...#LocalOption]
+
+	#defaultOptions: [
+		{ customName: "💻 \(local)" },
+	]
 }
 
 #LocalOption: {

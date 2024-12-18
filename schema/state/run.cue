@@ -11,6 +11,6 @@ import (
 	options?:   #RunOption | [#RunOption, ...#RunOption]
 
 	#defaultOptions: [
-		{ customName: strings.TrimSpace("$ " + run + " " + strings.Join(list.FlattenN([*arguments | []], 1), " ")) },
+		{ customName: strings.TrimSpace("💻 " + run + " " + strings.Join(list.FlattenN([*arguments | []], 1), " ")) },
 	]
 }

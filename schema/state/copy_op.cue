@@ -2,6 +2,7 @@ package state
 
 import (
 	"list"
+	"strings"
 )
 
 #CopyOp: {
@@ -10,18 +11,20 @@ import (
 	$destination = destination: string | *"./"
 	$options     = options?:    #CopyOption | [#CopyOption, ...#CopyOption]
 
-	let sources = list.FlattenN([copy], 1)
+	let $sources = list.FlattenN([copy], 1)
 
 	ops: [
 		{
 			file: [
-				for src in sources {
+				for src in $sources {
 					copy: src
 					from: $from
 					destination: $destination
 					options?: $options
 				}
 			]
+
+			options: customName: "📋 \($from):{" + strings.Join($sources, ", ") + "} -> \($destination)"
 		}
 	]
 }

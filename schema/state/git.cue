@@ -23,6 +23,10 @@ package state
 
 	// options is one or more Git options.
 	options?: #GitOption | [#GitOption, ...#GitOption]
+
+	#defaultOptions: [
+		{ customName: "🏗️ \(git)#\(ref)" },
+	]
 }
 
 #GitOption: {

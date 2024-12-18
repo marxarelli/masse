@@ -52,7 +52,7 @@ func TestRun(t *testing.T) {
 			ops, _ := req.ContainsNExecOps(1)
 			md := req.HasMetadata(ops[0])
 			req.Contains(md.Description, "llb.customname")
-			req.Equal("$ make", md.Description["llb.customname"])
+			req.Equal("💻 make", md.Description["llb.customname"])
 		},
 	)
 
@@ -63,7 +63,7 @@ func TestRun(t *testing.T) {
 			ops, _ := req.ContainsNExecOps(1)
 			md := req.HasMetadata(ops[0])
 			req.Contains(md.Description, "llb.customname")
-			req.Equal("$ make foo", md.Description["llb.customname"])
+			req.Equal("💻 make foo", md.Description["llb.customname"])
 		},
 	)
 

@@ -25,7 +25,7 @@ func TestMainInstanceWith(t *testing.T) {
 				`  ]`,
 				`}`,
 				``,
-				`targets: foo: build: chains.foo`,
+				`targets: foo: build: [ { extend: "foo" } ]`,
 			)),
 		},
 	)
