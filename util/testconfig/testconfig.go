@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/cuecontext"
 	"github.com/stretchr/testify/require"
 	"gitlab.wikimedia.org/dduvall/masse/load"
 )
@@ -37,7 +36,7 @@ func (tester *Tester) Test(name, expr string, f TestFunc) {
 		t.Parallel()
 		req := require.New(t)
 
-		ctx := cuecontext.New(cuecontext.EvaluatorVersion(cuecontext.EvalV2))
+		ctx := load.NewContext()
 
 		dir := t.TempDir()
 

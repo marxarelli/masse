@@ -4,7 +4,6 @@ import (
 	"path/filepath"
 
 	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/cuecontext"
 	"github.com/pkg/errors"
 	"gitlab.wikimedia.org/dduvall/masse/load"
 )
@@ -28,7 +27,7 @@ func Load(path string, data []byte, parameters map[string]string) (*Root, error)
 
 // LoadCUE loads the given configuration and returns the root cue.Value.
 func LoadCUE(path string, data []byte, parameters map[string]string) (cue.Value, error) {
-	ctx := cuecontext.New(cuecontext.EvaluatorVersion(cuecontext.EvalV2))
+	ctx := load.NewContext()
 
 	basename := filepath.Base(path)
 	dir := filepath.Dir(path)

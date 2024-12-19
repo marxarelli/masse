@@ -3,11 +3,23 @@ package load
 import (
 	"path/filepath"
 
+	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/build"
+	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/load"
 
 	"gitlab.wikimedia.org/dduvall/masse/schema"
 )
+
+const (
+	EvaluatorVersion cuecontext.EvalVersion = cuecontext.EvalV2
+)
+
+// NewContext returns a new [*cue.Context] for evaluation of Masse CUE
+// configuration.
+func NewContext() *cue.Context {
+	return cuecontext.New(cuecontext.EvaluatorVersion(EvaluatorVersion))
+}
 
 // MainInstanceWith returns a CUE instance with no package that unifies with a
 // config.#Root
