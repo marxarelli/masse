@@ -18,11 +18,11 @@ func TestOps(t *testing.T) {
 
 	compile.Test(
 		"ops",
-		`state.#Ops & { ops: [{ run: "make libs" }, { run: "make bin" }] }`,
+		`state.#Ops & { ops: [{ run: ["make", "libs"] }, { run: ["make", "bin"] }] }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 			_, eops := req.ContainsNExecOps(2)
-			req.Equal([]string{"/bin/sh", "-c", "make libs"}, eops[0].Exec.Meta.Args)
-			req.Equal([]string{"/bin/sh", "-c", "make bin"}, eops[1].Exec.Meta.Args)
+			req.Equal([]string{"make", "libs"}, eops[0].Exec.Meta.Args)
+			req.Equal([]string{"make", "bin"}, eops[1].Exec.Meta.Args)
 		},
 	)
 }

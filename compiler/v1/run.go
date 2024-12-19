@@ -1,9 +1,6 @@
 package v1
 
 import (
-	"strconv"
-	"strings"
-
 	"cuelang.org/go/cue"
 	"github.com/moby/buildkit/client/llb"
 	"gitlab.wikimedia.org/dduvall/masse/common"
@@ -11,18 +8,9 @@ import (
 )
 
 func (c *compiler) compileRun(state llb.State, v cue.Value) (llb.State, error) {
-	cmd, err := lookup.String(v, "run")
+	args, err := lookup.DecodeListOrSingle[[]string](v, "run")
 	if err != nil {
 		return state, vError(v, err)
-	}
-
-	args, err := lookup.DecodeListOrSingle[[]string](v, "arguments")
-	if err != nil {
-		return state, vError(v, err)
-	}
-
-	for i, arg := range args {
-		args[i] = strconv.Quote(arg)
 	}
 
 	options, err := lookup.DecodeOptions[RunOptions](v)
@@ -32,16 +20,7 @@ func (c *compiler) compileRun(state llb.State, v cue.Value) (llb.State, error) {
 
 	options.SetCompiler(c)
 
-	if len(args) > 0 {
-		cmd += " " + strings.Join(args, " ")
-	}
-
-	llbOptions := []llb.RunOption{
-		llb.Args([]string{"/bin/sh", "-c", cmd}),
-		options,
-	}
-
-	return state.Run(llbOptions...).Root(), nil
+	return state.Run(llb.Args(args), options).Root(), nil
 }
 
 type RunOptions []*RunOption

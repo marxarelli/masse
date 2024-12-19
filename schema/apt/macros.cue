@@ -9,7 +9,7 @@ package apt
 install: {
 	#packages: [#Package, ...#Package]
 	{
-		run: "apt-get install -y"
+		sh: "apt-get install -y"
 		arguments: #packages
 		options: [
 			{ env: { "DEBIAN_FRONTEND": "noninteractive" } },

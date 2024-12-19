@@ -26,19 +26,15 @@ install: {
 		],
 	])
 
+	let flags = [
+		if #only != "" {
+			" --only=\(#only)"
+		},
+		"",
+	][0]
+
 	{
-		ops: [
-			{
-				run: "npm \(#command)"
-				if #only != "" {
-					arguments: ["--only=\(#only)"]
-				}
-				options: $options
-			},
-			{
-				run: "npm dedupe"
-				options: $options
-			}
-		]
+		sh: "npm \(#command)\(flags) && npm dedupe"
+		options: $options
 	}
 }

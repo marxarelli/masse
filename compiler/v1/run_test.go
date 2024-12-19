@@ -20,36 +20,10 @@ func TestRun(t *testing.T) {
 
 	compile.Test(
 		"minimal",
-		`state.#Run & { run: "make" }`,
+		`state.#Op & { run: ["make"] }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
-			_, eops := req.ContainsNExecOps(1)
-			req.Equal([]string{"/bin/sh", "-c", "make"}, eops[0].Exec.Meta.Args)
-		},
-	)
-
-	compile.Test(
-		"arguments/single",
-		`state.#Run & { run: "make", arguments: "foo bar" }`,
-		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
-			_, eops := req.ContainsNExecOps(1)
-			req.Equal([]string{"/bin/sh", "-c", `make "foo bar"`}, eops[0].Exec.Meta.Args)
-		},
-	)
-
-	compile.Test(
-		"arguments/multiple",
-		`state.#Run & { run: "make", arguments: ["foo", "bar"] }`,
-		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
-			_, eops := req.ContainsNExecOps(1)
-			req.Equal([]string{"/bin/sh", "-c", `make "foo" "bar"`}, eops[0].Exec.Meta.Args)
-		},
-	)
-
-	compile.Test(
-		"defaultOptions/customName",
-		`state.#Run & { run: "make" }`,
-		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
-			ops, _ := req.ContainsNExecOps(1)
+			ops, eops := req.ContainsNExecOps(1)
+			req.Equal([]string{"make"}, eops[0].Exec.Meta.Args)
 			md := req.HasMetadata(ops[0])
 			req.Contains(md.Description, "llb.customname")
 			req.Equal("💻 make", md.Description["llb.customname"])
@@ -57,19 +31,8 @@ func TestRun(t *testing.T) {
 	)
 
 	compile.Test(
-		"defaultOptions/customName/arguments",
-		`state.#Run & { run: "make", arguments: ["foo"] }`,
-		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
-			ops, _ := req.ContainsNExecOps(1)
-			md := req.HasMetadata(ops[0])
-			req.Contains(md.Description, "llb.customname")
-			req.Equal("💻 make foo", md.Description["llb.customname"])
-		},
-	)
-
-	compile.Test(
 		"options/host",
-		`state.#Run & { run: "make", options: [ { host: "foo", ip: "1.1.1.1" } ] }`,
+		`state.#Op & { run: ["make"], options: [ { host: "foo", ip: "1.1.1.1" } ] }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 			_, eops := req.ContainsNExecOps(1)
 			req.NotNil(eops[0].Exec.Meta.ExtraHosts)
@@ -81,7 +44,7 @@ func TestRun(t *testing.T) {
 
 	compile.Test(
 		"options/cache",
-		`state.#Run & { run: "apt-get install", options: [ { cache: "/var/lib/apt" } ] }`,
+		`state.#Op & { run: ["apt-get", "install"], options: [ { cache: "/var/lib/apt" } ] }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 			_, eops := req.ContainsNExecOps(1)
 			req.Len(eops[0].Exec.Mounts, 2)
@@ -96,7 +59,7 @@ func TestRun(t *testing.T) {
 
 	compile.Test(
 		"options/mount",
-		`state.#Run & { run: "make -C /src", options: [ { mount: "/src", from: "repo", source: "/component/src" } ] }`,
+		`state.#Op & { run: ["make", "-C", "/src"], options: [ { mount: "/src", from: "repo", source: "/component/src" } ] }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 			ops, eops := req.ContainsNExecOps(1)
 			req.Len(eops[0].Exec.Mounts, 2)
@@ -126,7 +89,7 @@ func TestRun(t *testing.T) {
 
 	compile.Test(
 		"options/mount/readonly",
-		`state.#Run & { run: "scan /src", options: [ { mount: "/src", from: "repo", readonly: true } ] }`,
+		`state.#Op & { run: ["scan", "/src"], options: [ { mount: "/src", from: "repo", readonly: true } ] }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 			ops, eops := req.ContainsNExecOps(1)
 			req.Len(eops[0].Exec.Mounts, 2)
@@ -156,7 +119,7 @@ func TestRun(t *testing.T) {
 
 	compile.Test(
 		"options/tmpfs",
-		`state.#Run & { run: "make -C /src", options: [ { tmpfs: "/tmp" } ] }`,
+		`state.#Op & { run: ["make", "-C", "/src"], options: [ { tmpfs: "/tmp" } ] }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 			_, eops := req.ContainsNExecOps(1)
 			req.Len(eops[0].Exec.Mounts, 2)
@@ -171,7 +134,7 @@ func TestRun(t *testing.T) {
 
 	compile.Test(
 		"options/tmpfs/size",
-		`state.#Run & { run: "make -C /src", options: [ { tmpfs: "/tmp", size: 200Mi } ] }`,
+		`state.#Op & { run: ["make", "-C", "/src"], options: [ { tmpfs: "/tmp", size: 200Mi } ] }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 			_, eops := req.ContainsNExecOps(1)
 			req.Len(eops[0].Exec.Mounts, 2)
@@ -186,7 +149,7 @@ func TestRun(t *testing.T) {
 
 	compile.Test(
 		"options/customName",
-		`state.#Run & { run: "make -C /src", options: customName: "building foo" }`,
+		`state.#Op & { run: ["make", "-C", "/src"], options: customName: "building foo" }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 			ops, _ := req.ContainsNExecOps(1)
 			md := req.HasMetadata(ops[0])

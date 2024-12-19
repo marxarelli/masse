@@ -53,9 +53,9 @@ func TestTarget(t *testing.T) {
 					{ copy: "go.mod", from: "repo" },
 					{ copy: "go.sum", from: "repo" },
 				] },
-				{ run: "go mod download" },
+				{ sh: "go mod download" },
 				{ file: { copy: ".", from: "repo" } },
-				{ run: "go build ./cmd/foo"
+				{ sh: "go build ./cmd/foo"
 					options: [ { cache: "/root/.cache/go-build", access: "locked" } ] },
 			],
 		}`,

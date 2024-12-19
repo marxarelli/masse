@@ -19,7 +19,7 @@ func TestDiff(t *testing.T) {
 
 	compile.Test(
 		"chain",
-		`state.#Op & { diff: { run: "make libs" } }`,
+		`state.#Op & { diff: { run: ["make", "libs"] } }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 			ops, dops := req.ContainsNDiffOps(1)
 			req.Equal(int64(0), dops[0].Diff.Lower.Input)
@@ -38,7 +38,7 @@ func TestDiff(t *testing.T) {
 
 	compile.Test(
 		"from",
-		`state.#Op & { diff: { run: "make libs" }, from: "repo" }`,
+		`state.#Op & { diff: { run: ["make", "libs"] }, from: "repo" }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 			ops, dops := req.ContainsNDiffOps(1)
 			req.Equal(int64(0), dops[0].Diff.Lower.Input)
@@ -65,7 +65,7 @@ func TestDiff(t *testing.T) {
 
 	compile.Test(
 		"options",
-		`state.#Op & { diff: { run: "make libs" }, options: customName: "libs" }`,
+		`state.#Op & { diff: { run: ["make", "libs"] }, options: customName: "libs" }`,
 		func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 			ops, dops := req.ContainsNDiffOps(1)
 			req.Equal(int64(0), dops[0].Diff.Lower.Input)

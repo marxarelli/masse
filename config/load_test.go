@@ -44,14 +44,14 @@ chains: {
 				{ copy: "go.mod", from: "repo" },
 				{ copy: "go.sum", from: "repo" },
 		] },
-		{ diff: [ { run: "go mod download" } ] },
+		{ diff: [ { sh: "go mod download" } ] },
 	]
 
 	binaries: [
 		{ extend: "go" },
 		{ merge: ["tools", "modules"] },
 		{	file: { copy: ".", from: "repo" } },
-		{ run: "make clean blubber-buildkit"
+		{ sh: "make clean blubber-buildkit"
 			options: [ { cache: "/root/.cache/go-build", access: "locked" } ] },
 	]
 }
