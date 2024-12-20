@@ -27,7 +27,7 @@ import (
 #Target: {
 	#default: #TargetDefaults
 
-	build!: state.#Chain
+	build!:    state.#ChainRef
 	platforms: [#TargetPlatform, ...#TargetPlatform] | *#default.platforms
 	labels:    common.#Labels                        | *#default.labels
 	runtime:   {

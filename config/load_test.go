@@ -55,6 +55,11 @@ chains: {
 		{ sh: "make clean blubber-buildkit"
 			options: [ { cache: "/root/.cache/go-build", access: "locked" } ] },
 	]
+
+	frontend: [
+		{ scratch: true },
+		{ file: { copy: "blubber-buildkit", from: "binaries" } },
+	]
 }
 
 targets: {
@@ -64,10 +69,7 @@ targets: {
 	}
 
 	frontend: {
-		build: [
-			{ scratch: true },
-			{ file: { copy: "blubber-buildkit", from: "binaries" } },
-		]
+		build: "frontend"
 		runtime: {
 			entrypoint: ["/blubber-buildkit"]
 		}

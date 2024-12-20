@@ -68,7 +68,7 @@ type chainResult struct {
 
 func (c *compiler) Compile(target *target.Target) (llb.State, error) {
 	c.defineChainCompilers()
-	return c.compileChain(target.Build)
+	return c.compileChainByRef(target.Build)
 }
 
 func (c *compiler) CompileState(state llb.State, v cue.Value) (llb.State, error) {
