@@ -5,8 +5,6 @@ import (
 	"path/filepath"
 
 	"cuelang.org/go/cue/load"
-
-	cuemod "gitlab.wikimedia.org/dduvall/masse/cue.mod"
 )
 
 // LoaderConfig returns a CUE [load.Config] that can load the embedded Masse
@@ -58,7 +56,7 @@ func pkgPath(root, path string) string {
 	return filepath.Join(
 		root,
 		"/cue.mod/pkg",
-		cuemod.Module(),
+		Module(),
 		path,
 	)
 }
