@@ -12,8 +12,8 @@ func TestNpm(t *testing.T) {
 	compile := testcompile.New(
 		t,
 		[]string{
-			"wikimedia.org/releng/masse/npm",
-			"wikimedia.org/releng/masse/state",
+			"github.com/marxarelli/masse/npm",
+			"github.com/marxarelli/masse/state",
 		},
 		testcompile.WithCompiler(func() *compiler {
 			return newCompiler(nil)

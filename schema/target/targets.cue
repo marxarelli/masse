@@ -1,8 +1,8 @@
 package target
 
 import (
-	"wikimedia.org/releng/masse/common"
-	"wikimedia.org/releng/masse/state"
+	"github.com/marxarelli/masse/common"
+	"github.com/marxarelli/masse/state"
 )
 
 #Targets: {

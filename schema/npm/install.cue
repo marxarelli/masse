@@ -2,7 +2,7 @@ package npm
 
 import (
 	"list"
-	"wikimedia.org/releng/masse/state"
+	"github.com/marxarelli/masse/state"
 )
 
 install: {

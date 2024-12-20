@@ -1,7 +1,7 @@
 package main
 
 import (
-	"wikimedia.org/releng/masse/apt"
+	"github.com/marxarelli/masse/apt"
 )
 
 parameters: {

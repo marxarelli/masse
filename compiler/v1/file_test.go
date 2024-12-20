@@ -12,7 +12,7 @@ import (
 func TestFile(t *testing.T) {
 	compile := testcompile.New(
 		t,
-		[]string{"wikimedia.org/releng/masse/state"},
+		[]string{"github.com/marxarelli/masse/state"},
 		testcompile.WithCompiler(func() *compiler {
 			c := newCompiler(nil)
 			c.chainCompilers = map[string]chainCompiler{

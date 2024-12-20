@@ -24,7 +24,7 @@ func testDecodeCase[T any](tester *testconfig.Tester, name string, expr string, 
 }
 
 func TestDecode(t *testing.T) {
-	tester := testconfig.New(t, []string{"wikimedia.org/releng/masse/common"})
+	tester := testconfig.New(t, []string{"github.com/marxarelli/masse/common"})
 
 	ctime, _ := time.Parse(time.RFC3339, "2020-01-20T01:02:03Z")
 	testDecodeCase(tester,

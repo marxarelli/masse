@@ -1,9 +1,9 @@
 package main
 
 import (
-	"wikimedia.org/releng/masse/common"
-	"wikimedia.org/releng/masse/state"
-	"wikimedia.org/releng/masse/target"
+	"github.com/marxarelli/masse/common"
+	"github.com/marxarelli/masse/state"
+	"github.com/marxarelli/masse/target"
 )
 
 parameters?: common.#Env

@@ -13,7 +13,7 @@ import (
 func TestExtend(t *testing.T) {
 	compile := testcompile.New(
 		t,
-		[]string{"wikimedia.org/releng/masse/state"},
+		[]string{"github.com/marxarelli/masse/state"},
 		testcompile.WithCompiler(func() *compiler {
 			c := newCompiler(nil, WithImageMetaResolver(testmetaresolver.New("golang:1.23", oci.Image{})))
 			c.chainCompilers = map[string]chainCompiler{

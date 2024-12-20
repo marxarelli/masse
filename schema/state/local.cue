@@ -1,7 +1,7 @@
 package state
 
 import (
-	"wikimedia.org/releng/masse/common"
+	"github.com/marxarelli/masse/common"
 )
 
 // Local uses a directory from the build host as the initial filesystem for a build chain.

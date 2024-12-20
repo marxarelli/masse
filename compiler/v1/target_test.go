@@ -14,7 +14,7 @@ import (
 func TestTarget(t *testing.T) {
 	compile := testcompile.New(
 		t,
-		[]string{"wikimedia.org/releng/masse/target"},
+		[]string{"github.com/marxarelli/masse/target"},
 		testcompile.WithCompiler(func() *compiler {
 			c := newCompiler(nil)
 			c.chainCompilers = map[string]chainCompiler{

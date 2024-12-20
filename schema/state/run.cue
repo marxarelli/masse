@@ -2,7 +2,7 @@ package state
 
 import (
 	"strings"
-	"wikimedia.org/releng/masse/common"
+	"github.com/marxarelli/masse/common"
 )
 
 #Run: {

@@ -23,6 +23,6 @@ func TestLoaderConfig(t *testing.T) {
 		i++
 	}
 
-	req.Contains(overlayEntries, filepath.Join(dir, "/cue.mod/pkg/wikimedia.org/releng/masse/common/creation.cue"))
-	req.Contains(overlayEntries, filepath.Join(dir, "/cue.mod/pkg/wikimedia.org/releng/masse/state/state.cue"))
+	req.Contains(overlayEntries, filepath.Join(dir, "/cue.mod/pkg/github.com/marxarelli/masse/common/creation.cue"))
+	req.Contains(overlayEntries, filepath.Join(dir, "/cue.mod/pkg/github.com/marxarelli/masse/state/state.cue"))
 }
