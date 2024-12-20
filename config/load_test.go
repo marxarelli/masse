@@ -15,7 +15,7 @@ func TestLoad(t *testing.T) {
 package main
 
 import (
-	"wikimedia.org/dduvall/masse/apt"
+	"wikimedia.org/releng/masse/apt"
 )
 
 parameters: {

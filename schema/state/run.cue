@@ -2,7 +2,7 @@ package state
 
 import (
 	"strings"
-	"wikimedia.org/dduvall/masse/common"
+	"wikimedia.org/releng/masse/common"
 )
 
 #Run: {

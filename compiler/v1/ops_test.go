@@ -10,7 +10,7 @@ import (
 func TestOps(t *testing.T) {
 	compile := testcompile.New(
 		t,
-		[]string{"wikimedia.org/dduvall/masse/state"},
+		[]string{"wikimedia.org/releng/masse/state"},
 		testcompile.WithCompiler(func() *compiler {
 			return newCompiler(nil)
 		}),

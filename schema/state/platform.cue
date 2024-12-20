@@ -1,7 +1,7 @@
 package state
 
 import (
-	"wikimedia.org/dduvall/masse/common"
+	"wikimedia.org/releng/masse/common"
 )
 
 #Platform: {

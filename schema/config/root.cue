@@ -1,9 +1,9 @@
 package config
 
 import (
-	"wikimedia.org/dduvall/masse/common"
-	"wikimedia.org/dduvall/masse/state"
-	"wikimedia.org/dduvall/masse/target"
+	"wikimedia.org/releng/masse/common"
+	"wikimedia.org/releng/masse/state"
+	"wikimedia.org/releng/masse/target"
 )
 
 #Root: {

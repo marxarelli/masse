@@ -1,3 +1,3 @@
-module: "wikimedia.org/dduvall/masse"
-language: version: "v0.9.0"
+module: "wikimedia.org/releng/masse"
+language: version: "v0.12.0"
 source: kind: "git"

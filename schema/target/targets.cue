@@ -1,8 +1,8 @@
 package target
 
 import (
-	"wikimedia.org/dduvall/masse/common"
-	"wikimedia.org/dduvall/masse/state"
+	"wikimedia.org/releng/masse/common"
+	"wikimedia.org/releng/masse/state"
 )
 
 #Targets: {

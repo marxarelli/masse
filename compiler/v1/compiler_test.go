@@ -11,7 +11,7 @@ import (
 func TestCompilerCycleDetection(t *testing.T) {
 	tester := testconfig.New(
 		t,
-		[]string{"wikimedia.org/dduvall/masse/state"},
+		[]string{"wikimedia.org/releng/masse/state"},
 	)
 
 	tester.Test(
