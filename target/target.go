@@ -19,9 +19,6 @@ type Target struct {
 
 // UnmarshalCUE parses the given cue.Value into the target.
 func (target *Target) UnmarshalCUE(v cue.Value) error {
-	// Bail out to CUE->JSON->Go based decoding for now
-	// TODO work with all CUE values directly which should be faster and allow
-	// for better error reporting
 	return v.Decode(target)
 }
 

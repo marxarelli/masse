@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"gitlab.wikimedia.org/dduvall/masse/common"
 )
 
 func TestLoad(t *testing.T) {
@@ -57,14 +58,17 @@ chains: {
 }
 
 targets: {
+	#default: {
+		platforms: ["linux/amd64", "linux/arm64"]
+		runtime: user: "nobody"
+	}
+
 	frontend: {
 		build: [
 			{ scratch: true },
 			{ file: { copy: "blubber-buildkit", from: "binaries" } },
 		]
-		platforms: ["linux/amd64", "linux/arm64"]
 		runtime: {
-			user: "nobody"
 			entrypoint: ["/blubber-buildkit"]
 		}
 	}
@@ -76,5 +80,18 @@ targets: {
 	)
 
 	req.NoError(err)
-	req.Len(root.Targets, 1)
+	req.Contains(root.Targets, "frontend")
+
+	frontend := root.Targets["frontend"]
+	req.Equal(
+		frontend.Platforms,
+		[]common.Platform{
+			{OS: "linux", Architecture: "amd64"},
+			{OS: "linux", Architecture: "arm64"},
+		},
+	)
+	req.Equal(
+		frontend.Runtime.User,
+		"nobody",
+	)
 }

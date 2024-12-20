@@ -33,12 +33,24 @@ func (root *Root) UnmarshalCUE(rv cue.Value) error {
 		return err
 	}
 
+	tdv := lookup.Lookup(rv, "targets.#default")
+
 	return lookup.EachField(
 		rv,
 		"targets",
 		func(label string, tv cue.Value) error {
+			var err error
+
 			target := &target.Target{}
-			err := target.UnmarshalCUE(tv)
+
+			if tdv.Exists() && !tdv.IsNull() {
+				err = target.UnmarshalCUE(tdv)
+				if err != nil {
+					return err
+				}
+			}
+
+			err = target.UnmarshalCUE(tv)
 			if err != nil {
 				return err
 			}

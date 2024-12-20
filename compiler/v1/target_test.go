@@ -46,7 +46,6 @@ func TestTarget(t *testing.T) {
 	compile.Test(
 		"target",
 		`target.#Target & {
-			platforms: ["linux/amd64"],
 			build: [
 				{ extend: "go" },
 				{ file: [
