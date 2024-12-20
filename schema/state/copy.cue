@@ -15,7 +15,10 @@ import (
 	common.#Creation |
 	common.#User | common.#Group | common.#Mode |
 	common.#Include | common.#Exclude |
-	#FollowSymlinks | #CopyDirectoryContents
+	#FollowSymlinks | #CopyDirectoryContents |
+	#AllowNotFound | #Wildcard |
+	#ReplaceExisting |
+	#CreateParents
 }
 
 #FollowSymlinks: {
@@ -24,4 +27,8 @@ import (
 
 #CopyDirectoryContents: {
 	copyDirectoryContents!: true | *false
+}
+
+#ReplaceExisting: {
+	replaceExisting!: true | *false
 }

@@ -135,6 +135,46 @@ func TestFile(t *testing.T) {
 				req.True(copies[0].Copy.FollowSymlink)
 			},
 		)
+
+		compile.Test(
+			"options/allowNotFound",
+			`state.#File & { file: { copy: "./foo", from: "local", options: allowNotFound: true } }`,
+			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
+				_, fops := req.ContainsNFileOps(1)
+				_, copies := req.ContainsNCopyActions(fops[0], 1)
+				req.True(copies[0].Copy.AllowEmptyWildcard)
+			},
+		)
+
+		compile.Test(
+			"options/wildcard",
+			`state.#File & { file: { copy: "./foo/*", from: "local", options: wildcard: true } }`,
+			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
+				_, fops := req.ContainsNFileOps(1)
+				_, copies := req.ContainsNCopyActions(fops[0], 1)
+				req.True(copies[0].Copy.AllowWildcard)
+			},
+		)
+
+		compile.Test(
+			"options/replaceExisting",
+			`state.#File & { file: { copy: "./foo", destination: "./foo", from: "local", options: replaceExisting: true } }`,
+			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
+				_, fops := req.ContainsNFileOps(1)
+				_, copies := req.ContainsNCopyActions(fops[0], 1)
+				req.True(copies[0].Copy.AlwaysReplaceExistingDestPaths)
+			},
+		)
+
+		compile.Test(
+			"options/createParents",
+			`state.#File & { file: { copy: "./bar", destination: "/foo/bar", from: "local", options: createParents: true } }`,
+			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
+				_, fops := req.ContainsNFileOps(1)
+				_, copies := req.ContainsNCopyActions(fops[0], 1)
+				req.True(copies[0].Copy.CreateDestPath)
+			},
+		)
 	})
 
 	compile.Run("Mkfile", func(compile *testcompile.Tester) {
@@ -322,8 +362,8 @@ func TestFile(t *testing.T) {
 		)
 
 		compile.Test(
-			"options/allowWildcard",
-			`state.#File & { file: { rm: "./foo", options: allowWildcard: true } }`,
+			"options/wildcard",
+			`state.#File & { file: { rm: "./foo/*", options: wildcard: true } }`,
 			func(t *testing.T, req *llbtest.Assertions, _ *testcompile.Test) {
 				_, fops := req.ContainsNFileOps(1)
 				_, rms := req.ContainsNRmActions(fops[0], 1)

@@ -8,3 +8,11 @@ package state
 #FileAction: {
 	#Copy | #Mkfile | #Mkdir | #Rm
 }
+
+#AllowNotFound: {
+	allowNotFound!: bool
+}
+
+#Wildcard: {
+	wildcard!: bool
+}

@@ -30,7 +30,7 @@ func (opts RmOptions) SetRmOption(info *llb.RmInfo) {
 
 type RmOption struct {
 	*AllowNotFound
-	*AllowWildcard
+	*Wildcard
 }
 
 func (opt *RmOption) SetRmOption(info *llb.RmInfo) {
@@ -45,10 +45,10 @@ func (opt *AllowNotFound) SetRmOption(info *llb.RmInfo) {
 	llb.WithAllowNotFound(opt.AllowNotFound).SetRmOption(info)
 }
 
-type AllowWildcard struct {
-	AllowWildcard bool `json:"allowWildcard"`
+type Wildcard struct {
+	Wildcard bool `json:"wildcard"`
 }
 
-func (opt *AllowWildcard) SetRmOption(info *llb.RmInfo) {
-	llb.WithAllowWildcard(opt.AllowWildcard).SetRmOption(info)
+func (opt *Wildcard) SetRmOption(info *llb.RmInfo) {
+	llb.WithAllowWildcard(opt.Wildcard).SetRmOption(info)
 }

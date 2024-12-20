@@ -57,6 +57,10 @@ type CopyOption struct {
 	*Exclude
 	*FollowSymlinks
 	*CopyDirectoryContents
+	*AllowNotFound
+	*Wildcard
+	*ReplaceExisting
+	*CreateParents
 }
 
 func (opt *CopyOption) SetCopyOption(info *llb.CopyInfo) {
@@ -77,4 +81,24 @@ type CopyDirectoryContents struct {
 
 func (cdc *CopyDirectoryContents) SetCopyOption(info *llb.CopyInfo) {
 	info.CopyDirContentsOnly = cdc.CopyDirectoryContents
+}
+
+type ReplaceExisting struct {
+	ReplaceExisting bool `json:"replaceExisting"`
+}
+
+func (opt *ReplaceExisting) SetCopyOption(info *llb.CopyInfo) {
+	info.AlwaysReplaceExistingDestPaths = opt.ReplaceExisting
+}
+
+func (opt *AllowNotFound) SetCopyOption(info *llb.CopyInfo) {
+	info.AllowEmptyWildcard = opt.AllowNotFound
+}
+
+func (opt *Wildcard) SetCopyOption(info *llb.CopyInfo) {
+	info.AllowWildcard = opt.Wildcard
+}
+
+func (opt *CreateParents) SetCopyOption(info *llb.CopyInfo) {
+	info.CreateDestPath = opt.CreateParents
 }

@@ -6,13 +6,5 @@ package state
 }
 
 #RmOption: {
-	#AllowNotFound | #AllowWildcard
-}
-
-#AllowNotFound: {
-	allowNotFound!: bool
-}
-
-#AllowWildcard: {
-	allowWildcard!: bool
+	#AllowNotFound | #Wildcard
 }
