@@ -2,8 +2,8 @@
 
 ![masse logo](./assets/masse-256.png)
 
-Masse is an extensible new [BuildKit][buildkit] frontend that allows users to
-express complex container image build graphs in [CUE][cue]. It aims to:
+Massé is [BuildKit][buildkit] frontend that allows users to express complex
+container image build graphs in [CUE][cue]. It aims to:
 
  1. Give users compact yet powerful declarative constructs to express how
     their container filesystems should be created, composed, and packaged.
@@ -39,9 +39,35 @@ See [schema/apt/macros.cue](./schema/apt/macros.cue) for an example of what an
 
 ## Example config
 
-To skip straight to what a build configuration looks like in Masse, see
-[examples/blubber.cue](./examples/blubber.cue). This is a port of Blubber's
-own `blubber.yaml` to Masse.
+To skip straight to what a build configuration looks like in Massé, see
+Massé's own [.pipeline/masse.cue](./.pipeline/masse.cue) file which can be
+used to build the BuildKit frontend image.
+
+```console
+$ docker buildx build -f .pipeline/masse.cue --target gateway .
+[+] Building 27.2s (9/9) FINISHED                              remote:buildkitd
+ => [internal] load build definition from masse.cue                        0.1s
+ => => transferring dockerfile: 1.44kB                                     0.0s
+ => resolve image config for docker-image://docker.io/marxarelli/masse:v0  1.2s
+ => [auth] marxarelli/masse:pull token for registry-1.docker.io            0.0s
+ => docker-image://docker.io/marxarelli/masse:v0.0.1@sha256:44866a078b236  0.8s
+ => => resolve docker.io/marxarelli/masse:v0.0.1@sha256:44866a078b236ed71  0.0s
+ => => sha256:bb42f0b58b5d50bdd8a20d6ace717fbf9480c3b 122.68kB / 122.68kB  0.1s
+ => => sha256:a70aa5a05312867fdd6fa9686c9b4a67769d20410 16.30MB / 16.30MB  0.5s
+ => => extracting sha256:a70aa5a05312867fdd6fa9686c9b4a67769d20410e514a3b  0.2s
+ => => extracting sha256:bb42f0b58b5d50bdd8a20d6ace717fbf9480c3bbf0d51205  0.0s
+ => local://context                                                        0.5s
+ => => transferring context: 74.90MB                                       0.4s
+ => docker-image://docker-registry.wikimedia.org/golang1.21:1.21-1-202311  9.7s
+ => => resolve docker-registry.wikimedia.org/golang1.21:1.21-1-20231126    0.3s
+ => => sha256:e11c570947367c7c5e5adb625fb56cfd3e77c35 174.42MB / 174.42MB  6.1ss
+ => => sha256:c492791ecd0ad500c25716f68f37fd5c0e995f0ef 40.66MB / 40.66MB  2.9s
+ => => extracting sha256:c492791ecd0ad500c25716f68f37fd5c0e995f0efbdaafad  0.7s
+ => => extracting sha256:e11c570947367c7c5e5adb625fb56cfd3e77c3553ddc26b5  3.2ss
+ => 📋 masse source                                                         0.4s
+ => 🏗️ build `./cmd/massed`                                               13.9s 
+ => 📦 package masse gateway w/ CA certificates                             0.1s
+```
 
 ## Build chains
 
@@ -55,28 +81,33 @@ chains: {
     { git: "https://my.example/repo.git" },
   ]
 
+  source: [
+    { scratch: true },
+    { copy: ".", from: "repo" },
+  ]
+
   toolchain: [
     { image: "docker-registry.wikimedia.org/golang1.19:1.19-1-20230730" },
     { apt.install & { #packages: [ "gcc", "git", "make" ] } },
   ]
 
   binaries: [
-    { extend: "toolchain" },
+    { merge: ["source", "toolchain"] },
     { with: directory: "/src" },
-    { link: ".", from: "repo" },
+    { copy: ".", from: "source" },
     { run: "make" },
   ]
 
   application: [
+    { scratch: true },
     { copy: "my-compiled-program", from: "binaries" },
   ]
 }
 ```
 
-As you can see with `{ extend: "toolchain" }` and `{ link: ".", from: "repo"}`
-above, dependency chains are referenced by name. Chain references are resolved
-when the internal DAG is constructed. Cycles are also detected/prevented
-during internal DAG construction.
+As you can see with `{ merge ["source", "toolchain"] }` and `{ copy: ".",
+from: "source"}` above, dependency chains are referenced by name. Chain
+references are resolved during compilation.
 
 ## Macros
 
@@ -97,9 +128,8 @@ package apt
 
 install: {
   #packages: [#Package, ...#Package]
-
   {
-    run: "apt-get install -y"
+    sh: "apt-get install -y"
     arguments: #packages
     options: [
       { env: { "DEBIAN_FRONTEND": "noninteractive" } },
@@ -110,16 +140,16 @@ install: {
 }
 ```
 
-As you can see, the macro can define its parameter as a CUE definition,
-provide validation constraints. In CUE terminology each package name must
-"unify" with the regex constrained string.
+The macro can define its parameter as a CUE definition, provide validation
+constraints. In CUE terminology each package name must "unify" with the regex
+constrained string.
 
 ```cue
 #Package: =~ "^\(#PackageName)(?:=\(#VersionSpec)|/\(#ReleaseName))?$"
 ```
 
 The macro can "return" its resulting build operations (in this case a single
-`{ run: ... }`) using an embed. The use of this shared macro is simply a CUE
+`{ sh: ... }`) using an embed. The use of this shared macro is simply a CUE
 unification with the definition.
 
 ```cue
@@ -146,24 +176,26 @@ apt.install(["gcc","git", "make"])
 
 Many many things, including:
 
- * The `layout` specification needs attention. It should likely take the same
-   approach as the `chains` specification and provide primitives that map onto
-   [OCI][oci] specifications to allow for maximum flexibility in how resulting
-   manifests are constructed. Perhaps the section should even be renamed
-   `manifests`?
- * A BuildKit [frontend][frontend] (Dockerfile syntax) should be implemented
-   soon to allow people to test this out with standard Docker tooling.
- * The `buildctl` output is wonky with emojis. It seems like width is not
-   being computed correctly. This is likely an upstream bug.
  * Organize macros into a stdlib and implement macros for most of
    [Blubber][blubber]'s higher level builder directives (npm, python, php,
    etc.).
+ * Chains are currently referenced by name. While it is possible to adopt
+   references by actual CUE references (e.g. `{ copy: "." from: chains.foo }`)
+   this pattern encounters current performance limitations in the v2 CUE
+   evaluator. The CUE folks are working on a v3 evaluator that may make this
+   direct use of references possible in the future.
+ * Resolution and loading of CUE modules during BuildKit solves. This might be
+   tricky and require a custom implementation of the [registry
+   interface][modconfigregistry] since it's the client build context we'd want
+   to load modules from, not the gateway's filesystem. Also, the gateway
+   filesystem will not be retained so caching of remotely fetched modules will
+   not be possible. Users may have to vendor all dependencies. We'll see.
  * At the moment, environment variables are not substituted in command
    strings. Should they be?
 
 ## License
 
-Masse is licensed under the GNU General Public License 3.0 or later
+Massé is licensed under the GNU General Public License 3.0 or later
 (GPL-3.0+). See the LICENSE file for more details.
 
 [buildkit]: https://docs.docker.com/build/buildkit/
@@ -175,3 +207,4 @@ Masse is licensed under the GNU General Public License 3.0 or later
 [oci]: https://github.com/opencontainers/image-spec
 [frontend]: https://docs.docker.com/build/dockerfile/frontend/
 [blubber]: https://gitlab.wikimedia.org/repos/releng/blubber
+[modconfigregistry]: https://pkg.go.dev/cuelang.org/go@v0.12.0-alpha.2/mod/modconfig#Registry
