@@ -36,7 +36,7 @@ chains: {
 
 	tools: [
 		{ extend: "go" },
-		{ diff: [ apt.install & { #packages: [ "gcc", "git", "make" ] } ] },
+		{ diff: apt.install & { #packages: [ "gcc", "git", "make" ] } },
 	]
 
 	modules: [

@@ -9,25 +9,27 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMainInstanceWith(t *testing.T) {
+func TestMainInstance(t *testing.T) {
 	req := require.New(t)
 	dir := t.TempDir()
 
-	main, err := MainInstanceWith(
+	main, err := MainInstance(
 		dir,
-		map[string][]byte{
-			"foo.cue": []byte(lines(
-				`package main`,
-				``,
-				`chains: {`,
-				`  foo: [`,
-				`    { image: "foo.example/image/ref" },`,
-				`  ]`,
-				`}`,
-				``,
-				`targets: foo: build: "foo"`,
-			)),
-		},
+		WithOverlayFiles(
+			map[string][]byte{
+				"foo.cue": []byte(lines(
+					`package main`,
+					``,
+					`chains: {`,
+					`  foo: [`,
+					`    { image: "foo.example/image/ref" },`,
+					`  ]`,
+					`}`,
+					``,
+					`targets: foo: build: "foo"`,
+				)),
+			},
+		),
 	)
 	req.NotNil(main)
 	req.NoError(err)

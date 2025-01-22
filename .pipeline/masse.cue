@@ -1,13 +1,13 @@
-// syntax=marxarelli/masse:v0.0.1
+// syntax=marxarelli/masse:experimental
 package main
 
 parameters: {
-	goImage: string | * "docker-registry.wikimedia.org/golang1.21:1.21-1-20231126"
+	goImage: string | * "docker-registry.wikimedia.org/golang1.22:1.22-20250316"
 }
 
 chains: {
-	local: [
-		{ local: "context" },
+	projectFiles: [
+		{ local: "context", options: exclude: [".git"] },
 	]
 
 	go: [
@@ -18,19 +18,19 @@ chains: {
 		{ extend: "go" },
 		{ file: [
 			{ mkdir: "/src" },
-			{ copy: "go.mod", destination: "/src", from: "local" },
-			{ copy: "go.sum", destination: "/src", from: "local" },
+			{ copy: "go.mod", destination: "/src", from: "projectFiles" },
+			{ copy: "go.sum", destination: "/src", from: "projectFiles" },
 		] },
-		{ diff: run: "go mod download" },
+		{ diff: { run: ["go", "mod", "download"], options: directory: "/src" } },
 	]
 
 	build: [
-		{ extend: "go" },
+		{ merge: ["go", "modules"] },
 		{ with: directory: "/src" },
 		{ with: env: CGO_ENABLED: "0" },
 		{
 			file: [
-				{ copy: ".",  from: "local" },
+				{ copy: ".",  from: "projectFiles" },
 			]
 			options: customName: "📋 masse source"
 		},
@@ -39,8 +39,12 @@ chains: {
 	massed: [
 		{ extend: "build" },
 		{
-			run: "go build ./cmd/massed"
-			options: customName: "🏗️ build `./cmd/massed`"
+			run: ["go", "build", "./cmd/massed"]
+			options: [
+				{ customName: "🏗️ build `./cmd/massed`" },
+				{ cache: "/var/cache/go", access: "locked" },
+				{ env: GOCACHE: "/var/cache/go" },
+			]
 		},
 	]
 
@@ -71,9 +75,7 @@ chains: {
 targets: {
 	gateway: {
 		platforms: ["linux/amd64"]
-		build: [
-			{ extend: "gateway" },
-		]
+		build: "gateway"
 		runtime: {
 			user: "nobody"
 			entrypoint: ["/massed"]

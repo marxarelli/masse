@@ -17,9 +17,8 @@ func NewContext() *cue.Context {
 	return cuecontext.New()
 }
 
-// MainInstanceWith returns a CUE instance with no package that unifies with a
-// config.#Root
-func MainInstanceWith(dir string, files map[string][]byte) (*build.Instance, error) {
+// MainInstance returns a CUE instance that unifies with a config.#Root
+func MainInstance(dir string, options ...Option) (*build.Instance, error) {
 	dir, err := filepath.Abs(dir)
 	if err != nil {
 		return nil, err
@@ -32,22 +31,26 @@ func MainInstanceWith(dir string, files map[string][]byte) (*build.Instance, err
 
 	cfg.Package = "main"
 
-	cueData, err := embedFS.ReadFile("root.cue")
+	rootCue, err := embedFS.ReadFile("root.cue")
 	if err != nil {
 		return nil, err
 	}
 
-	cfg.Overlay[filepath.Join(dir, "root.cue")] = load.FromBytes(cueData)
-
-	cueData, err = embedFS.ReadFile("module.cue")
+	moduleCue, err := embedFS.ReadFile("module.cue")
 	if err != nil {
 		return nil, err
 	}
 
-	cfg.Overlay[filepath.Join(dir, "cue.mod", "module.cue")] = load.FromBytes(cueData)
+	WithOverlayFiles(map[string][]byte{
+		"root.cue":           rootCue,
+		"cue.mod/module.cue": moduleCue,
+	})(dir, cfg)
 
-	for path, data := range files {
-		cfg.Overlay[filepath.Join(dir, path)] = load.FromBytes(data)
+	for _, opt := range options {
+		err = opt(dir, cfg)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	instances := load.Instances([]string{"."}, cfg)

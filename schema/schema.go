@@ -46,9 +46,6 @@ func LoaderConfig(root string) (*load.Config, error) {
 		Overlay:    overlay,
 		Package:    "_",
 		ModuleRoot: ".",
-		Env: []string{
-			"CUE_REGISTRY=none",
-		},
 	}, nil
 }
 

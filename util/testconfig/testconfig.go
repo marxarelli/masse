@@ -40,17 +40,19 @@ func (tester *Tester) Test(name, expr string, f TestFunc) {
 
 		dir := t.TempDir()
 
-		main, err := load.MainInstanceWith(
+		main, err := load.MainInstance(
 			dir,
-			map[string][]byte{
-				"test.cue": []byte(
-					"package main\n" +
-						"import (\n  \"" +
-						strings.Join(tester.CUEImports, "\"\n  \"") +
-						"\"\n)\n" +
-						`x: ` + expr,
-				),
-			},
+			load.WithOverlayFiles(
+				map[string][]byte{
+					"test.cue": []byte(
+						"package main\n" +
+							"import (\n  \"" +
+							strings.Join(tester.CUEImports, "\"\n  \"") +
+							"\"\n)\n" +
+							`x: ` + expr,
+					),
+				},
+			),
 		)
 
 		require.NoError(t, err)

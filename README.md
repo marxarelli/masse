@@ -34,8 +34,8 @@ powerful language for schema definition, validation/constraints, and user
 facing configuration. With CUE we can support composable user defined types
 and module imports. It's constructs are rich and coherent.
 
-See [schema/apt/macros.cue](./schema/apt/macros.cue) for an example of what an
-`apt install` macro looks like.
+See [schema/apt/install.cue](./schema/apt/install.cue) for an example of what
+an `apt install` definition looks like.
 
 ## Example config
 
