@@ -5,7 +5,7 @@ go 1.22.0
 toolchain go1.22.7
 
 require (
-	cuelang.org/go v0.12.0-alpha.1
+	cuelang.org/go v0.12.0-alpha.2
 	github.com/containerd/containerd v1.7.22
 	github.com/davecgh/go-spew v1.1.1
 	github.com/moby/buildkit v0.17.2
@@ -52,7 +52,7 @@ require (
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/protocolbuffers/txtpbfmt v0.0.0-20241112170944-20d2c9ebc01d // indirect
-	github.com/rogpeppe/go-internal v1.13.1 // indirect
+	github.com/rogpeppe/go-internal v1.13.2-0.20241226121412-a5dc8ff20d0a // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/secure-systems-lab/go-securesystemslib v0.4.0 // indirect
 	github.com/shibumi/go-pathspec v1.3.0 // indirect
@@ -67,12 +67,12 @@ require (
 	go.opentelemetry.io/otel/metric v1.21.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.21.0 // indirect
 	go.opentelemetry.io/otel/trace v1.21.0 // indirect
-	golang.org/x/crypto v0.30.0 // indirect
+	golang.org/x/crypto v0.32.0 // indirect
 	golang.org/x/mod v0.22.0 // indirect
-	golang.org/x/net v0.32.0 // indirect
-	golang.org/x/oauth2 v0.24.0 // indirect
+	golang.org/x/net v0.34.0 // indirect
+	golang.org/x/oauth2 v0.25.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240604185151-ef581f913117 // indirect
 	google.golang.org/grpc v1.66.3 // indirect
