@@ -11,14 +11,10 @@ import (
 	"gitlab.wikimedia.org/dduvall/masse/schema"
 )
 
-const (
-	EvaluatorVersion cuecontext.EvalVersion = cuecontext.EvalV2
-)
-
 // NewContext returns a new [*cue.Context] for evaluation of Masse CUE
 // configuration.
 func NewContext() *cue.Context {
-	return cuecontext.New(cuecontext.EvaluatorVersion(EvaluatorVersion))
+	return cuecontext.New()
 }
 
 // MainInstanceWith returns a CUE instance with no package that unifies with a
