@@ -5,11 +5,16 @@ import (
 	"github.com/marxarelli/masse/state"
 )
 
-#Targets: {
-	$default = #default: #TargetDefaults
-
-	[=~"^[a-zA-Z_][a-zA-Z0-9_]*$"]: #Target & { #default: $default }
+#Runtime: {
+	user:       string
+	env:        common.#Env
+	entrypoint: [string, ...string]
+	arguments:  [...string]
+	directory:  string
+	stopSignal: string
 }
+
+#TargetPlatform: string | common.#Platform
 
 #TargetDefaults: {
 	platforms: [#TargetPlatform, ...#TargetPlatform] | *["linux/amd64"]
@@ -28,20 +33,20 @@ import (
 	#default: #TargetDefaults
 
 	build!:    state.#ChainRef
-	platforms: [#TargetPlatform, ...#TargetPlatform] | *#default.platforms
-	labels:    common.#Labels                        | *#default.labels
+	platforms: #default.platforms
+	labels:    #default.labels
 	runtime:   {
-		user:       #Runtime.user       | *#default.runtime.user
-		env:        #Runtime.env        | *#default.runtime.env
-		entrypoint: #Runtime.entrypoint | *#default.runtime.entrypoint
-		arguments:  #Runtime.arguments  | *#default.runtime.arguments
-		directory:  #Runtime.directory  | *#default.runtime.directory
-		stopSignal: #Runtime.stopSignal | *#default.runtime.stopSignal
+		user:       #default.runtime.user
+		env:        #default.runtime.env
+		entrypoint: #default.runtime.entrypoint
+		arguments:  #default.runtime.arguments
+		directory:  #default.runtime.directory
+		stopSignal: #default.runtime.stopSignal
 	}
 
 	if platforms != _|_ {
 		platformsValue: [
-			for p in (*platforms | []) {
+			for p in platforms {
 				[
 					if (p & string) != _|_ {common.#Platform & {name: p}},
 					p,
@@ -51,13 +56,8 @@ import (
 	}
 }
 
-#Runtime: {
-	user:       string
-	env:        common.#Env
-	entrypoint: [string, ...string]
-	arguments:  [...string]
-	directory:  string
-	stopSignal: string
-}
+#Targets: {
+	$default = #default: #TargetDefaults
 
-#TargetPlatform: string | common.#Platform
+	[=~"^[a-zA-Z_][a-zA-Z0-9_]*$"]: #Target & { #default: $default }
+}
