@@ -41,30 +41,30 @@ chains: {
 	]
 
 	tools: [
-		{ extend: "go" },
+		{ extend: go },
 		{ diff: apt.install & { #packages: [ "gcc", "git", "make" ] } },
 	]
 
 	modules: [
-		{ extend: "go" },
+		{ extend: go },
 		{ file: [
-				{ copy: "go.mod", from: "repo" },
-				{ copy: "go.sum", from: "repo" },
+				{ copy: "go.mod", from: repo },
+				{ copy: "go.sum", from: repo },
 		] },
 		{ diff: [ { sh: "go mod download" } ] },
 	]
 
 	binaries: [
-		{ extend: "go" },
-		{ merge: ["tools", "modules"] },
-		{	file: { copy: ".", from: "repo" } },
+		{ extend: go },
+		{ merge: [tools, modules] },
+		{	file: { copy: ".", from: repo } },
 		{ sh: "make clean blubber-buildkit"
 			options: [ { cache: "/root/.cache/go-build", access: "locked" } ] },
 	]
 
 	frontend: [
 		{ scratch: true },
-		{ file: { copy: "blubber-buildkit", from: "binaries" } },
+		{ file: { copy: "blubber-buildkit", from: binaries } },
 	]
 }
 
@@ -79,7 +79,7 @@ targets: {
 	}
 
 	frontend: {
-		build: "frontend"
+		build: chains.frontend
 		runtime: {
 			entrypoint: ["/blubber-buildkit"]
 		}
