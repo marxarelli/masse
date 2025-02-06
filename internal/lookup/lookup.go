@@ -222,3 +222,11 @@ func WithDiscriminatorField[T ~string, R any](v cue.Value, f func(T) (R, bool, e
 
 	return nilR, false, nil
 }
+
+func Dereference(v cue.Value) cue.Value {
+	if u := cue.Dereference(v); u != v {
+		return Dereference(u)
+	}
+
+	return v
+}

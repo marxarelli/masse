@@ -10,6 +10,7 @@ import (
 	"cuelang.org/go/cue"
 	"github.com/moby/buildkit/client/llb"
 	"gitlab.wikimedia.org/dduvall/masse/target"
+	"golang.org/x/sync/singleflight"
 )
 
 func New(chains map[string]cue.Value, options ...CompilerOption) target.Compiler {
@@ -25,35 +26,35 @@ func newCompiler(chains map[string]cue.Value, options ...CompilerOption) *compil
 
 	return &compiler{
 		chains:         chains,
-		chainCache:     map[string]*chainResult{},
 		chainCompilers: map[string]chainCompiler{},
 		config:         cfg,
 		errors:         []error{},
 		ctx:            cfg.InitialContext,
+		group:          new(singleflight.Group),
 	}
 }
 
 type compiler struct {
 	chains         map[string]cue.Value
-	chainCache     map[string]*chainResult
 	chainCompilers map[string]chainCompiler
 	config         *Config
 	errors         []error
-	mutex          sync.Mutex
 	ctx            context.Context
 	refStack       []string
+	group          *singleflight.Group
+	mutex          sync.Mutex
 }
 
 func (c *compiler) copy(mut func(*compiler)) *compiler {
 	newC := &compiler{
 		chains:         c.chains,
-		chainCache:     c.chainCache,
 		chainCompilers: c.chainCompilers,
 		config:         c.config,
 		errors:         c.errors,
 		ctx:            c.ctx,
-		mutex:          c.mutex,
 		refStack:       c.refStack,
+		group:          c.group,
+		mutex:          c.mutex,
 	}
 	mut(newC)
 	return newC
@@ -93,18 +94,8 @@ func (c *compiler) defineChainCompilers() {
 	for ref, chain := range c.chains {
 		func(ref string, chain cue.Value) {
 			c.chainCompilers[ref] = func(c *compiler) *chainResult {
-				var chainMutex sync.Mutex
-				chainMutex.Lock()
-				defer chainMutex.Unlock()
-
-				if result, cached := c.chainCache[ref]; cached {
-					return result
-				}
-
 				st, err := c.compileChain(chain)
-				result := &chainResult{state: st, err: err}
-				c.chainCache[ref] = result
-				return result
+				return &chainResult{state: st, err: err}
 			}
 		}(ref, chain)
 	}
