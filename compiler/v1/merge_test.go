@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/moby/buildkit/client/llb"
-	"gitlab.wikimedia.org/dduvall/masse/util/llbtest"
 	"gitlab.wikimedia.org/dduvall/masse/util/testcompile"
+	"gitlab.wikimedia.org/repos/releng/llbtest/llbtest"
 )
 
 func TestMerge(t *testing.T) {

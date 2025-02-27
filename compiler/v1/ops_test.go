@@ -3,8 +3,8 @@ package v1
 import (
 	"testing"
 
-	"gitlab.wikimedia.org/dduvall/masse/util/llbtest"
 	"gitlab.wikimedia.org/dduvall/masse/util/testcompile"
+	"gitlab.wikimedia.org/repos/releng/llbtest/llbtest"
 )
 
 func TestOps(t *testing.T) {

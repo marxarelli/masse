@@ -8,8 +8,8 @@ import (
 	"github.com/moby/buildkit/client/llb"
 	"github.com/stretchr/testify/require"
 	"gitlab.wikimedia.org/dduvall/masse/target"
-	"gitlab.wikimedia.org/dduvall/masse/util/llbtest"
 	"gitlab.wikimedia.org/dduvall/masse/util/testconfig"
+	"gitlab.wikimedia.org/repos/releng/llbtest/llbtest"
 )
 
 type Tester struct {

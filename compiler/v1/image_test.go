@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	oci "github.com/opencontainers/image-spec/specs-go/v1"
-	"gitlab.wikimedia.org/dduvall/masse/util/llbtest"
 	"gitlab.wikimedia.org/dduvall/masse/util/testcompile"
 	"gitlab.wikimedia.org/dduvall/masse/util/testmetaresolver"
+	"gitlab.wikimedia.org/repos/releng/llbtest/llbtest"
 )
 
 func TestImage(t *testing.T) {

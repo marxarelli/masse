@@ -5,8 +5,8 @@ import (
 
 	"github.com/moby/buildkit/client/llb"
 	"github.com/moby/buildkit/solver/pb"
-	"gitlab.wikimedia.org/dduvall/masse/util/llbtest"
 	"gitlab.wikimedia.org/dduvall/masse/util/testcompile"
+	"gitlab.wikimedia.org/repos/releng/llbtest/llbtest"
 )
 
 func TestRun(t *testing.T) {
