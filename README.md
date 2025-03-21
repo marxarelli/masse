@@ -111,7 +111,7 @@ references are resolved during compilation.
 
 ## Macros
 
-We can combine CUE's [definition][cuedefs] and [embedding][cueembeds]
+We can combine CUE's [definition][cue-defs] and [embedding][cue-embeds]
 constructs to support a standard library and user-defined macros.
 
 For example, the typical `apt install` pattern that's repeated in so many
@@ -164,17 +164,81 @@ chains:
   ]
 ```
 
-Note that the CUE folks are working on adding syntactic sugar for this
-"function" pattern. The expression could be as simple as the following in the
-future.
+## Modules
+
+Massé supports CUE module dependencies and will automatically load modules
+from remote OCI registries when reading in your config.
+
+Dependencies are declared via a standard [CUE module file][cue-mod-file]
+(`cue.mod/module.cue`) relative to your config file.
 
 ```
-apt.install(["gcc","git", "make"])
+module: "project.example"
+language: {
+	version: "v0.13.0"
+}
+deps: "github.com/marxarelli/masse-go@v1": v: "v1.0.0"
 ```
+
+You can import packages from these dependencies in your config, and Massé will
+download the module for you at build time.
+
+```
+package main
+
+import (
+  "github.com/marxarelli/masse-go/go"
+)
+
+chains: {
+  project: [
+    { local: "context", options: exclude: [".git"] },
+  ]
+
+  build [
+    go.image & { #version: "1.24" },
+    go.mod.download & { #from: "project" },
+    { copy: ".", from: "project" },
+    go.build & { #packages: "./cmd/app" },
+  ]
+}
+```
+
+By default, Massé looks for modules in the `registry.cue.works` OCI registry.
+To change this behavior, you can pass a `CUE_REGISTRY` build argument to
+`docker buildx` to instruct the CUE registry client to look in a different
+registry for your modules.
+
+```
+$ docker buildx build --build-arg CUE_REGISTRY=registry.example/cuemodules ...
+```
+
+See the upstream [documentation on CUE modules][cue-mod-registry-env] for
+details on how to use this environment variable.
+
+### Registry authentication
+
+Some registries, including the default `registry.cue.works`, require
+authentication even for fetching.
+
+To use such registries, you must provide credentials (typically in the form of
+a bearer token) via a BuildKit secret as well as a build argument telling
+Massé what the name of the secret is.
+
+```
+$ cue login
+$ REGISTRY_AUTH="$(jq -r '.registries."registry.cue.works" | (.token_type + " " + .access_token)' ~/.config/cue/logins.json)" \
+  docker buildx build \
+    --build-arg CUE_REGISTRY_AUTH_SECRET.registry.cue.works=REGISTRY_AUTH \
+    --secret id=REGISTRY_AUTH \
+    -f examples/modules/masse.cue examples/modules
+```
+
+The above command is admittedly quite cumbersome. Hopefully the CUE folks will
+enable anonymous read-only access to their registry at some point and this
+won't be necessary in most cases.
 
 ## TODOs
-
-Many many things, including:
 
  * Organize macros into a stdlib and implement macros for most of
    [Blubber][blubber]'s higher level builder directives (npm, python, php,
@@ -184,12 +248,6 @@ Many many things, including:
    this pattern encounters current performance limitations in the v2 CUE
    evaluator. The CUE folks are working on a v3 evaluator that may make this
    direct use of references possible in the future.
- * Resolution and loading of CUE modules during BuildKit solves. This might be
-   tricky and require a custom implementation of the [registry
-   interface][modconfigregistry] since it's the client build context we'd want
-   to load modules from, not the gateway's filesystem. Also, the gateway
-   filesystem will not be retained so caching of remotely fetched modules will
-   not be possible. Users may have to vendor all dependencies. We'll see.
  * At the moment, environment variables are not substituted in command
    strings. Should they be?
 
@@ -201,10 +259,11 @@ Massé is licensed under the GNU General Public License 3.0 or later
 [buildkit]: https://docs.docker.com/build/buildkit/
 [llb]: https://docs.docker.com/build/buildkit/#llb
 [in-toto-spec]: https://github.com/in-toto/docs/blob/master/in-toto-spec.md
-[cue]: https://cuelang.org
-[cuedefs]: https://cuelang.org/docs/references/spec/#definitions-and-hidden-fields
-[cueembeds]: https://cuelang.org/docs/references/spec/#embedding
 [oci]: https://github.com/opencontainers/image-spec
 [frontend]: https://docs.docker.com/build/dockerfile/frontend/
 [blubber]: https://gitlab.wikimedia.org/repos/releng/blubber
-[modconfigregistry]: https://pkg.go.dev/cuelang.org/go@v0.12.0-alpha.2/mod/modconfig#Registry
+[cue]: https://cuelang.org
+[cue-defs]: https://cuelang.org/docs/references/spec/#definitions-and-hidden-fields
+[cue-embeds]: https://cuelang.org/docs/references/spec/#embedding
+[cue-mod-file]: https://cuelang.org/docs/reference/modules/#cue-mod-file
+[cue-mod-registry-env]: https://cuelang.org/docs/reference/modules/#cue-registry-env
