@@ -1,4 +1,4 @@
-// syntax=registry:5000/masse:experimental
+// syntax=marxarelli/masse:v1.0.0
 package main
 
 import (
