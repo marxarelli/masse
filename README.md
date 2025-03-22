@@ -177,7 +177,7 @@ module: "project.example"
 language: {
 	version: "v0.13.0"
 }
-deps: "github.com/marxarelli/masse-go@v1": v: "v1.0.0"
+deps: "github.com/marxarelli/masse-go@v1": v: "v1.0.3"
 ```
 
 You can import packages from these dependencies in your config, and Massé will
