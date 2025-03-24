@@ -4,6 +4,6 @@ language: {
 }
 source: kind: "self"
 deps: {
-	"github.com/marxarelli/masse@v1": v: "v1.1.0-dev"
+	"github.com/marxarelli/masse@v1": v: "v1.1.0"
 	"github.com/marxarelli/masse-go@v1": v: "v1.0.3"
 }
