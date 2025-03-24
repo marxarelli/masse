@@ -3,28 +3,38 @@ package schema
 import (
 	"embed"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/cuecontext"
+	"cuelang.org/go/mod/modfile"
+	"cuelang.org/go/mod/module"
 )
 
-//go:embed **/*.cue
-var FS embed.FS
+var (
+	//go:embed **/*.cue
+	FS      embed.FS
+	Tag     string
+	ModFile = MustModFile()
 
-// Module returns the module name defined by cue.mod/module.cue
-func Module() string {
-	ctx := cuecontext.New()
+	ModuleVersion = module.MustNewVersion(ModFile.QualifiedModule(), Version())
+)
 
+func MustModFile() *modfile.File {
 	data, err := FS.ReadFile("cue.mod/module.cue")
 
 	if err != nil {
 		panic("could not read masse embedded `cue.mod/module.cue`")
 	}
 
-	module, err := ctx.CompileBytes(data).LookupPath(cue.ParsePath("module")).String()
-
+	file, err := modfile.Parse(data, "cue.mod/module.cue")
 	if err != nil {
-		panic("error compiling masse embedded `cue.mod/module.cue`")
+		panic(err)
 	}
 
-	return module
+	return file
+}
+
+func Version() string {
+	if Tag == "" {
+		return ModFile.MajorVersion() + ".999.999-dev"
+	}
+
+	return Tag
 }

@@ -10,6 +10,7 @@ import (
 	"gitlab.wikimedia.org/dduvall/masse/common"
 	compiler "gitlab.wikimedia.org/dduvall/masse/compiler/v1"
 	"gitlab.wikimedia.org/dduvall/masse/config"
+	"gitlab.wikimedia.org/dduvall/masse/load"
 )
 
 var compileCommand = &cli.Command{
@@ -46,7 +47,7 @@ func compileAction(clicontext *cli.Context) error {
 		return errors.Wrap(err, "failed to read config file")
 	}
 
-	root, err := config.Load(file, data, nil)
+	root, err := config.Load(file, data, nil, load.WithNearestModFile())
 	if err != nil {
 		return errors.Wrapf(err, "failed to load config %q", file)
 	}

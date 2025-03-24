@@ -6,7 +6,6 @@ import (
 	"path"
 	"strings"
 
-	"cuelang.org/go/mod/modconfig"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/moby/buildkit/frontend/dockerui"
 	"github.com/moby/buildkit/frontend/gateway/client"
@@ -127,7 +126,7 @@ func (gw *Gateway) parameters() map[string]string {
 
 	for key, value := range gw.Config.BuildArgs {
 
-		if trimmed, found := strings.CutPrefix(key, "PARAMETER_"); found {
+		if trimmed, found := strings.CutPrefix(key, "masse:parameter:"); found {
 			params[trimmed] = value
 		}
 	}
@@ -175,26 +174,13 @@ func (gw *Gateway) loadConfig() (*config.Root, error) {
 		}
 	}
 
-	env := []string{}
-	for key, value := range gw.Config.BuildArgs {
-		env = append(env, key+"="+value)
-	}
-
-	registry, err := modconfig.NewRegistry(&modconfig.Config{
-		Transport: NewRegistryTransport(gw),
-		Env:       env,
-	})
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create CUE registry")
-	}
-
 	root, err := config.Load(
 		src.Filename,
 		src.Data,
 		gw.parameters(),
-		load.WithRegistry(registry),
 		load.WithOverlayFiles(moduleOverlay),
 		load.WithEnvMap(gw.Config.BuildArgs),
+		load.WithRegistryTransport(NewRegistryTransport(gw)),
 	)
 
 	if err != nil {

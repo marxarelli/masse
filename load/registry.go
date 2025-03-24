@@ -3,48 +3,63 @@ package load
 import (
 	"context"
 	"io/fs"
+	"net/http"
 
 	"cuelang.org/go/cue/load"
 	"cuelang.org/go/mod/modconfig"
 	"cuelang.org/go/mod/module"
+	"gitlab.wikimedia.org/dduvall/masse/schema"
 )
 
-func WithRegistry(registry modconfig.Registry) Option {
-	return func(_ string, cfg *load.Config) error {
-		cfg.Registry = registry
-
+func WithRegistryTransport(rt http.RoundTripper) Option {
+	return func(_ string, _ *load.Config, modcfg *modconfig.Config) error {
+		modcfg.Transport = rt
 		return nil
 	}
 }
 
-func NewRegistry(root fs.FS) modconfig.Registry {
+func NewRegistry(modcfg *modconfig.Config, cfg *load.Config) (modconfig.Registry, error) {
+	reg, err := modconfig.NewRegistry(modcfg)
+	if err != nil {
+		return nil, err
+	}
+
 	return &registry{
-		fs: root,
-	}
-}
-
-type registry struct {
-	fs fs.FS
-}
-
-func (r *registry) Requirements(ctx context.Context, m module.Version) ([]module.Version, error) {
-	return []module.Version{}, nil
-}
-
-func (r *registry) Fetch(ctx context.Context, m module.Version) (module.SourceLoc, error) {
-	path := m.BasePath()
-
-	_, err := r.fs.Open(path)
-	if err == nil {
-		return module.SourceLoc{}, err
-	}
-
-	return module.SourceLoc{
-		Dir: path,
-		FS:  r.fs,
+		Registry: reg,
+		fs:       schema.NewModuleFS(cfg),
 	}, nil
 }
 
-func (r *registry) ModuleVersions(ctx context.Context, mpath string) ([]string, error) {
-	return []string{}, nil
+type registry struct {
+	modconfig.Registry
+	fs fs.FS
+}
+
+func (reg *registry) Requirements(ctx context.Context, m module.Version) ([]module.Version, error) {
+	if m.Equal(schema.ModuleVersion) {
+		return schema.ModFile.DepVersions(), nil
+	}
+
+	return reg.Registry.Requirements(ctx, m)
+}
+
+func (reg *registry) Fetch(ctx context.Context, m module.Version) (module.SourceLoc, error) {
+	if m.Equal(schema.ModuleVersion) {
+		return module.SourceLoc{FS: reg.fs, Dir: ""}, nil
+	}
+
+	return reg.Registry.Fetch(ctx, m)
+}
+
+func (reg *registry) ModuleVersions(ctx context.Context, mpath string) ([]string, error) {
+	m, err := module.ParseVersion(mpath)
+	if err != nil {
+		return nil, err
+	}
+
+	if m.Path() == schema.ModuleVersion.Path() {
+		return []string{schema.ModuleVersion.String()}, nil
+	}
+
+	return reg.Registry.ModuleVersions(ctx, mpath)
 }

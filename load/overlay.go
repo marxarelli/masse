@@ -5,47 +5,32 @@ import (
 	"path"
 
 	"cuelang.org/go/cue/load"
+	"cuelang.org/go/mod/modconfig"
+	"gitlab.wikimedia.org/dduvall/masse/util/readfs"
 )
 
-func WithFilesystem(fsys fs.FS) Option {
-	return func(dir string, cfg *load.Config) error {
+func WithFilesystem(subdir string, fsys fs.FS) Option {
+	return func(dir string, cfg *load.Config, modcfg *modconfig.Config) error {
 		files := map[string][]byte{}
 
-		err := fs.WalkDir(fsys, ".", func(path string, entry fs.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
-
-			if !entry.IsDir() {
-				file, err := fsys.Open(path)
-				defer file.Close()
-
-				if err != nil {
-					return err
-				}
-
-				var dt []byte
-				_, err = file.Read(dt)
-				if err != nil {
-					return err
-				}
-
-				files[path] = dt
-			}
-
-			return nil
+		err := readfs.Read(fsys, ".", func(path string, data []byte) {
+			files[path] = data
 		})
 
 		if err != nil {
 			return err
 		}
 
-		return WithOverlayFiles(files)(dir, cfg)
+		return WithOverlayFiles(files)(path.Join(dir, subdir), cfg, modcfg)
 	}
 }
 
 func WithOverlayFiles(files map[string][]byte) Option {
-	return func(dir string, cfg *load.Config) error {
+	return func(dir string, cfg *load.Config, _ *modconfig.Config) error {
+		if cfg.Overlay == nil {
+			cfg.Overlay = map[string]load.Source{}
+		}
+
 		for filename, data := range files {
 			cfg.Overlay[path.Join(dir, filename)] = load.FromBytes(data)
 		}

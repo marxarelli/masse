@@ -6,7 +6,8 @@ import (
 )
 
 parameters: {
-	goImage: string | * "docker-registry.wikimedia.org/golang1.22:1.22-20250316"
+	goImage: string | *"docker-registry.wikimedia.org/golang1.22:1.22-20250316"
+	version: string | *"v0.0.0"
 }
 
 chains: {
