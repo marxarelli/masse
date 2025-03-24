@@ -7,6 +7,8 @@ import (
 	"cuelang.org/go/mod/module"
 )
 
+const embeddedProjectModuleName = "masse.local"
+
 var (
 	//go:embed **/*.cue
 	FS      embed.FS
@@ -37,4 +39,26 @@ func Version() string {
 	}
 
 	return Tag
+}
+
+func ProjectModFile(module string) *modfile.File {
+	return &modfile.File{
+		Module: module,
+		Language: &modfile.Language{
+			Version: ModFile.Language.Version,
+		},
+		Source: &modfile.Source{
+			Kind: "self",
+		},
+		Deps: map[string]*modfile.Dep{
+			ModuleVersion.Path(): &modfile.Dep{
+				Version: ModuleVersion.Version(),
+				Default: true,
+			},
+		},
+	}
+}
+
+func EmbeddedProjectModFile() *modfile.File {
+	return ProjectModFile(embeddedProjectModuleName)
 }

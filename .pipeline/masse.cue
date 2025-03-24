@@ -1,9 +1,12 @@
-// syntax=marxarelli/masse:v1.0.0
+// syntax=registry:5000/masse:v1.2.0-dev.1
 package main
 
 import (
+	"github.com/marxarelli/masse/config"
 	"github.com/marxarelli/masse-go/go"
 )
+
+config.Root
 
 parameters: {
 	goImage: string | *"docker-registry.wikimedia.org/golang1.22:1.22-20250316"

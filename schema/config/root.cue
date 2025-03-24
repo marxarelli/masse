@@ -6,7 +6,7 @@ import (
 	"github.com/marxarelli/masse/target"
 )
 
-#Root: {
+Root: {
 	parameters?: common.#Env
 	chains!:     state.#Chains
 	targets!:    target.#Targets

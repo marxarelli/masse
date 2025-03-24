@@ -6,6 +6,7 @@ REPO ?= marxarelli/masse
 MODULE := $(shell go list -m)
 GOBUILD_FLAGS := -ldflags "-X $(MODULE)/schema.Tag=$(TAG)"
 PACKAGE ?= ./...
+PACKAGE_BASENAME := $(shell basename $(PACKAGE))
 GOTEST_FLAGS ?=
 
 REGISTRY_AUTH = $(shell jq -r '.registries."registry.cue.works" | (.token_type + " " + .access_token)' ~/.config/cue/logins.json)
@@ -38,8 +39,8 @@ test:
 .PHONY: debug-test
 debug-test:
 	go test -c $(GOBUILD_FLAGS) $(GOBUILD_DEBUG_FLAGS) $(GOTEST_FLAGS) $(PACKAGE)
-	dlv exec $(PACKAGE).test
-	rm $(PACKAGE).test
+	dlv exec $(PACKAGE_BASENAME).test
+	rm $(PACKAGE_BASENAME).test
 
 .PHONY: clean
 clean:

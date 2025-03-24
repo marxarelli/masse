@@ -50,16 +50,3 @@ func (reg *registry) Fetch(ctx context.Context, m module.Version) (module.Source
 
 	return reg.Registry.Fetch(ctx, m)
 }
-
-func (reg *registry) ModuleVersions(ctx context.Context, mpath string) ([]string, error) {
-	m, err := module.ParseVersion(mpath)
-	if err != nil {
-		return nil, err
-	}
-
-	if m.Path() == schema.ModuleVersion.Path() {
-		return []string{schema.ModuleVersion.String()}, nil
-	}
-
-	return reg.Registry.ModuleVersions(ctx, mpath)
-}

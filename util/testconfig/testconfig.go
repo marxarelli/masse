@@ -53,6 +53,7 @@ func (tester *Tester) Test(name, expr string, f TestFunc) {
 					),
 				},
 			),
+			load.WithDefaultEmbeddedModFile(),
 		)
 
 		require.NoError(t, err)

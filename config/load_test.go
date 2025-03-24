@@ -1,22 +1,29 @@
 package config
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 	"gitlab.wikimedia.org/dduvall/masse/common"
+	"gitlab.wikimedia.org/dduvall/masse/load"
 )
 
 func TestLoad(t *testing.T) {
 	req := require.New(t)
+	dir := t.TempDir()
+
 	root, err := Load(
-		"masse.cue",
+		filepath.Join(dir, "masse.cue"),
 		[]byte(`
 package main
 
 import (
+	"github.com/marxarelli/masse/config"
 	"github.com/marxarelli/masse/apt"
 )
+
+config.Root
 
 parameters: {
 	repo: string | *"https://gitlab.wikimedia.org/repos/releng/blubber.git"
@@ -79,6 +86,7 @@ targets: {
 		map[string]string{
 			"ref": `"refs/tags/v1.0"`,
 		},
+		load.WithDefaultEmbeddedModFile(),
 	)
 
 	req.NoError(err)
@@ -86,14 +94,14 @@ targets: {
 
 	frontend := root.Targets["frontend"]
 	req.Equal(
-		frontend.Platforms,
 		[]common.Platform{
 			{OS: "linux", Architecture: "amd64"},
 			{OS: "linux", Architecture: "arm64"},
 		},
+		frontend.Platforms,
 	)
 	req.Equal(
-		frontend.Runtime.User,
 		"nobody",
+		frontend.Runtime.User,
 	)
 }
