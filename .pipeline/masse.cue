@@ -1,4 +1,4 @@
-// syntax=marxarelli/masse:v1.2.0
+// syntax=marxarelli/masse:v1.3.0
 package main
 
 import (
