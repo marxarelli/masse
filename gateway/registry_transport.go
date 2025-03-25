@@ -5,7 +5,6 @@ import (
 	"context"
 	"io"
 	"net/http"
-	"path"
 	"strings"
 
 	"github.com/moby/buildkit/client/llb"
@@ -16,40 +15,45 @@ import (
 const (
 	authSecretNameOptionPrefix = "CUE_REGISTRY_AUTH_SECRET."
 	responseFilename           = "/http.response"
+	progressGroupID            = "masse.modules"
+	progressGroupName          = "⚪ fetch CUE modules"
 )
 
-var (
-	resourceIcons = map[string]string{
-		"manifests": "📦📋",
-		"blobs":     "📦💾",
-	}
-)
-
-type httpTransport struct {
+type registryTransport struct {
 	ctx       context.Context
 	client    client.Client
 	buildArgs map[string]string
+	options   []llb.HTTPOption
 }
 
 func NewRegistryTransport(gw *Gateway) http.RoundTripper {
-	return &httpTransport{
+	opts := []llb.HTTPOption{
+		llb.ProgressGroup(progressGroupID, progressGroupName, false),
+	}
+
+	if gw.ignoreCache() {
+		opts = append(opts, llb.IgnoreCache)
+	}
+
+	return &registryTransport{
 		ctx:       gw.ctx,
 		client:    gw.bkClient,
 		buildArgs: gw.Config.BuildArgs,
+		options:   opts,
 	}
 }
 
-func (ht *httpTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+func (rt *registryTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	if req.Method != "GET" {
 		return nil, errors.New("can only perform GET requests")
 	}
 
-	def, err := ht.requestToLLB(req).Marshal(ht.ctx)
+	def, err := rt.requestToLLB(req).Marshal(rt.ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to marshal HTTP LLB state")
 	}
 
-	res, err := ht.client.Solve(ht.ctx, client.SolveRequest{
+	res, err := rt.client.Solve(rt.ctx, client.SolveRequest{
 		Definition: def.ToPB(),
 	})
 	if err != nil {
@@ -61,7 +65,7 @@ func (ht *httpTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 		return nil, err
 	}
 
-	dt, err := ref.ReadFile(ht.ctx, client.ReadRequest{
+	dt, err := ref.ReadFile(rt.ctx, client.ReadRequest{
 		Filename: responseFilename,
 	})
 
@@ -91,37 +95,18 @@ func (ht *httpTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	}, nil
 }
 
-func (ht *httpTransport) requestToLLB(req *http.Request) llb.State {
-	opts := []llb.HTTPOption{
+func (rt *registryTransport) requestToLLB(req *http.Request) llb.State {
+	opts := append(
+		rt.options,
 		llb.Header(llb.HTTPHeader{
 			Accept:    req.Header.Get("Accept"),
 			UserAgent: req.Header.Get("User-Agent"),
 		}),
 		llb.Filename(responseFilename),
-	}
+		llb.WithCustomNamef("🎱 fetch %s", req.URL),
+	)
 
-	// Create a custom name based on the registry request path, either of:
-	// /v2/{repo}/manifests/{tag}
-	// /v2/{repo}/blobs/{sha}
-	if rPath, found := strings.CutPrefix(req.URL.Path, "/v2/"); found {
-		p := strings.Split(rPath, "/")
-		l := len(p)
-		if l > 2 {
-			repo := path.Join(p[0 : l-2]...)
-			kind := p[l-2]
-			tag := p[l-1]
-
-			opts = append(
-				opts,
-				llb.WithCustomNamef(
-					"%s load CUE module %s/%s:%s",
-					resourceIcons[kind], req.URL.Host, repo, tag,
-				),
-			)
-		}
-	}
-
-	if secretName, ok := ht.buildArgs[authSecretNameOptionPrefix+req.URL.Host]; ok {
+	if secretName, ok := rt.buildArgs[authSecretNameOptionPrefix+req.URL.Host]; ok {
 		opts = append(opts, llb.AuthHeaderSecret(secretName))
 	}
 

@@ -49,7 +49,7 @@ func (c *compiler) compileFile(state llb.State, v cue.Value) (llb.State, error) 
 		return state, vError(v, err)
 	}
 
-	return state.File(fa, options), nil
+	return state.File(fa, options, c.opConstraints()), nil
 }
 
 func (c *compiler) compileDispatchFileKind(kind FileActionKind, state llb.State, fa *llb.FileAction, v cue.Value) (*llb.FileAction, bool, error) {

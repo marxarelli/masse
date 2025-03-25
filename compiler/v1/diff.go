@@ -40,5 +40,5 @@ func (c *compiler) compileDiff(lower llb.State, v cue.Value) (llb.State, error) 
 		return lower, vError(v, err)
 	}
 
-	return llb.Diff(lower, upper, options), nil
+	return llb.Diff(lower, upper, options, c.opConstraints()), nil
 }

@@ -6,6 +6,11 @@ type Constraint struct {
 	*Platform
 	*CustomName
 	*ProgressGroup
+	*IgnoreCache
+}
+
+func NoopConstraint() llb.ConstraintsOpt {
+	return Constraints{}
 }
 
 type Constraints []*Constraint

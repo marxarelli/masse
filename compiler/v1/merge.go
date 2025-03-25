@@ -23,5 +23,5 @@ func (c *compiler) compileMerge(state llb.State, v cue.Value) (llb.State, error)
 		return state, vError(v, err)
 	}
 
-	return llb.Merge(states, c.constraints()), nil
+	return llb.Merge(states, c.sourceConstraints()), nil
 }

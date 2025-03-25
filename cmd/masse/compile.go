@@ -8,7 +8,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"gitlab.wikimedia.org/dduvall/masse/common"
-	compiler "gitlab.wikimedia.org/dduvall/masse/compiler/v1"
+	v1compiler "gitlab.wikimedia.org/dduvall/masse/compiler/v1"
 	"gitlab.wikimedia.org/dduvall/masse/config"
 	"gitlab.wikimedia.org/dduvall/masse/load"
 )
@@ -19,6 +19,10 @@ var compileCommand = &cli.Command{
 	Usage:   "compile -t {target}",
 	Action:  compileAction,
 	Flags: []cli.Flag{
+		&cli.BoolFlag{
+			Name:    "no-cache",
+			Aliases: []string{"n"},
+		},
 		&cli.StringFlag{
 			Name:     "target",
 			Aliases:  []string{"t"},
@@ -36,6 +40,7 @@ func compileAction(clicontext *cli.Context) error {
 	file := clicontext.String("file")
 	targetName := clicontext.String("target")
 	platformName := clicontext.String("platform")
+	noCache := clicontext.Bool("no-cache")
 
 	platform, err := common.ParsePlatform(platformName)
 	if err != nil {
@@ -57,7 +62,12 @@ func compileAction(clicontext *cli.Context) error {
 		return errors.Wrapf(err, "unknown target %q", targetName)
 	}
 
-	compiler := compiler.New(root.Chains, compiler.WithPlatform(platform)).WithContext(clicontext.Context)
+	compiler := v1compiler.New(
+		root.Chains,
+		v1compiler.WithPlatform(platform),
+		v1compiler.WithContext(clicontext.Context),
+		v1compiler.WithIgnoreCache(noCache),
+	)
 
 	st, err := compiler.Compile(target)
 	if err != nil {

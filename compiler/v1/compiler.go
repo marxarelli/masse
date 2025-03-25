@@ -116,8 +116,12 @@ func (c *compiler) withRefOnStack(chainRef string) *compiler {
 	})
 }
 
-func (c *compiler) constraints() Constraints {
-	return c.config.Constraints()
+func (c *compiler) sourceConstraints() Constraints {
+	return append(c.config.OpConstraints(), c.config.SourceConstraints()...)
+}
+
+func (c *compiler) opConstraints() Constraints {
+	return c.config.OpConstraints()
 }
 
 func (c *compiler) absPath(state llb.State, path string) string {

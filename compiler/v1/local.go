@@ -20,7 +20,7 @@ func (c *compiler) compileLocal(state llb.State, v cue.Value) (llb.State, error)
 		return state, vError(v, err)
 	}
 
-	return llb.Local(local, c.constraints(), options), nil
+	return llb.Local(local, c.sourceConstraints(), options), nil
 }
 
 type DiffType llb.DiffType

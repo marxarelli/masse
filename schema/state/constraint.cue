@@ -3,5 +3,6 @@ package state
 #Constraint: {
 	#Platform |
 	#CustomName |
-	#ProgressGroup
+	#ProgressGroup |
+	#IgnoreCache
 }

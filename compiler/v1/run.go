@@ -20,7 +20,7 @@ func (c *compiler) compileRun(state llb.State, v cue.Value) (llb.State, error) {
 
 	options.SetCompiler(c)
 
-	return state.Run(llb.Args(args), options).Root(), nil
+	return state.Run(llb.Args(args), options, c.opConstraints()).Root(), nil
 }
 
 type RunOptions []*RunOption

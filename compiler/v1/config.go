@@ -22,9 +22,20 @@ type Config struct {
 	ImageMetaResolver llb.ImageMetaResolver
 	InitialContext    context.Context
 	Platform          *Platform
+	IgnoreCache       bool
 }
 
-func (cfg *Config) Constraints() Constraints {
+func (cfg *Config) OpConstraints() Constraints {
+	return Constraints{
+		&Constraint{
+			IgnoreCache: &IgnoreCache{
+				IgnoreCache: cfg.IgnoreCache,
+			},
+		},
+	}
+}
+
+func (cfg *Config) SourceConstraints() Constraints {
 	return Constraints{
 		&Constraint{
 			Platform: cfg.Platform,
@@ -49,6 +60,12 @@ func newConfig(options []CompilerOption) *Config {
 func WithContext(ctx context.Context) CompilerOption {
 	return compilerOption(func(cfg *Config) {
 		cfg.InitialContext = ctx
+	})
+}
+
+func WithIgnoreCache(ignore bool) CompilerOption {
+	return compilerOption(func(cfg *Config) {
+		cfg.IgnoreCache = ignore
 	})
 }
 

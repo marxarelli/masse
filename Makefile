@@ -16,6 +16,8 @@ export REGISTRY_AUTH
 GOBUILD_DEBUG_FLAGS := -gcflags "all=-N -l"
 GOBUILD_FLAGS ?=
 
+BUILDX_BUILD_FLAGS ?=
+
 define buildx_build
 	docker buildx build \
 		--build-arg CUE_REGISTRY_AUTH_SECRET.registry.cue.works=auth \
@@ -24,6 +26,7 @@ define buildx_build
 		--target gateway \
 		--build-arg PARAMETER_version='"$(TAG)"' \
 		--tag $(REPO):$(TAG) \
+		$(BUILDX_BUILD_FLAGS) \
 		$(1) \
 		.
 endef

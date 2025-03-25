@@ -79,6 +79,7 @@ func (gw *Gateway) Run() (*client.Result, error) {
 				root.Chains,
 				v1compiler.WithPlatform(targetPlatform),
 				v1compiler.WithContext(ctx),
+				v1compiler.WithIgnoreCache(gw.ignoreCache()),
 			)
 
 			// Compile to LLB state
@@ -119,6 +120,10 @@ func (gw *Gateway) Run() (*client.Result, error) {
 	}
 
 	return resultBuilder.Finalize()
+}
+
+func (gw *Gateway) ignoreCache() bool {
+	return gw.Client.IsNoCache(gw.Config.Target)
 }
 
 func (gw *Gateway) parameters() map[string]string {
