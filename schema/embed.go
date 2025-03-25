@@ -10,7 +10,7 @@ import (
 const embeddedProjectModuleName = "masse.local"
 
 var (
-	//go:embed **/*.cue
+	//go:embed *.cue **/*.cue
 	FS      embed.FS
 	Tag     string
 	ModFile = MustModFile()

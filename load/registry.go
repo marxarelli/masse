@@ -24,9 +24,14 @@ func NewRegistry(modcfg *modconfig.Config, cfg *load.Config) (modconfig.Registry
 		return nil, err
 	}
 
+	mfs, err := schema.NewModuleFS(cfg)
+	if err != nil {
+		return nil, err
+	}
+
 	return &registry{
 		Registry: reg,
-		fs:       schema.NewModuleFS(cfg),
+		fs:       mfs,
 	}, nil
 }
 
@@ -45,7 +50,7 @@ func (reg *registry) Requirements(ctx context.Context, m module.Version) ([]modu
 
 func (reg *registry) Fetch(ctx context.Context, m module.Version) (module.SourceLoc, error) {
 	if m.Equal(schema.ModuleVersion) {
-		return module.SourceLoc{FS: reg.fs, Dir: ""}, nil
+		return module.SourceLoc{FS: reg.fs, Dir: "."}, nil
 	}
 
 	return reg.Registry.Fetch(ctx, m)

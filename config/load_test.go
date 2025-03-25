@@ -19,11 +19,11 @@ func TestLoad(t *testing.T) {
 package main
 
 import (
-	"github.com/marxarelli/masse/config"
+	"github.com/marxarelli/masse"
 	"github.com/marxarelli/masse/apt"
 )
 
-config.Root
+masse.Config
 
 parameters: {
 	repo: string | *"https://gitlab.wikimedia.org/repos/releng/blubber.git"
@@ -32,8 +32,7 @@ parameters: {
 
 chains: {
 	repo: [
-		{ git: parameters.repo
-			ref: parameters.ref },
+		{ git: parameters.repo, ref: parameters.ref },
 	]
 
 	go: [
