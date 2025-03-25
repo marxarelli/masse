@@ -7,7 +7,7 @@ source: {
 }
 deps: {
 	"github.com/marxarelli/masse@v1": {
-		v: "v1.3.0"
+		v: "v1.4.0"
 		default: true
 	}
 	"github.com/marxarelli/masse-go@v1": {
