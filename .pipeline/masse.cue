@@ -2,11 +2,11 @@
 package main
 
 import (
-	"github.com/marxarelli/masse/config"
+	"github.com/marxarelli/masse"
 	"github.com/marxarelli/masse-go/go"
 )
 
-config.Root
+masse.Config
 
 parameters: {
 	goImage: string | *"docker-registry.wikimedia.org/golang1.22:1.22-20250316"
