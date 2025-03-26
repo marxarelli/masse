@@ -11,8 +11,9 @@ import (
 
 func (c *compiler) compileChain(v cue.Value) (llb.State, error) {
 	v = lookup.Dereference(v)
+	ref := lookup.NormalizeReference(v)
 
-	res, err, _ := c.group.Do(v.Path().String(), func() (any, error) {
+	res, err, _ := c.group.Do(ref, func() (any, error) {
 		var err error
 		state := llb.Scratch()
 
@@ -33,6 +34,8 @@ func (c *compiler) compileChain(v cue.Value) (llb.State, error) {
 				return state, err
 			}
 		}
+
+		c.states.Store(ref, state)
 
 		return state, err
 	})

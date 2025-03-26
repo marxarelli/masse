@@ -69,12 +69,12 @@ func compileAction(clicontext *cli.Context) error {
 		v1compiler.WithIgnoreCache(noCache),
 	)
 
-	st, err := compiler.Compile(target)
+	result, err := compiler.Compile(target)
 	if err != nil {
 		return errors.Wrapf(err, "failed to compile target %q", targetName)
 	}
 
-	def, err := st.Marshal(clicontext.Context)
+	def, err := result.ChainState().Marshal(clicontext.Context)
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal LLB state")
 	}

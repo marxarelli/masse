@@ -9,6 +9,7 @@ import (
 
 	"cuelang.org/go/cue"
 	"github.com/moby/buildkit/client/llb"
+	"gitlab.wikimedia.org/dduvall/masse/internal/lookup"
 	"gitlab.wikimedia.org/dduvall/masse/target"
 	"golang.org/x/sync/singleflight"
 )
@@ -31,6 +32,7 @@ func newCompiler(chains map[string]cue.Value, options ...CompilerOption) *compil
 		errors:         []error{},
 		ctx:            cfg.InitialContext,
 		group:          new(singleflight.Group),
+		states:         new(sync.Map),
 	}
 }
 
@@ -42,6 +44,7 @@ type compiler struct {
 	ctx            context.Context
 	refStack       []string
 	group          *singleflight.Group
+	states         *sync.Map
 	mutex          sync.Mutex
 }
 
@@ -55,6 +58,7 @@ func (c *compiler) copy(mut func(*compiler)) *compiler {
 		refStack:       c.refStack,
 		group:          c.group,
 		mutex:          c.mutex,
+		states:         c.states,
 	}
 	mut(newC)
 	return newC
@@ -67,9 +71,30 @@ type chainResult struct {
 	err   error
 }
 
-func (c *compiler) Compile(target *target.Target) (llb.State, error) {
+func (c *compiler) Compile(target *target.Target) (target.CompilerResult, error) {
 	c.defineChainCompilers()
-	return c.compileChainByRef(target.Build)
+
+	state, err := c.compileChainByRef(target.Build)
+	if err != nil {
+		return nil, err
+	}
+
+	targetRef := lookup.NormalizeReference(target.Build)
+	deps := map[string]llb.State{}
+	c.states.Range(func(key, value any) bool {
+		ref := key.(string)
+		if ref != targetRef {
+			deps[ref] = value.(llb.State)
+		}
+		return true
+	})
+
+	return &result{
+		ref:      lookup.NormalizeReference(target.Build),
+		platform: c.config.Platform.Platform,
+		state:    state,
+		deps:     deps,
+	}, nil
 }
 
 func (c *compiler) CompileState(state llb.State, v cue.Value) (llb.State, error) {

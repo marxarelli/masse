@@ -5,10 +5,16 @@ import (
 	"encoding/json"
 	"path"
 	"strings"
+	"sync"
 
 	"github.com/moby/buildkit/client/llb"
+	"github.com/moby/buildkit/client/llb/sourceresolver"
+	"github.com/moby/buildkit/frontend"
+	"github.com/moby/buildkit/frontend/attestations/sbom"
 	"github.com/moby/buildkit/frontend/dockerui"
 	"github.com/moby/buildkit/frontend/gateway/client"
+	"github.com/moby/buildkit/solver/pb"
+	"github.com/moby/buildkit/solver/result"
 	dockerspec "github.com/moby/docker-image-spec/specs-go/v1"
 	oci "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/pkg/errors"
@@ -16,6 +22,7 @@ import (
 	v1compiler "gitlab.wikimedia.org/dduvall/masse/compiler/v1"
 	"gitlab.wikimedia.org/dduvall/masse/config"
 	"gitlab.wikimedia.org/dduvall/masse/load"
+	"gitlab.wikimedia.org/dduvall/masse/target"
 )
 
 func Run(ctx context.Context, c client.Client) (*client.Result, error) {
@@ -54,16 +61,36 @@ func (gw *Gateway) Run() (*client.Result, error) {
 		return nil, errors.Wrap(err, "failed to load config")
 	}
 
-	target, ok := root.Targets[gw.Config.Target]
+	buildTarget, ok := root.Targets[gw.Config.Target]
 	if !ok {
 		return nil, errors.Wrapf(err, "unknown target %q", gw.Config.Target)
 	}
 
 	if gw.Config.TargetPlatforms == nil || len(gw.Config.TargetPlatforms) == 0 {
-		gw.Config.TargetPlatforms = target.OCIPlatforms()
+		gw.Config.TargetPlatforms = buildTarget.OCIPlatforms()
 	} else {
 		// TODO validate requested platforms against target
 	}
+
+	var scanner sbom.Scanner
+
+	if gw.SBOM != nil {
+		scanner, err = sbom.CreateSBOMScanner(
+			gw.ctx, gw.bkClient, gw.SBOM.Generator,
+			sourceresolver.Opt{
+				ImageOpt: &sourceresolver.ResolveImageOpt{
+					ResolveMode: resolveModeName(gw.ImageResolveMode),
+				},
+			},
+			gw.SBOM.Parameters,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	scanTargets := sync.Map{}
 
 	resultBuilder, err := gw.Build(
 		gw.ctx,
@@ -83,12 +110,12 @@ func (gw *Gateway) Run() (*client.Result, error) {
 			)
 
 			// Compile to LLB state
-			st, err := compiler.Compile(target)
+			compileResult, err := compiler.Compile(buildTarget)
 			if err != nil {
 				return nil, nil, nil, errors.Wrap(err, "failed to compile target")
 			}
 
-			def, err := st.Marshal(ctx)
+			def, err := compileResult.ChainState().Marshal(ctx)
 			if err != nil {
 				return nil, nil, nil, errors.Wrap(err, "failed to marshal target state")
 			}
@@ -102,7 +129,7 @@ func (gw *Gateway) Run() (*client.Result, error) {
 				return nil, nil, nil, err
 			}
 
-			img := target.NewImage(targetPlatform)
+			img := buildTarget.NewImage(targetPlatform)
 
 			dimg := dockerspec.DockerOCIImage{
 				Image: img,
@@ -111,12 +138,61 @@ func (gw *Gateway) Run() (*client.Result, error) {
 				},
 			}
 
+			scanTargets.Store(compileResult.Platform().ID(), compileResult)
+
 			return ref, &dimg, nil, nil
 		},
 	)
 
 	if err != nil {
 		return nil, err
+	}
+
+	if scanner != nil {
+		err = resultBuilder.EachPlatform(gw.ctx, func(ctx context.Context, id string, _ oci.Platform) error {
+			v, ok := scanTargets.Load(id)
+			if !ok {
+				return errors.Errorf("no scan targets for %s", id)
+			}
+
+			compileResult, ok := v.(target.CompilerResult)
+			if !ok {
+				return errors.Errorf("invalid scan targets for %T", v)
+			}
+
+			att, err := scanner(
+				ctx,
+				id,
+				compileResult.ChainState(),
+				compileResult.DependencyChainStates(),
+			)
+			if err != nil {
+				return err
+			}
+
+			attSolve, err := result.ConvertAttestation(&att, func(st *llb.State) (client.Reference, error) {
+				def, err := st.Marshal(ctx)
+				if err != nil {
+					return nil, err
+				}
+				r, err := gw.bkClient.Solve(ctx, frontend.SolveRequest{
+					Definition: def.ToPB(),
+				})
+				if err != nil {
+					return nil, err
+				}
+				return r.Ref, nil
+			})
+			if err != nil {
+				return err
+			}
+			resultBuilder.AddAttestation(id, *attSolve)
+			return nil
+		})
+
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return resultBuilder.Finalize()
@@ -213,4 +289,14 @@ func followExtraPath(xpath string) llb.LocalOption {
 			}
 		}
 	})
+}
+
+func resolveModeName(mode llb.ResolveMode) string {
+	switch mode {
+	case llb.ResolveModeForcePull:
+		return pb.AttrImageResolveModeForcePull
+	case llb.ResolveModePreferLocal:
+		return pb.AttrImageResolveModePreferLocal
+	}
+	return pb.AttrImageResolveModeDefault
 }

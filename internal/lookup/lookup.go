@@ -230,3 +230,15 @@ func Dereference(v cue.Value) cue.Value {
 
 	return v
 }
+
+// NormalizeReference takes a cue.Value that is either a literal string or a
+// cue.Value reference and returns respectively either the string value or the
+// path string of the dereferenced value.
+func NormalizeReference(v cue.Value) string {
+	s, err := v.String()
+	if err == nil {
+		return s
+	}
+
+	return Dereference(v).Path().String()
+}

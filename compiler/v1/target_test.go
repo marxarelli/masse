@@ -32,7 +32,12 @@ func TestTarget(t *testing.T) {
 				return test.State, err
 			}
 
-			return test.Compiler.Compile(target)
+			result, err := test.Compiler.Compile(target)
+			if err != nil {
+				return test.State, err
+			}
+
+			return result.ChainState(), nil
 		}),
 	)
 
