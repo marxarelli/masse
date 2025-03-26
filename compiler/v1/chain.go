@@ -40,18 +40,19 @@ func (c *compiler) compileChain(v cue.Value) (llb.State, error) {
 	return res.(llb.State), err
 }
 
-func (c *compiler) compileChainByRef(refv cue.Value) (llb.State, error) {
+func (c *compiler) compileChainByRef(chainOrRefv cue.Value) (llb.State, error) {
 	state := llb.NewState(nil)
 
-	ref, err := refv.String()
+	ref, err := chainOrRefv.String()
 	if err != nil {
-		return state, c.addVError(refv, err)
+		// if value is not a string, assuming it's an actual #Chain
+		return c.compileChain(chainOrRefv)
 	}
 
 	for _, r := range c.refStack {
 		if ref == r {
 			return state, c.addVError(
-				refv,
+				chainOrRefv,
 				errors.Errorf("chain ref cycle detected: %s -> %s", strings.Join(c.refStack, " -> "), ref),
 			)
 		}
@@ -59,9 +60,9 @@ func (c *compiler) compileChainByRef(refv cue.Value) (llb.State, error) {
 
 	cc, ok := c.chainCompilers[ref]
 	if !ok {
-		return state, c.addVError(refv, errors.Errorf("unknown chain %q", ref))
+		return state, c.addVError(chainOrRefv, errors.Errorf("unknown chain %q", ref))
 	}
 
 	result := cc(c.withRefOnStack(ref))
-	return result.state, c.addVError(refv, result.err)
+	return result.state, c.addVError(chainOrRefv, result.err)
 }
