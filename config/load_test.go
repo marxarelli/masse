@@ -71,7 +71,11 @@ chains: {
 targets: {
 	#default: {
 		platforms: ["linux/amd64", "linux/arm64"]
-		runtime: user: "nobody"
+		runtime: {
+			user: "nobody"
+			entrypoint: ["/default"]
+		}
+		attestations: sbom: generator: "an.example/sbom/generator:v1.0"
 	}
 
 	frontend: {
@@ -79,6 +83,7 @@ targets: {
 		runtime: {
 			entrypoint: ["/blubber-buildkit"]
 		}
+		attestations: sbom: generator: "an.example/sbom/generator:v2.0"
 	}
 }
 		`),
@@ -102,5 +107,11 @@ targets: {
 	req.Equal(
 		"nobody",
 		frontend.Runtime.User,
+	)
+
+	sbom := frontend.Attestations.SBOM
+	req.Equal(
+		"an.example/sbom/generator:v2.0",
+		sbom.Generator,
 	)
 }

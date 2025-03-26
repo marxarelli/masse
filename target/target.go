@@ -11,10 +11,11 @@ import (
 type Targets map[string]*Target
 
 type Target struct {
-	Build     cue.Value
-	Platforms []common.Platform `json:"platformsValue"`
-	Runtime   Runtime           `json:"runtime"`
-	Labels    map[string]string `json:"labels"`
+	Build        cue.Value         `json:"build"`
+	Platforms    []common.Platform `json:"platformsValue"`
+	Runtime      Runtime           `json:"runtime"`
+	Labels       map[string]string `json:"labels"`
+	Attestations Attestations      `json:"attestations"`
 }
 
 // UnmarshalCUE parses the given cue.Value into the target.

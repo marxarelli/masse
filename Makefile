@@ -16,7 +16,6 @@ export REGISTRY_AUTH
 
 # Compile without optimizations (when debugging)
 GOBUILD_DEBUG_FLAGS := -gcflags "all=-N -l"
-GOBUILD_FLAGS ?=
 
 BUILDX_BUILD_FLAGS ?=
 

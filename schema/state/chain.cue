@@ -7,6 +7,7 @@ package state
 #ChainRefPattern: "^[a-zA-Z_-][a-zA-Z0-9_-]*$"
 
 #ChainRef: =~#ChainRefPattern
+#ChainStringRef: =~#ChainRefPattern
 
 // Chains is a number of named composable build chains that are used to
 // produce an image filesystem.

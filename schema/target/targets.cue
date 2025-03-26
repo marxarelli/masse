@@ -15,9 +15,10 @@ import (
 }
 
 #TargetPlatform: string | common.#Platform
+#TargetPlatforms: [#TargetPlatform, ...#TargetPlatform]
 
 #TargetDefaults: {
-	platforms: [#TargetPlatform, ...#TargetPlatform] | *["linux/amd64"]
+	platforms: #TargetPlatforms | *["linux/amd64"]
 	labels:    common.#Labels                        | *null
 	runtime:   {
 		user:       #Runtime.user       | *"root"
@@ -27,21 +28,37 @@ import (
 		directory:  #Runtime.directory  | *"/"
 		stopSignal: #Runtime.stopSignal | *"SIGTERM"
 	}
+
+	attestations: {
+		sbom: {
+			generator:  #SBOM.generator     | *""
+			parameters: #SBOM.parameters    | *null
+			scan:       #SBOM.scan          | *null
+		}
+	}
 }
 
 #Target: {
 	#default: #TargetDefaults
 
 	build!:    state.#ChainRef
-	platforms: #default.platforms
-	labels:    #default.labels
+	platforms: #TargetPlatforms | *#default.platforms
+	labels:    common.#Labels   | *#default.labels
 	runtime:   {
-		user:       #default.runtime.user
-		env:        #default.runtime.env
-		entrypoint: #default.runtime.entrypoint
-		arguments:  #default.runtime.arguments
-		directory:  #default.runtime.directory
-		stopSignal: #default.runtime.stopSignal
+		user:       #Runtime.user       | *#default.runtime.user
+		env:        #Runtime.env        | *#default.runtime.env
+		entrypoint: #Runtime.entrypoint | *#default.runtime.entrypoint
+		arguments:  #Runtime.arguments  | *#default.runtime.arguments
+		directory:  #Runtime.directory  | *#default.runtime.directory
+		stopSignal: #Runtime.stopSignal | *#default.runtime.stopSignal
+	}
+
+	attestations: {
+		sbom: {
+			generator:  #SBOM.generator  | *#default.attestations.sbom.generator
+			parameters: #SBOM.parameters | *#default.attestations.sbom.parameters
+			scan:       #SBOM.scan       | *#default.attestations.sbom.scan
+		}
 	}
 
 	if platforms != _|_ {

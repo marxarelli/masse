@@ -75,16 +75,7 @@ func (gw *Gateway) Run() (*client.Result, error) {
 	var scanner sbom.Scanner
 
 	if gw.SBOM != nil {
-		scanner, err = sbom.CreateSBOMScanner(
-			gw.ctx, gw.bkClient, gw.SBOM.Generator,
-			sourceresolver.Opt{
-				ImageOpt: &sourceresolver.ResolveImageOpt{
-					ResolveMode: resolveModeName(gw.ImageResolveMode),
-				},
-			},
-			gw.SBOM.Parameters,
-		)
-
+		scanner, err = gw.newSBOMScanner(buildTarget)
 		if err != nil {
 			return nil, err
 		}
@@ -196,6 +187,60 @@ func (gw *Gateway) Run() (*client.Result, error) {
 	}
 
 	return resultBuilder.Finalize()
+}
+
+func (gw *Gateway) newSBOMScanner(target *target.Target) (sbom.Scanner, error) {
+	targetSBOM := target.Attestations.SBOM
+
+	generator := gw.SBOM.Generator
+	if targetSBOM.Generator != "" {
+		generator = targetSBOM.Generator
+	}
+
+	parameters := map[string]string{}
+	if targetSBOM.Parameters != nil {
+		for name, value := range targetSBOM.Parameters {
+			parameters[name] = value
+		}
+	}
+	if gw.SBOM.Parameters != nil {
+		for name, value := range gw.SBOM.Parameters {
+			parameters[name] = value
+		}
+	}
+
+	scanner, err := sbom.CreateSBOMScanner(
+		gw.ctx, gw.bkClient, generator,
+		sourceresolver.Opt{
+			ImageOpt: &sourceresolver.ResolveImageOpt{
+				ResolveMode: resolveModeName(gw.ImageResolveMode),
+			},
+		},
+		parameters,
+	)
+
+	if err != nil {
+		return scanner, err
+	}
+
+	return func(
+		ctx context.Context,
+		name string,
+		state llb.State,
+		deps map[string]llb.State,
+		opts ...llb.ConstraintsOpt,
+	) (result.Attestation[*llb.State], error) {
+		filteredDeps := map[string]llb.State{}
+		scanRefs := targetSBOM.ScanChainRefMap()
+
+		for ref, depState := range deps {
+			if targetSBOM.ScanAll() || scanRefs[ref] {
+				filteredDeps[ref] = depState
+			}
+		}
+
+		return scanner(ctx, name, state, filteredDeps, opts...)
+	}, nil
 }
 
 func (gw *Gateway) ignoreCache() bool {
