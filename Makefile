@@ -2,6 +2,8 @@
 
 TAG ?= $(shell git describe --tags --abbrev=0)
 REPO ?= marxarelli/masse
+IMAGE_NAME := $(REPO):$(TAG)
+IMAGE_BUILD_OUTPUT := --output type=oci,name=$(IMAGE_NAME)
 
 MODULE := $(shell go list -m)
 GOBUILD_FLAGS := -ldflags "-X $(MODULE)/schema.Tag=$(TAG)"
@@ -25,7 +27,8 @@ define buildx_build
 		--file .pipeline/masse.cue \
 		--target gateway \
 		--build-arg PARAMETER_version='"$(TAG)"' \
-		--tag $(REPO):$(TAG) \
+		--tag $(IMAGE_NAME) \
+		--attest type=provenance,mode=max \
 		$(BUILDX_BUILD_FLAGS) \
 		$(1) \
 		.
@@ -51,8 +54,10 @@ clean:
 
 .PHONY: image
 image:
-	$(call buildx_build,"--load")
+	mkdir -p build/gateway
+	$(call buildx_build,$(IMAGE_BUILD_OUTPUT)) | tar -C build/gateway -xf -
+	jq . < build/gateway/index.json
 
 .PHONY: release
 release:
-	$(call buildx_build,"--push")
+	$(call buildx_build,--push)
