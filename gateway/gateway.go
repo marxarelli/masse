@@ -98,6 +98,23 @@ func (gw *Gateway) Run() (*client.Result, error) {
 				v1compiler.WithPlatform(targetPlatform),
 				v1compiler.WithContext(ctx),
 				v1compiler.WithIgnoreCache(gw.ignoreCache()),
+				v1compiler.WithMainContextLoader(func(ctx context.Context, opts ...llb.LocalOption) (*llb.State, error) {
+					return gw.MainContext(ctx, opts...)
+				}),
+				v1compiler.WithNamedContextLoader(func(ctx context.Context, name string, opts ...llb.LocalOption) (*llb.State, error) {
+					contextOpt := dockerui.ContextOpt{
+						AsyncLocalOpts: func() []llb.LocalOption { return opts },
+						Platform:       platform,
+						ResolveMode:    resolveModeName(gw.ImageResolveMode),
+					}
+					namedContext, err := gw.NamedContext(name, contextOpt)
+					if err != nil {
+						return nil, err
+					}
+
+					state, _, err := namedContext.Load(ctx)
+					return state, err
+				}),
 			)
 
 			// Compile to LLB state

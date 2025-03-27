@@ -19,10 +19,12 @@ func (f compilerOption) SetCompilerOption(cfg *Config) {
 }
 
 type Config struct {
-	ImageMetaResolver llb.ImageMetaResolver
-	InitialContext    context.Context
-	Platform          *Platform
-	IgnoreCache       bool
+	ImageMetaResolver  llb.ImageMetaResolver
+	InitialContext     context.Context
+	Platform           *Platform
+	IgnoreCache        bool
+	NamedContextLoader NamedContextLoader
+	MainContextLoader  MainContextLoader
 }
 
 func (cfg *Config) OpConstraints() Constraints {

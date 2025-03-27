@@ -9,17 +9,19 @@ import (
 type StateKind string
 
 const (
-	ScratchKind StateKind = "scratch"
-	ExtendKind            = "extend"
-	ImageKind             = "image"
-	GitKind               = "git"
-	LocalKind             = "local"
-	RunKind               = "run"
-	FileKind              = "file"
-	MergeKind             = "merge"
-	DiffKind              = "diff"
-	OpsKind               = "ops"
-	WithKind              = "with"
+	ScratchKind     StateKind = "scratch"
+	ExtendKind                = "extend"
+	ContextKind               = "context"
+	MainContextKind           = "mainContext"
+	ImageKind                 = "image"
+	GitKind                   = "git"
+	LocalKind                 = "local"
+	RunKind                   = "run"
+	FileKind                  = "file"
+	MergeKind                 = "merge"
+	DiffKind                  = "diff"
+	OpsKind                   = "ops"
+	WithKind                  = "with"
 )
 
 func (c *compiler) compileState(state llb.State, v cue.Value) (llb.State, error) {
@@ -44,6 +46,10 @@ func (c *compiler) compileDispatchStateKind(kind StateKind, state llb.State, v c
 		state = llb.Scratch()
 	case ExtendKind:
 		state, err = c.compileExtend(state, v)
+	case ContextKind:
+		state, err = c.compileContext(state, v)
+	case MainContextKind:
+		state, err = c.compileMainContext(state, v)
 	case ImageKind:
 		state, err = c.compileImage(state, v)
 	case GitKind:

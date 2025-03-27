@@ -22,6 +22,10 @@ func (c *compiler) compileChain(v cue.Value) (llb.State, error) {
 			return state, nil
 		}
 
+		if v.Kind() != cue.ListKind {
+			return c.compileState(state, v)
+		}
+
 		list, err := v.List()
 		if err != nil {
 			return state, vError(v, err)
