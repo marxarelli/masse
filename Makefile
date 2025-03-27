@@ -59,4 +59,4 @@ image:
 
 .PHONY: release
 release:
-	$(call buildx_build,--push)
+	$(call buildx_build,--attest type=sbom --push)
