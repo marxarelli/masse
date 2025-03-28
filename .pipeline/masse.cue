@@ -1,4 +1,4 @@
-// syntax=marxarelli/masse:v1.5.0
+// syntax=marxarelli/masse:v1.6.0
 package main
 
 import (
@@ -10,12 +10,15 @@ masse.Config
 
 parameters: {
 	goImage: string | *"docker-registry.wikimedia.org/golang1.22:1.22-20250316"
-	version: string | *"v0.0.0"
+	tag: string | *"v0.0.0"
 }
 
 chains: {
 	projectFiles: [
-		{ local: "context", options: exclude: [".git"] },
+		{
+			mainContext: true,
+			options: exclude: [".git", "bin", "build", "massed", "masse"]
+		}
 	]
 
 	goImage: [
@@ -41,7 +44,7 @@ chains: {
 
 	massed: [
 		{ extend: "build" },
-		go.build & { #packages: "./cmd/massed" },
+		go.build & { #command: "make TAG=\(parameters.tag)", #packages: "bin/massed" },
 	]
 
 	gateway: [
@@ -49,7 +52,7 @@ chains: {
 		{
 			file: [
 				{
-					copy: "/src/massed"
+					copy: "/src/bin/massed"
 					destination: "/massed"
 					from: "massed"
 				},

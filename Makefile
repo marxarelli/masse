@@ -25,7 +25,7 @@ define buildx_build
 		--secret id=auth,env=REGISTRY_AUTH \
 		--file .pipeline/masse.cue \
 		--target gateway \
-		--build-arg PARAMETER_version='"$(TAG)"' \
+		--build-arg masse:parameter:tag='"$(TAG)"' \
 		--tag $(IMAGE_NAME) \
 		--attest type=provenance,mode=max \
 		$(BUILDX_BUILD_FLAGS) \
@@ -33,9 +33,9 @@ define buildx_build
 		.
 endef
 
-all: masse massed
-masse massed:
-	CGO_ENABLED=0 go build $(GOBUILD_FLAGS) ./cmd/$@
+all: bin/masse bin/massed
+bin/masse bin/massed:
+	CGO_ENABLED=0 go build $(GOBUILD_FLAGS) -o $@ ./cmd/$(notdir $@)
 
 .PHONY: test
 test:
@@ -49,7 +49,8 @@ debug-test:
 
 .PHONY: clean
 clean:
-	rm -f masse massed
+	rm -f masse massed bin/*
+	rm -rf build/*
 
 .PHONY: image
 image:
