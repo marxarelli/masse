@@ -6,11 +6,11 @@ source: {
 	kind: "self"
 }
 deps: {
-	"github.com/marxarelli/masse@v1": {
-		v: "v1.7.0"
-		default: true
+	"github.com/marxarelli/masse-go@v2": {
+		v: "v2.0.0"
 	}
-	"github.com/marxarelli/masse-go@v1": {
-		v: "v1.0.3"
+	"github.com/marxarelli/masse@v1": {
+		v:       "v1.7.0"
+		default: true
 	}
 }

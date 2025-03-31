@@ -44,7 +44,7 @@ chains: {
 
 	massed: [
 		{ extend: "build" },
-		go.build & { #command: "make TAG=\(parameters.tag)", #packages: "bin/massed" },
+		go.build.sh & { #command: "make TAG=\(parameters.tag)", #arguments: "bin/massed" },
 	]
 
 	gateway: [
