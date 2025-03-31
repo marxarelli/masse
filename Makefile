@@ -61,3 +61,7 @@ image:
 .PHONY: release
 release:
 	$(call buildx_build,--attest type=sbom --push)
+
+.PHONY: publish-schema
+publish-schema:
+	cd schema && cue mod publish $(TAG)
