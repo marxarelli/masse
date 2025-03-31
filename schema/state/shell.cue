@@ -8,8 +8,8 @@ import (
 
 #Shell: {
 	sh!:        string
-	arguments?: string | [string, ...string]
-	options?:   #RunOption | [#RunOption, ...#RunOption]
+	arguments?: string | [string, ...string] | *[]
+	options?:   #RunOption | [#RunOption, ...#RunOption] | *[]
 
 	let $arguments = list.FlattenN([*arguments | []], 1)
 	let $options = list.FlattenN([*options | []], 1)
