@@ -10,7 +10,7 @@ deps: {
 		v: "v2.0.0"
 	}
 	"github.com/marxarelli/masse@v1": {
-		v:       "v1.7.0"
+		v:       "v1.8.0"
 		default: true
 	}
 }
