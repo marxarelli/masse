@@ -12,6 +12,8 @@ func (c *compiler) compileWith(state llb.State, v cue.Value) (llb.State, error) 
 		return state, vError(v, err)
 	}
 
+	options.SetCompiler(c)
+
 	for _, option := range options {
 		state = option.StateOption()(state)
 	}
@@ -24,6 +26,12 @@ type StateOption interface {
 }
 
 type Options []*Option
+
+func (opts Options) SetCompiler(c *compiler) {
+	for _, opt := range opts {
+		opt.SetCompiler(c)
+	}
+}
 
 func (opts Options) StateOption() llb.StateOption {
 	return func(state llb.State) llb.State {
@@ -42,6 +50,10 @@ func (opts Options) SetRunOption(info *llb.ExecInfo) {
 type Option struct {
 	*Env
 	*WorkingDirectory
+}
+
+func (opt *Option) SetCompiler(c *compiler) {
+	withOneOf(opt, func(subc subcompiler) { subc.SetCompiler(c) })
 }
 
 func (opt *Option) StateOption() llb.StateOption {

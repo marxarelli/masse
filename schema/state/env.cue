@@ -6,4 +6,5 @@ import (
 
 #Env: {
 	env!: common.#Env
+	expandVariables: bool | *false
 }
