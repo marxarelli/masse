@@ -3,7 +3,7 @@ module gitlab.wikimedia.org/dduvall/masse
 go 1.23.5
 
 require (
-	cuelang.org/go v0.13.0-alpha.1.0.20250324111431-1eccc4649d73
+	cuelang.org/go v0.13.0-alpha.4.0.20250425110700-a7e97fec807b
 	github.com/containerd/containerd v1.7.23
 	github.com/moby/buildkit v0.20.0-rc2.0.20250319041228-5efd380c4a81
 	github.com/moby/docker-image-spec v1.3.1
@@ -13,6 +13,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/urfave/cli/v2 v2.27.5
 	gitlab.wikimedia.org/repos/releng/llbtest v0.0.2
+	golang.org/x/sync v0.13.0
 )
 
 require (
@@ -63,7 +64,7 @@ require (
 	github.com/moby/sys/signal v0.7.1 // indirect
 	github.com/moby/sys/user v0.3.0 // indirect
 	github.com/moby/sys/userns v0.1.0 // indirect
-	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
+	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/protocolbuffers/txtpbfmt v0.0.0-20250129171521-feedd8250727 // indirect
@@ -86,13 +87,12 @@ require (
 	go.opentelemetry.io/otel/sdk v1.31.0 // indirect
 	go.opentelemetry.io/otel/trace v1.31.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.3.1 // indirect
-	golang.org/x/crypto v0.33.0 // indirect
-	golang.org/x/mod v0.23.0 // indirect
-	golang.org/x/net v0.35.0 // indirect
-	golang.org/x/oauth2 v0.27.0 // indirect
-	golang.org/x/sync v0.11.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
-	golang.org/x/text v0.22.0 // indirect
+	golang.org/x/crypto v0.37.0 // indirect
+	golang.org/x/mod v0.24.0 // indirect
+	golang.org/x/net v0.39.0 // indirect
+	golang.org/x/oauth2 v0.29.0 // indirect
+	golang.org/x/sys v0.32.0 // indirect
+	golang.org/x/text v0.24.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20241021214115-324edc3d5d38 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241021214115-324edc3d5d38 // indirect
 	google.golang.org/grpc v1.69.4 // indirect
