@@ -2,50 +2,182 @@
 
 ![masse logo](./assets/masse-256.png)
 
-Massé is [BuildKit][buildkit] frontend that allows users to express complex
-container image build graphs in [CUE][cue]. It aims to:
+Massé is a [BuildKit frontend][buildkit-frontend] that allows users to express
+complex container image build graphs in [CUE][cue]. It:
 
- 1. Give users compact yet powerful declarative constructs to express how
-    their container filesystems should be created, composed, and packaged.
- 2. Provide composable build primitives based on (nearly) all operations
-    and options in the BuildKit LLB API.
- 3. Provide an API for users to define new build constructs (macros, e.g.) on
-    top of build primitives.
- 4. Provide a policy API for operators to assert arbitrary conditions on the
-    [Low Level Build][llb] instructions prior to actual building (e.g. base
-    images must come from certain registries).
- 5. Formally separate container filesystem creation from image configuration.
- 6. Give users a simple API for composing manifests from built filesystems and
-    configuration.
- 7. Support creation of manifests that contain only arbitrary meta data (e.g.
-    Software Bill of Materials (SBoMs) or [attestations][in-toto-spec]).
- 8. Support dynamic generation of build instructions, configuration, and
-    manifest definitions via a pattern of intermediate solving. (TODO: wth
-    does this mean)
+ 1. Provides simple constructs for expressing how container images should be
+    created, composed, and packaged.
+ 2. Provides composable build primitives based on BuildKit's [Low Level Build][llb]
+    (LLB) API.
+ 3. Allows users to author and share their own reusable build definitions as
+    [CUE][cue] modules.
+ 4. Supports multi-platform build targets.
+ 5. Supports Software Bill of Materials (SBOM) and provenance metadata.
 
 ## Based on CUE
 
-The schema and user defined configuration will be written in [CUE][cue], an
-"open-source data validation language and inference engine with its roots in
-logic programming."
+The schema and user defined configuration is [CUE][cue], an "open-source data
+validation language and inference engine with its roots in logic programming."
 
 As a JSON superset, CUE has nearly the same compactness of YAML but is a very
 powerful language for schema definition, validation/constraints, and user
 facing configuration. With CUE we can support composable user defined types
-and module imports. It's constructs are rich and coherent.
+and module imports.
 
-See [schema/apt/install.cue](./schema/apt/install.cue) for an example of what
-an `apt install` definition looks like.
+## Requirements
 
-## Example config
+Massé requires:
 
-To skip straight to what a build configuration looks like in Massé, see
-Massé's own [.pipeline/masse.cue](./.pipeline/masse.cue) file which can be
-used to build the BuildKit frontend image.
+ 1. `buildkitd`
+ 2. A BuildKit client (`docker buildx`)
+
+### `buildkitd`
+
+Massé is a [BuildKit frontend][buildkit-frontend] and so it requires
+`buildkitd` to be running and accessible. There are a few different ways to
+make that happen.
+
+#### Run `docker.io/moby/buildkit` yourself (recommended)
+
+Because of some caveats with the Docker Engine option below, I recommend just
+running `buildkitd` yourself. It's easy to do via either Docker or Podman.
+
+Note that `buildkitd` must be run in privileged mode due its own
+containerization of build-time processes. In a sense, you give it privileged
+access so it can isolate its own worker processes.
+
+```console
+$ docker run -d --name buildkitd -p 1234:1234 --privileged \
+  docker.io/moby/buildkit:latest --addr tcp://0.0.0.0:1234
+```
+
+#### Using Docker Engine
+
+Docker Engine ships with a `buildkitd` embedded and uses it as the default
+builder since version 23.0. If you have a recent version of Docker, you don't
+have to install anything extra. Simply make sure that the following command
+lists a `default` builder.
+
+```console
+$ docker buildx ls
+NAME/NODE        DRIVER/ENDPOINT          STATUS    BUILDKIT   PLATFORMS
+default          docker
+ \_ default       \_ default              running   v0.21.0    linux/amd64 (+3), linux/386
+```
+
+However, there is a caveat. Some BuildKit features (such as the `merge` op)
+require Docker Engine to be using the `containerd` image store which is not
+enabled by default. To continue with this option, enable the `containerd`
+image store by following [the documentation][docker-engine-containerd].
+
+If you're using Docker Desktop, the documentation is
+[here][docker-desktop-containerd].
+
+### A BuildKit client
+
+I am considering whether it makes sense for Massé to have its own CLI for
+building (and other housekeeping tasks), but for now I recommend just using
+`docker buildx` (yes, even if you're running `buildkitd` via Podman) since it
+is the canonical BuildKit client.
+
+Ensure your `buildkitd` is available for use by `docker buildx`.
+
+```console
+$ docker buildx create --driver remote --name buildkitd --use tcp://0.0.0.0:1234
+buildkitd
+$ docker buildx ls
+NAME/NODE        DRIVER/ENDPOINT          STATUS    BUILDKIT   PLATFORMS
+buildkitd*       remote
+ \_ buildkitd0    \_ tcp://0.0.0.0:1234   running   v0.22.0    linux/amd64 (+3), linux/386
+```
+
+## Usage
+
+You'll invoke Massé builds using `docker buildx build`. The basic workflow
+looks like this.
+
+ 1. Create a new project or switch to an existing one.
+ 2. Write a build configuration file (e.g. `masse.cue`).
+ 3. Include a `cue.mod/module.cue` file relative to your config for Massé
+    schema and module dependencies.
+ 4. Run `docker buildx build -f masse.cue --target {target} .` to build a
+    target image.
+
+## Examples
+
+### Basic contrived example
+
+Given a `cue.mod/module.cue` file like this...
+
+```cue
+module: "masse.example"
+language: {
+  version: "v0.13.0"
+}
+deps: {
+  "github.com/marxarelli/masse@v1": {
+    v:       "v1.8.0"
+  }
+}
+```
+
+...and a `masse.cue` file like this...
+
+```cue
+// syntax=marxarelli/masse:v1.8.0
+package main
+
+import (
+  "github.com/marxarelli/masse"
+)
+
+masse.Config
+
+chains: {
+  hello: [
+    { scratch: true },
+    { file: { mkfile: "/hi", content: 'hello world\n' } }
+  ]
+}
+
+targets: {
+  hello: {
+    build: "hello"
+  }
+}
+```
+
+Running the following will build a new image for the `hello` target and output
+its contents to the given directory `./build`.
+
+```console
+$ docker buildx build -f masse.cue --target hello --output ./build .
+[+] Building 1.0s (6/6) FINISHED                                 docker:default
+ => [internal] load build definition from masse.cue                        0.0s
+ => => transferring dockerfile: 300B                                       0.0s
+ => resolve image config for docker-image://docker.io/marxarelli/masse:v1  0.4s
+ => CACHED docker-image://docker.io/marxarelli/masse:v1.8.0@sha256:237f01  0.0s
+ => [internal] load build definition from masse.cue                        0.0s
+ => => transferring dockerfile: 513B                                       0.0s
+ => mkfile /hi                                                             0.0s
+ => exporting to client directory                                          0.0s
+ => => copying files 37B                                                   0.0s
+$ cat ./build/hi
+hello world
+```
+
+### More examples
+
+See the [examples](./examples) directory for more basic examples.
+
+### Real world examples
+
+See Massé's own [.pipeline](./.pipeline) directory for a real world example of
+how its BuildKit frontend gateway image is defined and built.
 
 ```console
 $ docker buildx build -f .pipeline/masse.cue --target gateway .
-[+] Building 27.2s (9/9) FINISHED                              remote:buildkitd
+[+] Building 27.2s (9/9) FINISHED                              docker:default
  => [internal] load build definition from masse.cue                        0.1s
  => => transferring dockerfile: 1.44kB                                     0.0s
  => resolve image config for docker-image://docker.io/marxarelli/masse:v0  1.2s
@@ -69,7 +201,9 @@ $ docker buildx build -f .pipeline/masse.cue --target gateway .
  => 📦 package masse gateway w/ CA certificates                             0.1s
 ```
 
-## Build chains
+## Concepts
+
+### Build chains
 
 Build processes are defined as independent chains of the overall build graph.
 This is meant to strike a balance between flexibility in graph node definition
@@ -109,7 +243,7 @@ As you can see with `{ merge ["source", "toolchain"] }` and `{ copy: ".",
 from: "source"}` above, dependency chains are referenced by name. Chain
 references are resolved during compilation.
 
-## Macros
+### Macros
 
 We can combine CUE's [definition][cue-defs] and [embedding][cue-embeds]
 constructs to support a standard library and user-defined macros.
@@ -164,7 +298,7 @@ chains:
   ]
 ```
 
-## Modules
+### Modules
 
 Massé supports CUE module dependencies and will automatically load modules
 from remote OCI registries when reading in your config.
@@ -218,12 +352,10 @@ details on how to use this environment variable.
 
 ### Registry authentication
 
-Some registries, including the default `registry.cue.works`, require
-authentication even for fetching.
-
-To use such registries, you must provide credentials (typically in the form of
-a bearer token) via a BuildKit secret as well as a build argument telling
-Massé what the name of the secret is.
+Some registries require authentication. To use such registries, you must
+provide credentials (typically in the form of a bearer token) via a BuildKit
+secret as well as a build argument telling Massé what the name of the secret
+is.
 
 ```
 $ cue login
@@ -234,12 +366,13 @@ $ REGISTRY_AUTH="$(jq -r '.registries."registry.cue.works" | (.token_type + " " 
     -f examples/modules/masse.cue examples/modules
 ```
 
-The above command is admittedly quite cumbersome. Hopefully the CUE folks will
-enable anonymous read-only access to their registry at some point and this
-won't be necessary in most cases.
+Note that the above is no longer required for the CUE module registry at
+`registry.cue.works` as the CUE folks have enabled public access. However,
+authentication may still be desirable to avoid rate limiting.
 
 ## TODOs
 
+ * Write better user guides and reference documentation.
  * Organize macros into a stdlib and implement macros for most of
    [Blubber][blubber]'s higher level builder directives (npm, python, php,
    etc.).
@@ -256,14 +389,17 @@ won't be necessary in most cases.
 Massé is licensed under the GNU General Public License 3.0 or later
 (GPL-3.0+). See the LICENSE file for more details.
 
-[buildkit]: https://docs.docker.com/build/buildkit/
-[llb]: https://docs.docker.com/build/buildkit/#llb
-[in-toto-spec]: https://github.com/in-toto/docs/blob/master/in-toto-spec.md
-[oci]: https://github.com/opencontainers/image-spec
-[frontend]: https://docs.docker.com/build/dockerfile/frontend/
 [blubber]: https://gitlab.wikimedia.org/repos/releng/blubber
-[cue]: https://cuelang.org
+[buildkit-frontend]: https://docs.docker.com/build/buildkit/#frontend
+[buildkit]: https://docs.docker.com/build/buildkit/
 [cue-defs]: https://cuelang.org/docs/references/spec/#definitions-and-hidden-fields
 [cue-embeds]: https://cuelang.org/docs/references/spec/#embedding
+[cue]: https://cuelang.org
 [cue-mod-file]: https://cuelang.org/docs/reference/modules/#cue-mod-file
 [cue-mod-registry-env]: https://cuelang.org/docs/reference/modules/#cue-registry-env
+[docker-desktop-containerd]: https://docs.docker.com/desktop/features/containerd/
+[docker-engine-containerd]: https://docs.docker.com/engine/storage/containerd/
+[frontend]: https://docs.docker.com/build/dockerfile/frontend/
+[in-toto-spec]: https://github.com/in-toto/docs/blob/master/in-toto-spec.md
+[llb]: https://docs.docker.com/build/buildkit/#llb
+[oci]: https://github.com/opencontainers/image-spec

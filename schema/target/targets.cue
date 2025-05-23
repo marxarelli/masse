@@ -21,7 +21,7 @@ import (
 	platforms: #TargetPlatforms | *["linux/amd64"]
 	labels:    common.#Labels                        | *null
 	runtime:   {
-		user:       #Runtime.user       | *"root"
+		user:       #Runtime.user       | *"0"
 		env:        #Runtime.env        | *null
 		entrypoint: #Runtime.entrypoint | *null
 		arguments:  #Runtime.arguments  | *null
