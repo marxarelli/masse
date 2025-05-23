@@ -11,9 +11,6 @@ PACKAGE ?= ./...
 PACKAGE_BASENAME := $(shell basename $(PACKAGE))
 GOTEST_FLAGS ?=
 
-REGISTRY_AUTH = $(shell jq -r '.registries."registry.cue.works" | (.token_type + " " + .access_token)' ~/.config/cue/logins.json)
-export REGISTRY_AUTH
-
 # Compile without optimizations (when debugging)
 GOBUILD_DEBUG_FLAGS := -gcflags "all=-N -l"
 
@@ -21,8 +18,6 @@ BUILDX_BUILD_FLAGS ?=
 
 define buildx_build
 	docker buildx build \
-		--build-arg CUE_REGISTRY_AUTH_SECRET.registry.cue.works=auth \
-		--secret id=auth,env=REGISTRY_AUTH \
 		--file .pipeline/masse.cue \
 		--target gateway \
 		--build-arg masse:parameter:tag='"$(TAG)"' \
