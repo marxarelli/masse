@@ -20,7 +20,7 @@ func WithModFileBytes(data []byte) Option {
 
 func WithModFile(modFile *modfile.File) Option {
 	return func(dir string, cfg *load.Config, modcfg *modconfig.Config) error {
-		data, err := modFile.Format()
+		data, err := modfile.Format(modFile)
 		if err != nil {
 			return err
 		}
