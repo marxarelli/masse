@@ -115,3 +115,119 @@ targets: {
 		sbom.Generator,
 	)
 }
+
+func BenchmarkLoadWithStringReferences(b *testing.B) {
+	dir := b.TempDir()
+	for i := 0; i < b.N; i++ {
+
+		Load(
+			filepath.Join(dir, "masse.cue"),
+			[]byte(`
+package main
+
+import (
+	"github.com/marxarelli/masse"
+)
+
+masse.Config
+
+buildDir: "/usr/src"
+
+chains: {
+	project: mainContext: true
+
+	builder: [
+		{ image: "golang:1.23" },
+		{ with: directory: buildDir },
+	]
+
+	modules: [
+		{ extend: "builder" },
+		{ copy: ["go.mod", "go.sum"], from: "project" },
+		{ diff: sh: "go mod download" },
+	]
+
+	binaries: [
+		{ merge: ["builder", "modules"] },
+		{ sh: "go build -o /cowsayd", options: [
+			{ mount: buildDir, from: "project" },
+		] },
+	]
+
+	cowsayd: [
+		{ scratch: true },
+		{ copy: "/cowsayd", from: "binaries" },
+	]
+}
+
+targets: {
+	service: {
+		build: "cowsayd"
+	}
+}
+			`),
+			map[string]string{
+				"ref": `"refs/tags/v1.0"`,
+			},
+			load.WithDefaultEmbeddedModFile(),
+		)
+	}
+}
+
+func BenchmarkLoadWithCUEReferences(b *testing.B) {
+	dir := b.TempDir()
+	for i := 0; i < b.N; i++ {
+
+		Load(
+			filepath.Join(dir, "masse.cue"),
+			[]byte(`
+package main
+
+import (
+	"github.com/marxarelli/masse"
+)
+
+masse.Config
+
+buildDir: "/usr/src"
+
+chains: {
+	project: mainContext: true
+
+	builder: [
+		{ image: "golang:1.23" },
+		{ with: directory: buildDir },
+	]
+
+	modules: [
+		{ extend: "builder" },
+		{ copy: ["go.mod", "go.sum"], from: project },
+		{ diff: sh: "go mod download" },
+	]
+
+	binaries: [
+		{ merge: ["builder", "modules"] },
+		{ sh: "go build -o /cowsayd", options: [
+			{ mount: buildDir, from: project },
+		] },
+	]
+
+	cowsayd: [
+		{ scratch: true },
+		{ copy: "/cowsayd", from: binaries },
+	]
+}
+
+targets: {
+	service: {
+		build: chains.cowsayd
+	}
+}
+			`),
+			map[string]string{
+				"ref": `"refs/tags/v1.0"`,
+			},
+			load.WithDefaultEmbeddedModFile(),
+		)
+	}
+}
