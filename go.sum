@@ -1,8 +1,8 @@
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 cuelabs.dev/go/oci/ociregistry v0.0.0-20250304105642-27e071d2c9b1 h1:Dmbd5Q+ENb2C6carvwrMsrOUwJ9X9qfL5JdW32gYAHo=
 cuelabs.dev/go/oci/ociregistry v0.0.0-20250304105642-27e071d2c9b1/go.mod h1:dqrnoZx62xbOZr11giMPrWbhlaV8euHwciXZEy3baT8=
-cuelang.org/go v0.13.0-alpha.4.0.20250425110700-a7e97fec807b h1:MOIe9OeYuAdvhXYB6NhYV0CxzAcH3F71dIiaGmtYSAs=
-cuelang.org/go v0.13.0-alpha.4.0.20250425110700-a7e97fec807b/go.mod h1:kA/8D9/d32IBp2lISWo90BEJhLyS9tqBcvqw2QAEhEg=
+cuelang.org/go v0.14.0-0.dev.0.20250522165400-9eb4c14a2a3a h1:2y1Fz0sJ7ufhXaMi+yvye7ch+rVVDUg1yqhCHCpksCU=
+cuelang.org/go v0.14.0-0.dev.0.20250522165400-9eb4c14a2a3a/go.mod h1:8MoQXu+RcXsa2s9mebJN1HJ1orVDc9aI9/yKi6Dzsi4=
 github.com/AdaLogics/go-fuzz-headers v0.0.0-20240806141605-e8a1dd7889d6 h1:He8afgbRMd7mFxO99hRNu+6tazq8nFF9lIwo9JFroBk=
 github.com/AdaLogics/go-fuzz-headers v0.0.0-20240806141605-e8a1dd7889d6/go.mod h1:8o94RPi1/7XTJvwPpRSzSUedZrtlirdB3r9Z20bi2f8=
 github.com/AdamKorcz/go-118-fuzz-build v0.0.0-20231105174938-2b5cbb29f3e2 h1:dIScnXFlF784X79oi7MzVT6GWqr/W1uUt0pB5CsDs9M=

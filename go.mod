@@ -3,7 +3,7 @@ module gitlab.wikimedia.org/dduvall/masse
 go 1.23.5
 
 require (
-	cuelang.org/go v0.13.0-alpha.4.0.20250425110700-a7e97fec807b
+	cuelang.org/go v0.14.0-0.dev.0.20250522165400-9eb4c14a2a3a
 	github.com/containerd/containerd v1.7.23
 	github.com/moby/buildkit v0.20.0-rc2.0.20250319041228-5efd380c4a81
 	github.com/moby/docker-image-spec v1.3.1
