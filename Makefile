@@ -32,6 +32,10 @@ all: bin/masse bin/massed
 bin/masse bin/massed:
 	CGO_ENABLED=0 go build $(GOBUILD_FLAGS) -o $@ ./cmd/$(notdir $@)
 
+.PHONY: benchmark
+benchmark:
+	go test -bench=. $(GOBUILD_FLAGS) $(GOTEST_FLAGS) $(PACKAGE)
+
 .PHONY: test
 test:
 	go test $(GOBUILD_FLAGS) $(GOTEST_FLAGS) $(PACKAGE)
