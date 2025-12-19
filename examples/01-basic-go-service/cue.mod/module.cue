@@ -4,7 +4,7 @@ language: {
 }
 deps: {
 	"github.com/marxarelli/masse@v1": {
-		v:       "v1.9.0"
+		v:       "v1.10.0"
 		default: true
 	}
 }

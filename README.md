@@ -124,7 +124,7 @@ deps: {
 ...and a `masse.cue` file like this...
 
 ```cue
-// syntax=marxarelli/masse:v1.9.0
+// syntax=marxarelli/masse:v1.10.0
 package main
 
 import (
@@ -156,7 +156,7 @@ $ docker buildx build -f masse.cue --target hello --output ./build .
  => [internal] load build definition from masse.cue                        0.0s
  => => transferring dockerfile: 300B                                       0.0s
  => resolve image config for docker-image://docker.io/marxarelli/masse:v1  0.4s
- => CACHED docker-image://docker.io/marxarelli/masse:v1.9.0@sha256:237f01  0.0s
+ => CACHED docker-image://docker.io/marxarelli/masse:v1.10.0@sha256:237f01  0.0s
  => [internal] load build definition from masse.cue                        0.0s
  => => transferring dockerfile: 513B                                       0.0s
  => mkfile /hi                                                             0.0s
