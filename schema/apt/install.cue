@@ -13,7 +13,7 @@ import (
 install: {
 	#packages: [#Package, ...#Package]
 	{
-		sh: "apt-get install -y"
+		sh: "apt-cache update && apt-get install -y"
 		arguments: #packages
 		options: [
 			{ env: { "DEBIAN_FRONTEND": "noninteractive" } },
