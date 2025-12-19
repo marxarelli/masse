@@ -9,7 +9,7 @@ import (
 masse.Config
 
 parameters: {
-	goImage: string | *"docker-registry.wikimedia.org/golang1.22:1.22-20250316"
+	goImage: string | *"docker-registry.wikimedia.org/golang1.24:1.24-20251214"
 	tag: string | *"v0.0.0"
 }
 
