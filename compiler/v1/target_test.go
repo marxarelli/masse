@@ -27,7 +27,7 @@ func TestTarget(t *testing.T) {
 		testcompile.WithCompileFunc(func(test *testcompile.Test) (llb.State, error) {
 			target := &target.Target{}
 
-			err := target.UnmarshalCUE(test.Value)
+			err := test.Value.Decode(target)
 			if err != nil {
 				return test.State, err
 			}

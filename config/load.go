@@ -17,12 +17,8 @@ func Load(path string, data []byte, parameters map[string]string, options ...loa
 		return nil, err
 	}
 
-	if val.Err() != nil {
-		return nil, val.Err()
-	}
-
 	root := &Root{}
-	return root, root.UnmarshalCUE(val)
+	return root, val.Decode(root)
 }
 
 // LoadCUE loads the given configuration and returns the root cue.Value.

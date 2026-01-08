@@ -18,11 +18,6 @@ type Target struct {
 	Attestations Attestations      `json:"attestations"`
 }
 
-// UnmarshalCUE parses the given cue.Value into the target.
-func (target *Target) UnmarshalCUE(v cue.Value) error {
-	return v.Decode(target)
-}
-
 // NewImage returns the target as a new [oci.Image] for the given platform.
 func (target *Target) NewImage(platform common.Platform) oci.Image {
 	now := time.Now()
