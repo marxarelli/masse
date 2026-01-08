@@ -5,7 +5,7 @@ go 1.24.0
 toolchain go1.24.7
 
 require (
-	cuelang.org/go v0.16.0-0.dev.0.20260108171041-781e23bd42aa
+	cuelang.org/go v0.16.0-0.dev.0.20260108172537-eaaba8b6ffb3
 	github.com/containerd/containerd v1.7.23
 	github.com/moby/buildkit v0.20.0-rc2.0.20250319041228-5efd380c4a81
 	github.com/moby/docker-image-spec v1.3.1
